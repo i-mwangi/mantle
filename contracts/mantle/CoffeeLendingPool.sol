@@ -4,18 +4,6 @@ pragma solidity 0.8.29;
 import "./tokens/LPToken.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-/**
- * @title CoffeeLendingPool
- * @notice Lending pool for coffee tree tokens
- * @dev Migrated from Hedera HTS to standard ERC-20
- * 
- * KEY CHANGES:
- * - Removed all HTS imports and calls
- * - Use standard ERC-20 transfer/transferFrom
- * - Deploy LPToken as ERC-20 contract
- * - Removed HederaResponseCodes checks
- * - Simplified token association (not needed in EVM)
- */
 contract CoffeeLendingPool {
     
     address public admin;
