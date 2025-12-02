@@ -1,0 +1,248 @@
+# Dependencies
+node_modules/
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+.out/
+
+# Database
+local-store/
+**/sqlite.db
+**/*.mdb
+**/*.mdb-lock
+**/*.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+tmp/
+temp/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS generated files
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Vercel
+.vercel/
+
+# Turso
+.turso/
+
+# Wallet
+turso-db-snapshots/
+
+# Backup files
+*.bak
+*.backup
+
+# Temporary files
+*.tmp
+*.temp
+
+# Environment files 
+.env*
+!.env.example
+
+# Lock files 
+yarn.lock
+package-lock.json
+
+# Sensitive files
+*.pem
+*.key
+*.crt
+testnet-credentials.json
+shared.json
+
+# Debug files
+debug/
+*.debug
+
+# Docker
+.dockerignore
+
+# Cache directories
+.cache/
+.parcel-cache/
+vite.config.ts.timestamp-*
+
+
+# Test & Development Files
+
+
+# Test directories
+tests/
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js
+
+# Root test files
+test-*.mjs
+test-*.ts
+test-*.js
+check-*.mjs
+create-test-*.ts
+start-server.mjs
+loadIntoEnv.ts
+lookup-db.ts
+analyze-bundle.js
+optimize-images.js
+validate-js.js
+verify-vite-config.js
+transactions.json
+
+# Frontend test files
+frontend/test-*.html
+frontend/wallet-test.html
+frontend/wallet-modal-test.html
+frontend/notification-test.html
+frontend/modal-notification-test.html
+frontend/module-test.html
+frontend/import-test.html
+frontend/final-cdn-test.html
+frontend/hashconnect-setup.html
+frontend/debug-*.js
+frontend/check-*.js
+frontend/demo-helper.js
+frontend/simple-server.js
+frontend/temp-*.html
+frontend/tree-health-dashboard.html
+frontend/api-server.js
+
+# Backup files
+*.backup
+*.bak
+frontend/index.html.backup*
+frontend/index.html.bak
+frontend/*.backup
+frontend/*.bak
+
+
+# Test & Development Scripts 
+# Test scripts
+scripts/test-*.ts
+scripts/test-*.mjs
+scripts/test-*.js
+scripts/comprehensive-*.ts
+scripts/quick-*.ts
+
+# Check/validation scripts
+scripts/check-*.ts
+scripts/check-*.mjs
+scripts/validate-*.ts
+scripts/verify-*.ts
+scripts/verify-*.mjs
+
+# Fix/manual operation scripts
+scripts/fix-*.ts
+scripts/fix-*.mjs
+scripts/manual-*.ts
+scripts/manual-*.mjs
+scripts/manually-*.ts
+scripts/simple-*.ts
+
+# Database setup scripts 
+scripts/create-test-*.ts
+scripts/create-all-tables-turso.ts
+scripts/create-missing-tables.ts
+scripts/create-lending-tables.ts
+scripts/create-farmer-grove-balance.ts
+scripts/sync-*.ts
+scripts/push-*.ts
+
+# Token/transfer test scripts
+scripts/transfer-grove-*.ts
+scripts/transfer-grove-*.mjs
+scripts/transfer-tokens-*.ts
+scripts/transfer-tokens-*.mjs
+scripts/mint-usdc-*.mjs
+scripts/mint-usdc-*.ts
+scripts/create-platform-usdc.mjs
+scripts/create-lp-usdc-token.mjs
+
+# Schema modification scripts 
+scripts/add-*.ts
+scripts/initialize-*.ts
+scripts/list-*.ts
+scripts/enable-*.ts
+
+# Cleanup/utility scripts
+scripts/clean-*.mjs
+scripts/retry-*.mjs
+scripts/complete-*.mjs
+scripts/nuke-and-reload/
+scripts/*.cjs
+scripts/compile.sh
+scripts/test-*.md
+
+
+
+# Development servers
+api/dev-server.ts
+
+# Temporary directories
+temp/
+tmp/
+
+
+docs/
+.kiro/
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+SECURITY.md
+TOKENIZATION-QUICK-START.md
+LENDING-QUICK-START.md
+MARKETPLACE-QUICK-START.md
+QA-CHECKLIST.md
+RENDER_DEPLOYMENT.md
+TROUBLESHOOTING.md
+DEPLOYMENT_GUIDE.md
+*.md.bak
+*.md.backup
+
+# Internal demo/video scripts
+VIDEO-SCRIPT-PLATFORM-DEMO.md
+
+# User uploaded files
+uploads/
+!uploads/.gitkeep
+
+
+tsup.config.ts
+drizzle.config.ts
+drizzle-orm.d.ts
+
+
+
+.vercelignore
+vercel.json
+.renderignore
+render.dev.yaml
+render.staging.yaml
+
+remove-tracked-files.bat
+remove-tracked-files.sh
+remove-unnecessary-production-files.bat
+REMOVE-FROM-GITHUB.md
