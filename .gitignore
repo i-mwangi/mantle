@@ -246,3 +246,11 @@ remove-tracked-files.bat
 remove-tracked-files.sh
 remove-unnecessary-production-files.bat
 REMOVE-FROM-GITHUB.md
+
+
+# Deprecated Hedera contracts (migrated to Mantle)
+deprecated/
+
+# Hardhat artifacts
+cache/
+artifacts/

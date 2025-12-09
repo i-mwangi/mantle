@@ -18,8 +18,13 @@ module.exports = {
     hardhat: {
       chainId: 31337,
     },
+    mantleSepolia: {
+      url: process.env.MANTLE_RPC_URL || "https://rpc.sepolia.mantle.xyz",
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: 5003,
+    },
     mantleTestnet: {
-      url: process.env.MANTLE_RPC_URL || "https://rpc.testnet.mantle.xyz",
+      url: "https://rpc.testnet.mantle.xyz",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 5003,
     },
