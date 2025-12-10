@@ -1,41 +1,38 @@
 /**
- * Hedera Wallet Connect Integration
- * Main entry point
+ * MetaMask Wallet Integration
+ * Main entry point for Mantle Network
  */
 
 // Debug: Log when this file is loaded
-console.log('Loading wallet/index.js');
+console.log('Loading wallet/index.js (MetaMask)');
 
 // Import all modules
-import './config.js';
 import './state.js';
-import './connector.js';
-import './modal.js';
 import { walletManager } from './manager.js';
-import { hederaWallet } from './connector.js';
+import { metaMaskWallet } from './metamask-connector.js';
 import { walletState } from './state.js';
 
 // Export for use in other modules
 export { walletManager };
-export { hederaWallet };
+export { metaMaskWallet };
 export { walletState };
 
 // CRITICAL: Make wallet objects globally available
 window.walletManager = walletManager;
-window.hederaWallet = hederaWallet;
+window.metaMaskWallet = metaMaskWallet;
 window.walletState = walletState;
 
 console.log('✅ Wallet objects exposed globally:', {
   walletManager: window.walletManager,
-  hederaWallet: window.hederaWallet,
+  metaMaskWallet: window.metaMaskWallet,
   walletState: window.walletState
 });
 
 // Initialize on DOM ready or when called explicitly
 function initWallet() {
-  console.log('Initializing wallet...');
+  console.log('Initializing MetaMask wallet...');
   try {
-    console.log('🚀 Initializing Hedera Wallet Connect...');
+    console.log('🚀 Initializing MetaMask Wallet...');
     console.log('walletManager:', walletManager);
     
     // Check if walletManager is properly initialized
@@ -44,14 +41,13 @@ function initWallet() {
       return;
     }
     
-    // Debug: Check what global objects are available when initializing
-    console.log('=== Global Objects at Wallet Initialization ===');
-    const potentialObjects = ['HashgraphHederaWalletConnect', 'HederaWalletConnect', 'DAppConnector', 'HashgraphSdk', 'HederaSdk', 'AccountId', 'TransactionId', 'TransferTransaction', 'Hbar', 'HashConnect', 'hashconnect', 'Hashconnect'];
-    potentialObjects.forEach(objName => {
-      if (window[objName]) {
-        console.log(objName + ':', typeof window[objName]);
-      }
-    });
+    // Check if MetaMask is installed
+    if (!metaMaskWallet.isMetaMaskInstalled()) {
+      console.warn('⚠️ MetaMask is not installed');
+      console.log('Please install MetaMask: https://metamask.io/download/');
+    } else {
+      console.log('✅ MetaMask detected');
+    }
     
     // Log the wallet manager state before initialization
     console.log('Wallet manager state before init:', walletManager);

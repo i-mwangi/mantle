@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       target: 'es2020',
       commonjsOptions: {
-        include: [/@hashgraph/, /@walletconnect/, /@reown/, /node_modules/],
+        include: [/ethers/, /node_modules/],
         transformMixedEsModules: true,
       },
       rollupOptions: {
@@ -71,18 +71,11 @@ export default defineConfig(({ mode }) => {
     },
     optimizeDeps: {
       include: [
-        '@hashgraph/sdk',
-        '@hashgraph/hedera-wallet-connect',
-        '@walletconnect/sign-client',
-        '@walletconnect/universal-provider',
-        '@walletconnect/utils',
-        '@reown/appkit',
-        '@reown/appkit-core',
+        'ethers',
       ],
       esbuildOptions: {
         target: 'es2020',
       },
-      exclude: ['@hashgraph/sdk'], // Exclude from optimization to avoid circular deps
       force: true,
     },
     define: {

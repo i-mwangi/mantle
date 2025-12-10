@@ -9,10 +9,9 @@ import { walletState } from './state.js';
 export class WalletManager {
   constructor() {
     console.log('Creating WalletManager instance');
-    console.log('hederaWallet:', hederaWallet);
+    console.log('metaMaskWallet:', metaMaskWallet);
     console.log('walletState:', walletState);
     
-    this.modal = null;
     this.userType = null;
     
     // Subscribe to state changes
@@ -116,7 +115,7 @@ export class WalletManager {
    */
   async disconnect() {
     try {
-      await hederaWallet.disconnect();
+      await metaMaskWallet.disconnect();
       
       localStorage.removeItem('connectedAccount');
       localStorage.removeItem('userType');
@@ -206,13 +205,35 @@ export class WalletManager {
   /**
    * Send transaction
    */
-  async sendTransaction(recipientId, amount) {
+  async sendTransaction(to, amount) {
     try {
-      const result = await hederaWallet.signAndExecuteTransaction(recipientId, amount);
+      const result = await metaMaskWallet.sendTransaction(to, amount);
       this.showToast('Transaction sent successfully!', 'success');
       return result;
     } catch (error) {
       console.error('Transaction error:', error);
+      this.showToast('Transaction failed: ' + error.message, 'error');
+      throw error;
+    }
+  }
+
+  /**
+   * Call contract (read-only)
+   */
+  async callContract(contractAddress, abi, method, ...args) {
+    return await metaMaskWallet.callContract(contractAddress, abi, method, ...args);
+  }
+
+  /**
+   * Execute contract transaction (write)
+   */
+  async executeContract(contractAddress, abi, method, ...args) {
+    try {
+      const result = await metaMaskWallet.executeContract(contractAddress, abi, method, ...args);
+      this.showToast('Transaction confirmed!', 'success');
+      return result;
+    } catch (error) {
+      console.error('Contract execution error:', error);
       this.showToast('Transaction failed: ' + error.message, 'error');
       throw error;
     }
