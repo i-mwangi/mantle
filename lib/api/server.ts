@@ -110,9 +110,9 @@ interface EnhancedRequest extends IncomingMessage {
     query?: { [key: string]: string | string[] | undefined }
 }
 
-// Ensure HEDERA_NETWORK is respected if NETWORK is not set
-if (process.env.HEDERA_NETWORK && !process.env.NETWORK) {
-    process.env.NETWORK = process.env.HEDERA_NETWORK;
+// Default to testnet if NETWORK is not set
+if (!process.env.NETWORK) {
+    process.env.NETWORK = 'testnet';
 }
 
 // Create combined server
@@ -952,7 +952,7 @@ function createCoffeeTreePlatformServer(port: number = 3001) {
                     }
 
                     // For testnet only
-                    if (process.env.HEDERA_NETWORK !== 'testnet') {
+                    if (process.env.NETWORK !== 'testnet') {
                         sendError(res, 403, 'USDC airdrop only available on testnet')
                         return
                     }

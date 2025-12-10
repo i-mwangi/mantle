@@ -6,8 +6,5 @@
 import 'dotenv/config';
 import '../loadIntoEnv';
 
-// Handle JSON-formatted private keys from .env immediately after loading
-if (process.env.HEDERA_OPERATOR_KEY && process.env.HEDERA_OPERATOR_KEY.includes('{')) {
-    const keyObject = JSON.parse(process.env.HEDERA_OPERATOR_KEY);
-    process.env.HEDERA_OPERATOR_KEY = keyObject.privateKey;
-}
+// Environment setup for Mantle Network
+// Private key should be in PRIVATE_KEY environment variable
