@@ -87,10 +87,8 @@ function sendError(res: ServerResponse, statusCode: number, message: string) {
 
 // Validation functions
 function validateAddress(address: string): boolean {
-    // Accept either Ethereum-style 0x... addresses or Hedera account IDs like 0.0.123456
-    const eth = /^0x[a-fA-F0-9]{40}$/.test(address)
-    const hedera = /^\d+\.\d+\.\d+$/.test(address)
-    return eth || hedera
+    // Ethereum address format: 0x followed by 40 hex characters
+    return /^0x[a-fA-F0-9]{40}$/.test(address)
 }
 
 function validateCoordinates(coordinates: { lat: number, lng: number }): boolean {

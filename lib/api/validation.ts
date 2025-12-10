@@ -22,9 +22,9 @@ export function validateAccountIdParam(accountId: string, res: ServerResponse): 
     return false
   }
   
-  // Hedera account format: X.X.X where X is a number
-  const hederaAccountRegex = /^\d+\.\d+\.\d+$/
-  if (!hederaAccountRegex.test(accountId)) {
+  // Ethereum address format: 0x followed by 40 hex characters
+  const ethereumAddressRegex = /^0x[a-fA-F0-9]{40}$/
+  if (!ethereumAddressRegex.test(accountId)) {
     res.writeHead(400, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({
       success: false,

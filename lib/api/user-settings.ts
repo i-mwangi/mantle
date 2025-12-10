@@ -254,9 +254,9 @@ export function validateAccountId(accountId: string): boolean {
     return false
   }
   
-  // Hedera account format: X.X.X where X is a number
-  const hederaAccountRegex = /^\d+\.\d+\.\d+$/
-  return hederaAccountRegex.test(accountId)
+  // Ethereum address format: 0x followed by 40 hex characters
+  const ethereumAddressRegex = /^0x[a-fA-F0-9]{40}$/
+  return ethereumAddressRegex.test(accountId)
 }
 
 /**
