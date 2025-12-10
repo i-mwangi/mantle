@@ -3,9 +3,8 @@
  * Provides simple API for the rest of the app
  */
 
-import { hederaWallet } from './connector.js';
+import { metaMaskWallet } from './metamask-connector.js';
 import { walletState } from './state.js';
-import { WalletModal } from './modal.js';
 
 export class WalletManager {
   constructor() {
@@ -29,16 +28,10 @@ export class WalletManager {
     try {
       console.log('Initializing WalletManager...');
       
-      // Check for existing session
-      const existingSession = sessionStorage.getItem('hwcV1Session');
-      console.log('Existing session in storage:', existingSession);
-      
-      if (existingSession) {
-        console.log('Found existing session, initializing connector...');
-        await hederaWallet.init(true);
-      } else {
-        console.log('No existing session found, initializing connector...');
-        await hederaWallet.init(false);
+      // Check if MetaMask is already connected
+      if (metaMaskWallet.isMetaMaskInstalled() && window.ethereum.selectedAddress) {
+        console.log('MetaMask already connected, restoring session...');
+        await metaMaskWallet.connect();
       }
       
       // Load user type from localStorage
@@ -58,21 +51,24 @@ export class WalletManager {
    */
   async connect() {
     try {
-      this.showLoading('Connecting to wallet...');
+      this.showLoading('Connecting to MetaMask...');
       
-      // Ensure wallet is initialized before connecting
-      if (!hederaWallet.connector) {
-        console.log('⚠️ Wallet not initialized, initializing now...');
-        await hederaWallet.init();
-        // Give it a moment to fully initialize
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-      
-      // Show connection modal
-      this.modal = new WalletModal();
-      const result = await this.modal.show();
+      // Connect to MetaMask
+      const result = await metaMaskWallet.connect();
       
       if (result.success) {
+        // Check if on correct network (localhost or Mantle Sepolia)
+        const chainId = result.chainId;
+        if (chainId !== 31337 && chainId !== 5003) {
+          this.showToast('Please switch to Mantle Sepolia or Localhost network', 'warning');
+          // Optionally auto-switch
+          try {
+            await metaMaskWallet.switchToMantle(5003);
+          } catch (switchError) {
+            console.error('Failed to switch network:', switchError);
+          }
+        }
+        
         this.hideLoading();
         this.showToast('Wallet connected successfully!', 'success');
         
@@ -95,12 +91,7 @@ export class WalletManager {
         message = error.message;
       }
       
-      if (message.includes('cancelled')) {
-        this.showToast('Connection cancelled', 'warning');
-      } else {
-        this.showToast(message, 'error');
-      }
-      
+      this.showToast(message, 'error');
       throw error;
     }
   }

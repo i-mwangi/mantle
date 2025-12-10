@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+const { ethers } = require("hardhat");
 
 async function main() {
   console.log("🚀 Starting Chai Platform deployment to Mantle...\n");
@@ -30,29 +30,36 @@ async function main() {
   const oracleAddress = await PriceOracle.getAddress();
   console.log("✅ PriceOracle deployed to:", oracleAddress, "\n");
   
-  // 4. Deploy CoffeeTreeIssuer
-  console.log("4️⃣  Deploying CoffeeTreeIssuer...");
-  const CoffeeTreeIssuer = await ethers.deployContract("CoffeeTreeIssuer", [
+  // 4. Deploy CoffeeTreeIssuerSimple (optimized version)
+  console.log("4️⃣  Deploying CoffeeTreeIssuerSimple...");
+  const CoffeeTreeIssuer = await ethers.deployContract("CoffeeTreeIssuerSimple", [
     farmerVerificationAddress,
     usdcAddress,
     oracleAddress
   ]);
   await CoffeeTreeIssuer.waitForDeployment();
   const issuerAddress = await CoffeeTreeIssuer.getAddress();
-  console.log("✅ CoffeeTreeIssuer deployed to:", issuerAddress, "\n");
+  console.log("✅ CoffeeTreeIssuerSimple deployed to:", issuerAddress, "\n");
   
-  // 5. Deploy CoffeeLendingPool (with zero address for now, will be set per grove)
-  console.log("5️⃣  Deploying CoffeeLendingPool...");
+  // 5. Deploy a dummy token for lending pool (will be replaced with actual grove tokens)
+  console.log("5️⃣  Deploying dummy token for lending pool...");
+  const DummyToken = await ethers.deployContract("MockUSDC");
+  await DummyToken.waitForDeployment();
+  const dummyTokenAddress = await DummyToken.getAddress();
+  console.log("✅ Dummy token deployed to:", dummyTokenAddress, "\n");
+  
+  // 6. Deploy CoffeeLendingPool
+  console.log("6️⃣  Deploying CoffeeLendingPool...");
   const CoffeeLendingPool = await ethers.deployContract("CoffeeLendingPool", [
     usdcAddress,
-    ethers.ZeroAddress // Will be set when grove is tokenized
+    dummyTokenAddress // Placeholder - will use actual grove tokens later
   ]);
   await CoffeeLendingPool.waitForDeployment();
   const lendingPoolAddress = await CoffeeLendingPool.getAddress();
   console.log("✅ CoffeeLendingPool deployed to:", lendingPoolAddress, "\n");
   
-  // 6. Create LP Token
-  console.log("6️⃣  Creating LP Token...");
+  // 7. Create LP Token
+  console.log("7️⃣  Creating LP Token...");
   const createLPTx = await CoffeeLendingPool.createLPToken("Chai Liquidity Provider", "CHAI-LP");
   await createLPTx.wait();
   const lpTokenAddress = await CoffeeLendingPool.getLPToken();
