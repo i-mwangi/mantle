@@ -39,8 +39,8 @@ export function getShared(): SHARED_KEYS {
 }
 
 export function getEnv(){
-    // Support both old and new environment variable names
-    const network = process.env.NETWORK || process.env.HEDERA_NETWORK || 'testnet'
+    // Get network from environment
+    const network = process.env.NETWORK || 'testnet'
     
     const PRIVATE_KEY = process.env.PRIVATE_KEY || process.env.HEDERA_OPERATOR_KEY
     const ACCOUNT_ID = process.env.ACCOUNT_ID || process.env.HEDERA_OPERATOR_ID

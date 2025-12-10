@@ -1,9 +1,13 @@
 #!/usr/bin/env node
-
+// @ts-nocheck
 /**
- * Coffee Tree Platform API Server
+ * DEPRECATED: Old Hedera-based API Server
  * 
- * This server provides REST endpoints for:
+ * This server uses old Hedera services and is not used in production.
+ * Production uses api/mantle-api-router.ts instead.
+ * This file is kept for reference only.
+ * 
+ * Original endpoints:
  * - Farmer verification functionality
  * - Harvest reporting and revenue distribution
  * - Grove management and token holder tracking

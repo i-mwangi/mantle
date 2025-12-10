@@ -1,9 +1,11 @@
 import { createServer, IncomingMessage, ServerResponse } from 'http'
 import { parse } from 'url'
-import { db } from '../db'
-import { farmerVerifications, coffeeGroves, userSettings } from '../db/schema'
+import { db } from '../../db/index.js'
+import { farmerVerifications, coffeeGroves, userSettings } from '../../db/schema/index.js'
 import { eq } from 'drizzle-orm'
-import { groveTokenizationService } from './grove-tokenization-service'
+import { getMantleTokenizationService } from './mantle-tokenization-service.js'
+
+const groveTokenizationService = getMantleTokenizationService()
 
 // Farmer verification is intentionally disabled in this build (Option A).
 // The API will treat farmers as verified and allow grove registration without
@@ -460,21 +462,21 @@ class FarmerVerificationAPI {
 
                 console.log(`✅ Grove registered in database: ${insertedGrove.groveName} (ID: ${insertedGrove.id})`)
 
-                // Step 2: Tokenize the grove on Hedera (if configured)
+                // Step 2: Tokenize the grove on Mantle (if configured)
                 let tokenizationResult = null
-                if (groveTokenizationService.isAvailable() && insertedGrove.treeCount > 0) {
-                    console.log(`\n🚀 Initiating grove tokenization on Hedera...`)
+                if (insertedGrove.treeCount > 0) {
+                    console.log(`\n🚀 Initiating grove tokenization on Mantle...`)
                     
                     tokenizationResult = await groveTokenizationService.tokenizeGrove({
-                        groveId: insertedGrove.id,
                         groveName: insertedGrove.groveName,
-                        treeCount: insertedGrove.treeCount,
+                        location: insertedGrove.location || 'Unknown',
+                        numberOfTrees: insertedGrove.treeCount,
                         tokensPerTree: 10, // Default: 10 tokens per tree
                         farmerAddress: insertedGrove.farmerAddress // Pass farmer address for auto-transfer
                     })
 
                     if (tokenizationResult.success) {
-                        console.log(`✅ Grove tokenized successfully on Hedera`)
+                        console.log(`✅ Grove tokenized successfully on Mantle`)
                     } else {
                         console.warn(`⚠️  Grove tokenization failed: ${tokenizationResult.error}`)
                         console.warn(`   Grove registered in database but not tokenized on-chain`)

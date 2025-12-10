@@ -5,16 +5,16 @@
  * and error recovery mechanisms.
  */
 
-import { db } from '../db/index.js'
-import { userSettings } from '../db/schema/index.js'
+import { db } from '../../db/index.js'
+import { userSettings } from '../../db/schema/index.js'
 import { eq } from 'drizzle-orm'
-import { settingsCache } from '../lib/settings-cache.js'
+import { settingsCache } from '../settings-cache.js'
 import {
   withRetry,
   withFallback,
   isTableNotFoundError,
   logError
-} from '../lib/error-recovery.js'
+} from '../error-recovery.js'
 
 export interface UserSettings {
   account: string
@@ -129,7 +129,7 @@ export function resetDefaultSettingsConfig(): void {
  * Initialize a new account with default settings
  * This creates a new settings record in the database
  * If settings already exist, returns the existing settings without modification
- * @param accountId - Hedera account ID
+ * @param accountId - Ethereum address
  * @returns Promise<UserSettings>
  */
 export async function initializeAccountSettings(accountId: string): Promise<UserSettings> {
@@ -245,8 +245,8 @@ export async function initializeAccountSettings(accountId: string): Promise<User
 }
 
 /**
- * Validate Hedera account ID format
- * @param accountId - Account ID to validate (e.g., "0.0.123456")
+ * Validate Ethereum address format
+ * @param accountId - Ethereum address to validate (e.g., "0x1234...")
  * @returns boolean
  */
 export function validateAccountId(accountId: string): boolean {
@@ -313,7 +313,7 @@ async function ensureUserSettingsTable(): Promise<void> {
 /**
  * Get user settings by account ID
  * Returns cached settings if available, otherwise fetches from database
- * @param accountId - Hedera account ID
+ * @param accountId - Ethereum address
  * @returns Promise<UserSettings>
  */
 export async function getUserSettings(accountId: string): Promise<UserSettings> {
@@ -424,7 +424,7 @@ export async function getUserSettings(accountId: string): Promise<UserSettings> 
 
 /**
  * Update user settings (upsert: update if exists, insert if not)
- * @param accountId - Hedera account ID
+ * @param accountId - Ethereum address
  * @param settings - Partial settings to update
  * @returns Promise<UserSettings>
  */

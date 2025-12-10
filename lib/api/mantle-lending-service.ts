@@ -284,10 +284,10 @@ export class MantleLendingService {
       // Update database
       await db.update(loans)
         .set({
-          status: 'repaid',
-          repaidAt: Date.now(),
+          isRepaid: true,
+          isActive: false,
         })
-        .where(eq(loans.loanId, loanId));
+        .where(eq(loans.id, loanId));
 
       console.log(`✅ Repaid ${amount} USDC for loan ${loanId}`);
 

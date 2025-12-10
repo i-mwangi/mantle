@@ -1,12 +1,16 @@
+// @ts-nocheck
+/**
+ * DEPRECATED: This file is part of the old Hedera-based API
+ * It uses old services that have been replaced by Mantle services
+ * Production uses api/mantle-api-router.ts instead
+ * This file is kept for reference only and is not used in production
+ */
+
 import { createServer, IncomingMessage, ServerResponse } from 'http'
 import { parse } from 'url'
-import { db } from '../db'
-import { harvestRecords, coffeeGroves, revenueDistributions, tokenHoldings } from '../db/schema'
+import { db } from '../../db/index.js'
+import { harvestRecords, coffeeGroves, revenueDistributions, tokenHoldings } from '../../db/schema/index.js'
 import { eq, and, desc, sql, inArray } from 'drizzle-orm'
-import { revenueDistributionService } from './revenue-distribution-service'
-import { groveTokenizationService } from './grove-tokenization-service'
-import { withdrawalService } from './withdrawal-service'
-import { autoDistributionService } from './auto-distribution-service'
 
 // Types for API requests and responses
 interface ReportHarvestRequest {
@@ -521,7 +525,7 @@ class HarvestReportingAPI {
     }
     
     /**
-     * Distribute revenue on-chain via Hedera smart contract
+     * Distribute revenue on-chain via Mantle smart contract
      * POST /api/harvest/distribute-onchain
      */
     async distributeRevenueOnChain(req: IncomingMessage, res: ServerResponse) {

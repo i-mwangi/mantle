@@ -56,8 +56,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@hashgraph/hedera-wallet-connect": "2.0.4-canary.3ca04e9.0",
-    "@hashgraph/sdk": "^2.72.0",
     "@libsql/client": "^0.15.1",
     "@openzeppelin/contracts": "^5.2.0",
     "@reown/appkit": "1.8.4",
@@ -75,7 +73,6 @@
     "drizzle-orm": "^0.41.0",
     "ethers": "^6.13.5",
     "express": "^5.1.0",
-    "hashconnect": "^3.0.13",
     "node-lmdb": "^0.10.1",
     "solc": "^0.8.29",
     "ts-node": "^10.9.2",
