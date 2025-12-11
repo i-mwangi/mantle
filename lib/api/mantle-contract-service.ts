@@ -4,7 +4,7 @@
  */
 
 import { ethers } from 'ethers';
-import { getEnv } from '../../utils.js';
+import { getEnv } from '../../utils';
 
 // Contract addresses from environment
 const CONTRACTS = {
