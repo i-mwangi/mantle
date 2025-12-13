@@ -668,8 +668,8 @@ class CoffeeTreeMarketplace {
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary modal-close">Close</button>
-                    <button class="btn btn-primary" onclick="window.open('https://docs.hedera.com/hedera/sdks-and-apis/sdks/token-service/associate-tokens-to-an-account', '_blank')">
-                        Learn More
+                    <button class="btn btn-primary" onclick="window.open('https://docs.openzeppelin.com/contracts/4.x/erc20', '_blank')">
+                        Learn More About ERC-20
                     </button>
                 </div>
             </div>

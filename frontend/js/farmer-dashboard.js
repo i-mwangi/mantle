@@ -428,7 +428,7 @@ class FarmerDashboard {
                         const totalTokens = response.tokenization.totalTokens;
                         const tokenSymbol = response.tokenization.tokenSymbol;
                         this.showNotification(
-                            `Grove registered! ${totalTokens} ${tokenSymbol} tokens created on Hedera.`,
+                            `Grove registered! ${totalTokens} ${tokenSymbol} ERC-20 tokens created on Mantle.`,
                             'success'
                         );
                     } else {
@@ -3422,10 +3422,10 @@ class FarmerDashboard {
             }
 
             // Trigger HashPack to associate token
-            this.showNotification(`Opening HashPack to associate token ${tokenId}...`, 'info');
+            this.showNotification(`ERC-20 tokens don't require association. You're all set!`, 'success');
 
-            // Use HashConnect to trigger token association
-            // This will open HashPack and prompt the user to associate the token
+            // Note: ERC-20 tokens don't require association like Hedera HTS tokens
+            // Users can receive tokens directly without prior setup
             try {
                 // Create a simple message for the user
                 const message = `Please associate token ${tokenId} in your HashPack wallet to claim your ${groveName} grove tokens. This costs about $0.05 HBAR.`;
