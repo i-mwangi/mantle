@@ -150,21 +150,21 @@ class LendingPoolManager {
     }
 
     /**
-     * Validate Hedera account ID format
+     * Validate Ethereum address format
      * @private
-     * @param {string} accountId - Account ID to validate
+     * @param {string} address - Ethereum address to validate
      * @param {string} fieldName - Name of the field for error messages
-     * @throws {Error} If account ID is invalid
+     * @throws {Error} If address is invalid
      */
-    _validateAccountId(accountId, fieldName = 'Account ID') {
-        if (!accountId || typeof accountId !== 'string') {
+    _validateAccountId(address, fieldName = 'Address') {
+        if (!address || typeof address !== 'string') {
             throw new Error(`${fieldName} is required and must be a string`);
         }
 
-        // Basic validation for Hedera account ID format (0.0.xxxxx)
-        const accountIdPattern = /^0\.0\.\d+$/;
-        if (!accountIdPattern.test(accountId)) {
-            throw new Error(`${fieldName} must be a valid Hedera account ID (e.g., 0.0.12345)`);
+        // Ethereum address format: 0x followed by 40 hex characters
+        const ethereumAddressPattern = /^0x[a-fA-F0-9]{40}$/;
+        if (!ethereumAddressPattern.test(address)) {
+            throw new Error(`${fieldName} must be a valid Ethereum address (e.g., 0x1234...5678)`);
         }
     }
 
