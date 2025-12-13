@@ -248,7 +248,7 @@ export function getActionableGuidance(errorInfo) {
         'NETWORK_ERROR': {
             steps: [
                 'Check your internet connection',
-                'Verify the Hedera network is operational',
+                'Verify the Mantle network is operational',
                 'Try again in a few moments'
             ],
             helpLink: '/help/network-issues'
