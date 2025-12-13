@@ -544,7 +544,7 @@ export class CoffeeTreeAPI {
 
     /**
      * Get user settings for a specific account
-     * @param {string} accountId - Hedera account ID (e.g., "0.0.123456")
+     * @param {string} accountId - Ethereum address (e.g., "0x1234...")
      * @returns {Promise<Object>} User settings object
      */
     async getUserSettings(accountId) {
@@ -555,7 +555,7 @@ export class CoffeeTreeAPI {
 
     /**
      * Update user settings for a specific account
-     * @param {string} accountId - Hedera account ID (e.g., "0.0.123456")
+     * @param {string} accountId - Ethereum address (e.g., "0x1234...")
      * @param {Object} settings - Settings object to update
      * @returns {Promise<Object>} Updated settings object
      */
@@ -911,7 +911,7 @@ export class CoffeeTreeAPI {
         return this.request('/api/farmer/withdraw', {
             method: 'POST',
             body: { farmerAddress, groveId, amount },
-            timeout: 120000 // 2 minutes for Hedera transactions
+            timeout: 120000 // 2 minutes for blockchain transactions
         });
     }
 
