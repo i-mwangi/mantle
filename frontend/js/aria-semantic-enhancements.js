@@ -138,7 +138,7 @@ class AriaSemanticEnhancer {
     // Connect wallet button
     const connectBtn = document.getElementById('connect-wallet-btn');
     if (connectBtn) {
-      connectBtn.setAttribute('aria-label', 'Connect Hedera wallet');
+      connectBtn.setAttribute('aria-label', 'Connect MetaMask wallet');
       connectBtn.setAttribute('aria-describedby', 'wallet-connection-status');
     }
 
