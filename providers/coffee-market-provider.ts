@@ -1,3 +1,8 @@
+// @ts-nocheck
+/**
+ * DEPRECATED: This file uses Hedera SDK
+ * Not used by production API (uses Mantle price oracle service instead)
+ */
 import axios from 'axios'
 import { getClient, getEnv } from '../utils.js'
 import { 

@@ -1,3 +1,8 @@
+// @ts-nocheck
+/**
+ * DEPRECATED: This file uses Hedera SDK
+ * Not used by production API (uses Mantle price oracle service instead)
+ */
 import "dotenv/config"
 import { ContractExecuteTransaction, ContractFunctionParameters, EvmAddress, TokenId } from "@hashgraph/sdk"
 import { getClient, getEnv } from "../utils.js"

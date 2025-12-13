@@ -80,7 +80,7 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       'process.env.VITE_WALLETCONNECT_PROJECT_ID': JSON.stringify(env.VITE_WALLETCONNECT_PROJECT_ID),
-      'process.env.VITE_HEDERA_NETWORK': JSON.stringify(env.VITE_HEDERA_NETWORK),
+      'process.env.VITE_NETWORK': JSON.stringify(env.VITE_NETWORK || env.NETWORK || 'testnet'),
       'process.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL),
       'process.env': '{}',
     },

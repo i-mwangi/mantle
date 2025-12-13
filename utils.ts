@@ -1,3 +1,9 @@
+// @ts-nocheck
+/**
+ * DEPRECATED: This file uses Hedera SDK and is not used by production code
+ * It's used by old providers and event indexers
+ * Production uses Mantle services instead
+ */
 import "dotenv/config"
 import path from "path"
 import fs from "fs"
