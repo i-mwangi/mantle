@@ -3,6 +3,11 @@
  * Handles loan creation, repayment, and health monitoring
  */
 
+// @ts-nocheck
+/**
+ * DEPRECATED: Old Hedera-based loan management service
+ * Not used by production API (uses Mantle lending service instead)
+ */
 import { db } from '../../db/index.js';
 import { lendingLoans, lendingLoanCollateral, lendingLoanPayments, lendingLoanHealthHistory, lendingPoolStats } from '../../db/schema/index.js';
 import { eq, and, lt, desc } from 'drizzle-orm';

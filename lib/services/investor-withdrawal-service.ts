@@ -4,6 +4,11 @@
  * Requirements: 2.1, 2.2, 2.3, 2.4, 4.1, 4.2, 4.3, 4.4, 4.5, 5.3
  */
 
+// @ts-nocheck
+/**
+ * DEPRECATED: Old Hedera-based investor withdrawal service
+ * Not used by production API (uses Mantle payment service instead)
+ */
 import { db } from '../../db/index.js';
 import { revenueDistributions, investorWithdrawals } from '../../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';

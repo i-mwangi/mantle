@@ -3,6 +3,11 @@
  * Handles automated loan liquidation when health factor drops below threshold
  */
 
+// @ts-nocheck
+/**
+ * DEPRECATED: Old Hedera-based liquidation service
+ * Not used by production API (uses Mantle lending service instead)
+ */
 import { db } from '../../db/index.js';
 import { lendingLoans, lendingLiquidations, lendingLoanCollateral } from '../../db/schema/index.js';
 import { eq, and, lt } from 'drizzle-orm';

@@ -1,3 +1,8 @@
+// @ts-nocheck
+/**
+ * DEPRECATED: Old Hedera-based revenue distribution service
+ * Not used by production API (uses Mantle services instead)
+ */
 import { db } from '../../db/index.js';
 import { coffeeGroves, harvestRecords, tokenHoldings, revenueDistributions, farmerBalances, farmerGroveBalances } from '../../db/schema/index.js';
 import { eq, and, lte } from 'drizzle-orm';
