@@ -6,9 +6,17 @@
 function translateError(error) {
     const errorMessage = typeof error === 'string' ? error : error.message || error.toString();
     
-    // Hedera Token Service Errors
-    if (errorMessage.includes('INSUFFICIENT_TOKEN_BALANCE')) {
+    // ERC-20 Token Errors
+    if (errorMessage.includes('insufficient balance') || errorMessage.includes('INSUFFICIENT_TOKEN_BALANCE')) {
         return 'All tokens have already been claimed or sold. No tokens available.';
+    }
+    
+    if (errorMessage.includes('ERC20: transfer amount exceeds balance')) {
+        return 'Insufficient token balance for this transaction.';
+    }
+    
+    if (errorMessage.includes('ERC20: insufficient allowance')) {
+        return 'Token approval required. Please approve the contract to spend your tokens.';
     }
     
     if (errorMessage.includes('TOKEN_NOT_ASSOCIATED')) {
