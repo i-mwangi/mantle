@@ -1,10 +1,13 @@
+// @ts-nocheck
 /**
- * Validation utilities for user settings and account data
+ * DEPRECATED: Validation utilities for old Hedera-based system
  * 
  * This module provides validation functions for:
- * - Hedera account ID format validation
+ * - Hedera account ID format validation (deprecated - use Ethereum address validation)
  * - Boolean flag validation
  * - Validation error messages
+ * 
+ * Not used by production API (uses lib/api/validation.ts instead)
  */
 
 /**
