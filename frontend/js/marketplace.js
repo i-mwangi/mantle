@@ -625,8 +625,8 @@ class CoffeeTreeMarketplace {
                 </div>
                 <div class="modal-body">
                     <div class="info-box">
-                        <p><strong>Before you can receive tokens, you need to associate them with your wallet.</strong></p>
-                        <p>This is a one-time setup required by Hedera for security.</p>
+                        <p><strong>Before you can receive tokens, you may need to approve the contract.</strong></p>
+                        <p>This is a one-time setup required for ERC-20 token transfers.</p>
                     </div>
                     
                     <div class="steps-container">
