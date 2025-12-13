@@ -85,14 +85,18 @@ class TransactionHistoryManager {
     }
 
     /**
-     * Generate block explorer URL for Hedera
+     * Generate block explorer URL for Mantle
      * @param {string} transactionHash
      * @returns {string}
      */
     generateBlockExplorerUrl(transactionHash) {
         if (!transactionHash) return '';
-        // Hedera HashScan explorer URL
-        return `https://hashscan.io/testnet/transaction/${transactionHash}`;
+        // Mantle Sepolia explorer URL
+        const network = process.env.NETWORK || 'testnet';
+        if (network === 'mainnet') {
+            return `https://explorer.mantle.xyz/tx/${transactionHash}`;
+        }
+        return `https://explorer.sepolia.mantle.xyz/tx/${transactionHash}`;
     }
 
     /**
