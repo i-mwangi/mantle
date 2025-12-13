@@ -172,7 +172,7 @@ class WithdrawalHandler {
 
     /**
      * Get farmer balance
-     * @param {string} farmerAddress - Farmer's Hedera address
+     * @param {string} farmerAddress - Farmer's Ethereum address
      * @returns {Promise<Object>} Balance information
      */
     async getFarmerBalance(farmerAddress) {
@@ -198,7 +198,7 @@ class WithdrawalHandler {
 
     /**
      * Set max withdrawable amount (30% of available balance)
-     * @param {string} farmerAddress - Farmer's Hedera address
+     * @param {string} farmerAddress - Farmer's Ethereum address
      * @param {HTMLInputElement} amountInput - Amount input element
      */
     async setMaxWithdrawAmount(farmerAddress, amountInput) {
@@ -235,7 +235,7 @@ class WithdrawalHandler {
 
     /**
      * Get farmer withdrawal history
-     * @param {string} farmerAddress - Farmer's Hedera address
+     * @param {string} farmerAddress - Farmer's Ethereum address
      * @returns {Promise<Array>} Withdrawal history
      */
     async getFarmerWithdrawalHistory(farmerAddress) {
