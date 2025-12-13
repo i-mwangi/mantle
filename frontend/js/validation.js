@@ -84,14 +84,14 @@ class Validator {
     }
 
     /**
-     * Validate Hedera account ID format
-     * @param {string} accountId - Hedera account ID to validate
+     * Validate Ethereum address format
+     * @param {string} address - Ethereum address to validate
      * @param {string} fieldName - Name of the field for error messages
      * @returns {Object} { valid: boolean, error: string|null }
      */
-    static validateHederaAccountId(accountId, fieldName = 'Account ID') {
-        // Check if accountId is a string
-        if (typeof accountId !== 'string') {
+    static validateEthereumAddress(address, fieldName = 'Address') {
+        // Check if address is a string
+        if (typeof address !== 'string') {
             return {
                 valid: false,
                 error: `${fieldName} must be a string`,
@@ -100,60 +100,41 @@ class Validator {
         }
 
         // Trim whitespace
-        accountId = accountId.trim();
+        address = address.trim();
 
         // Check if empty
-        if (accountId.length === 0) {
+        if (address.length === 0) {
             return {
                 valid: false,
                 error: `${fieldName} cannot be empty`,
-                code: 'EMPTY_ACCOUNT_ID'
+                code: 'EMPTY_ADDRESS'
             };
         }
 
-        // Hedera account ID format: shard.realm.num (e.g., 0.0.12345)
-        const hederaAccountPattern = /^(\d+)\.(\d+)\.(\d+)$/;
+        // Ethereum address format: 0x followed by 40 hex characters
+        const ethereumAddressPattern = /^0x[a-fA-F0-9]{40}$/;
         
-        if (!hederaAccountPattern.test(accountId)) {
+        if (!ethereumAddressPattern.test(address)) {
             return {
                 valid: false,
-                error: `${fieldName} must be in format: shard.realm.num (e.g., 0.0.12345)`,
+                error: `${fieldName} must be a valid Ethereum address (0x followed by 40 hex characters)`,
                 code: 'INVALID_FORMAT'
             };
         }
 
-        // Extract parts
-        const parts = accountId.split('.');
-        const shard = parseInt(parts[0]);
-        const realm = parseInt(parts[1]);
-        const num = parseInt(parts[2]);
-
-        // Validate ranges (Hedera specific)
-        if (shard < 0 || shard > 32767) {
-            return {
-                valid: false,
-                error: `${fieldName} shard must be between 0 and 32767`,
-                code: 'INVALID_SHARD'
-            };
-        }
-
-        if (realm < 0 || realm > 65535) {
-            return {
-                valid: false,
-                error: `${fieldName} realm must be between 0 and 65535`,
-                code: 'INVALID_REALM'
-            };
-        }
-
-        if (num < 0) {
-            return {
-                valid: false,
-                error: `${fieldName} account number must be positive`,
-                code: 'INVALID_ACCOUNT_NUMBER'
-            };
-        }
-
         return { valid: true, error: null };
+    }
+
+    /**
+     * Validate Hedera account ID format (DEPRECATED - use validateEthereumAddress)
+     * @deprecated Use validateEthereumAddress instead
+     * @param {string} accountId - Account ID to validate
+     * @param {string} fieldName - Name of the field for error messages
+     * @returns {Object} { valid: boolean, error: string|null }
+     */
+    static validateHederaAccountId(accountId, fieldName = 'Account ID') {
+        // Redirect to Ethereum address validation
+        return this.validateEthereumAddress(accountId, fieldName);
     }
 
     /**
