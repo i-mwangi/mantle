@@ -374,8 +374,8 @@ class InvestorEarnings {
                 await this.loadEarningsData(investorAddress);
             } else {
                 const errorMsg = response.error || 'Claim failed';
-                // Check if error is about token association or Hedera transaction
-                if (errorMsg.includes('associate') || errorMsg.includes('USDC token') || errorMsg.includes('Hedera transaction')) {
+                // Check if error is about token approval or blockchain transaction
+                if (errorMsg.includes('approve') || errorMsg.includes('allowance') || errorMsg.includes('USDC token')) {
                     this.showTokenAssociationModal(errorMsg);
                 } else {
                     this.showNotification(errorMsg, 'error');
@@ -384,8 +384,8 @@ class InvestorEarnings {
         } catch (error) {
             console.error('Error processing claim:', error);
             const errorMsg = error.message || 'Error processing claim';
-            // Check if error is about token association or Hedera transaction
-            if (errorMsg.includes('associate') || errorMsg.includes('USDC token') || errorMsg.includes('Hedera transaction')) {
+            // Check if error is about token approval or blockchain transaction
+            if (errorMsg.includes('approve') || errorMsg.includes('allowance') || errorMsg.includes('USDC token')) {
                 this.showTokenAssociationModal(errorMsg);
             } else {
                 this.showNotification(errorMsg, 'error');
