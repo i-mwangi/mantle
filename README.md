@@ -114,33 +114,36 @@ DATA FLOW:
 
 ---
 
-## 📍 Deployed Hedera IDs
+## 📍 Deployed Contracts
 
-All contracts and tokens are deployed on **Hedera Testnet**:
+All contracts and tokens are deployed on **Mantle Sepolia Testnet**:
 
 ### Smart Contracts
-| Contract | Testnet ID | Purpose |
-|----------|-----------|---------|
-| **Issuer Contract** | `0.0.7116112` | Grove tokenization orchestration |
-| **Price Oracle** | `0.0.7116062` | Coffee price feeds |
-| **Revenue Reserve** | `0.0.7116403` | Revenue distribution to token holders |
-| **Marketplace** | `0.0.7116410` | Secondary market for grove tokens |
+| Contract | Address | Purpose |
+|----------|---------|---------|
+| **USDC Token** | `TBD` | ERC-20 stablecoin for payments |
+| **Farmer Verification** | `TBD` | Farmer identity verification |
+| **Price Oracle** | `TBD` | Coffee price feeds |
+| **Coffee Tree Issuer** | `TBD` | Grove tokenization orchestration |
+| **Lending Pool** | `TBD` | Lending and borrowing functionality |
+| **LP Token** | `TBD` | Liquidity provider tokens |
+| **Marketplace** | `TBD` | Secondary market for grove tokens |
 
-### HTS Tokens
-| Token | Testnet ID | Type | Purpose |
-|-------|-----------|------|---------|
-| **Platform USDC** | `0.0.7144320` | Fungible | Stablecoin for loans and payments |
-| **Grove NFTs** | Dynamic | NFT | Individual coffee grove ownership |
+### Network Information
+| Parameter | Value |
+|-----------|-------|
+| **Network** | Mantle Sepolia Testnet |
+| **Chain ID** | 5003 |
+| **RPC URL** | https://rpc.sepolia.mantle.xyz |
+| **Currency** | MNT |
+| **Block Explorer** | https://explorer.sepolia.mantle.xyz |
+| **Faucet** | https://faucet.sepolia.mantle.xyz |
 
-### Platform Accounts
-| Account | Testnet ID | Purpose |
-|---------|-----------|---------|
-| **Operator Account** | `0.0.5792828` | Platform operations and contract deployment |
-| **Admin Account** | `0.0.6967933` | Administrative functions |
-
-### Mirror Node Queries
-- **REST API:** `https://testnet.mirrornode.hedera.com`
-- **Used for:** Transaction history, token balances, contract state queries
+### Contract Verification
+All contracts are verified on Mantle Explorer for transparency:
+- View source code
+- Read contract state
+- Interact with contracts directly
 
 ---
 
