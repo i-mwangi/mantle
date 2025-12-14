@@ -85,31 +85,31 @@ Features available:
         │                  │                  │
         ▼                  ▼                  ▼
 ┌──────────────┐  ┌──────────────────┐  ┌──────────────┐
-│   DATABASE   │  │  HEDERA NETWORK  │  │   EXTERNAL   │
-│   (SQLite)   │  │    (Testnet)     │  │   SERVICES   │
+│   DATABASE   │  │  MANTLE NETWORK  │  │   EXTERNAL   │
+│   (SQLite)   │  │    (Sepolia)     │  │   SERVICES   │
 ├──────────────┤  ├──────────────────┤  ├──────────────┤
-│ • Groves     │  │ • HTS Tokens     │  │ • Mapbox API │
+│ • Groves     │  │ • ERC-20 Tokens  │  │ • Mapbox API │
 │ • Harvests   │  │ • Smart Contracts│  │ • Price Feed │
 │ • Users      │  │ • Transactions   │  │ • IoT Sensors│
-│ • Loans      │  │ • Mirror Nodes   │  │              │
+│ • Loans      │  │ • Block Explorer │  │              │
 └──────────────┘  └──────────────────┘  └──────────────┘
                            │
                            ▼
                   ┌─────────────────┐
-                  │ HEDERA SERVICES │
+                  │ MANTLE SERVICES │
                   ├─────────────────┤
-                  │ • HTS (Tokens)  │
+                  │ • ERC-20 Tokens │
                   │ • Smart Contracts│
-                  │ • Consensus     │
-                  │ • Mirror Nodes  │
+                  │ • Layer 2 Rollup│
+                  │ • RPC Nodes     │
                   └─────────────────┘
 
 DATA FLOW:
-1. User connects wallet → Frontend → Hedera Network (Account verification)
-2. User tokenizes grove → Backend API → Smart Contract → HTS Token Creation
-3. Investor buys tokens → Frontend → Smart Contract → HTS Token Transfer
+1. User connects wallet → Frontend → Mantle Network (MetaMask verification)
+2. User tokenizes grove → Backend API → Smart Contract → ERC-20 Token Creation
+3. Investor buys tokens → Frontend → Smart Contract → ERC-20 Token Transfer
 4. Harvest reported → Backend API → Database + Smart Contract → Revenue Distribution
-5. Loan requested → Backend API → Smart Contract → USDC Transfer (HTS)
+5. Loan requested → Backend API → Smart Contract → USDC Transfer (ERC-20)
 ```
 
 ---
