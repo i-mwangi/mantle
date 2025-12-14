@@ -311,9 +311,9 @@ The platform includes a comprehensive lending system that allows investors to ei
 
 Investors can track and withdraw their earnings:
 - **View Balance:** See total earned, total withdrawn, and available balance
-- **Withdraw Earnings:** Transfer available balance as USDC directly to your wallet
-- **Transaction History:** View complete withdrawal history with HashScan links
-- **Token Association:** Automatic guidance for USDC token association if needed
+- **Withdraw Earnings:** Transfer available balance as USDC (ERC-20) directly to your wallet
+- **Transaction History:** View complete withdrawal history with Mantle Explorer links
+- **Automatic Approval:** ERC-20 tokens don't require association like HTS tokens
 
 ### Lending Pools
 
@@ -437,52 +437,63 @@ For production deployment, the platform uses Turso (SQLite-compatible edge datab
 
 ## 🏗️ Smart Contracts
 
-Smart contracts are written in Solidity and deployed on Hedera using the Hedera Token Service (HTS).
+Smart contracts are written in Solidity 0.8.29 and deployed on Mantle Network using standard ERC-20 tokens.
 
 ### Core Contracts
 
-- `CoffeeTreeIssuer.sol` - Grove registration and tokenization orchestration
-- `CoffeeTreeManager.sol` - Token management and grove metadata (uses two-phase deployment)
-- `CoffeeTreeMarketplace.sol` - Token trading marketplace
-- `CoffeeRevenueReserve.sol` - Revenue distribution to token holders
-- `PriceOracle.sol` - Coffee price feeds
-- `FarmerVerification.sol` - Farmer identity verification
+Located in `contracts/mantle/`:
 
-### Three-Step Tokenization Process
+- **`USDC.sol`** - ERC-20 stablecoin for payments and loans
+- **`FarmerVerification.sol`** - Farmer identity verification and KYC
+- **`CoffeePriceOracle.sol`** - Coffee price feeds and market data
+- **`CoffeeTreeIssuer.sol`** - Grove registration and tokenization orchestration
+- **`CoffeeTreeToken.sol`** - ERC-20 tokens representing coffee grove ownership
+- **`LendingPool.sol`** - Lending and borrowing with collateralization
+- **`LPToken.sol`** - Liquidity provider tokens for lending pools
+- **`Marketplace.sol`** - Secondary market for trading grove tokens
+- **`PaymentProcessor.sol`** - Revenue distribution to token holders
 
-To avoid `CONTRACT_REVERT_EXECUTED` errors on Hedera due to gas limits, the platform now uses a **three-step tokenization process**:
+### ERC-20 Standard Benefits
 
-**Step 1**: Create token and contracts (`createGroveTokenAndContracts`) - Deploys contracts without token creation
-**Step 2**: Initialize HTS token (`initializeGroveToken`) - Creates the HTS token in a separate transaction  
-**Step 3**: Mint initial supply (`mintGroveTokens`) - Mints the initial token supply
-
-This approach splits the gas-intensive operations across multiple transactions, ensuring reliable deployment and tokenization.
+- **No Token Association Required** - Unlike HTS, ERC-20 tokens work immediately
+- **Universal Compatibility** - Works with all Ethereum wallets and tools
+- **Standard Interfaces** - Follows EIP-20 specification
+- **Gas Efficient** - Optimized for Mantle's Layer 2 architecture
 
 ### Deployment
 
 ```bash
-# Deploy CoffeeTreeManager with two-phase pattern
-npx tsx deploy.ts CoffeeTreeManager
+# Compile contracts
+npx hardhat compile
 
-# Deploy other contracts (single-phase)
-npx tsx deploy.ts CoffeeTreeIssuer
-npx tsx deploy.ts CoffeeTreeMarketplace
-npx tsx deploy.ts FarmerVerification
+# Deploy to Mantle Sepolia Testnet
+npm run deploy:mantle:testnet
+
+# Deploy to local Hardhat network
+npx hardhat node  # Terminal 1
+npm run deploy:mantle:local  # Terminal 2
+
+# Verify contracts on Mantle Explorer
+npx hardhat verify --network mantleSepolia <CONTRACT_ADDRESS>
 ```
 
 Contract addresses are configured in `.env`:
 ```env
-ISSUER_CONTRACT_ID=0.0.xxxxx
-GROVE_MANAGER_CONTRACT_ID=0.0.yyyyy
-MARKETPLACE_CONTRACT_ID=0.0.zzzzz
+MANTLE_USDC_ADDRESS=0x...
+MANTLE_FARMER_VERIFICATION_ADDRESS=0x...
+MANTLE_PRICE_ORACLE_ADDRESS=0x...
+MANTLE_ISSUER_ADDRESS=0x...
+MANTLE_LENDING_POOL_ADDRESS=0x...
+MANTLE_LP_TOKEN_ADDRESS=0x...
 ```
 
-### Documentation
+### Contract Architecture
 
-- [Contracts README](./contracts/README.md) - Detailed contract documentation
-- [Migration Guide](./contracts/MIGRATION_GUIDE.md) - Migrating to two-phase pattern
-- [Gas Optimization](./contracts/GAS_OPTIMIZATION.md) - Gas usage and optimization
-- [Deployment Guide](./DEPLOYMENT.md) - Full deployment instructions
+All contracts use OpenZeppelin libraries for security:
+- `@openzeppelin/contracts/token/ERC20/ERC20.sol`
+- `@openzeppelin/contracts/access/Ownable.sol`
+- `@openzeppelin/contracts/security/ReentrancyGuard.sol`
+- `@openzeppelin/contracts/security/Pausable.sol`
 
 ### Architecture
 
