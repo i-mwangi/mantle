@@ -261,44 +261,46 @@ chai-platform/
 
 ## 🔐 Wallet Integration
 
-The platform uses **Hedera Wallet Connect v2.0** for secure wallet integration, supporting:
+The platform uses **MetaMask** for secure wallet integration with Mantle Network.
 
 ### Supported Wallets
-- **HashPack** (Browser Extension)
-- **Blade** (Browser Extension)
-- **Kabila** (Browser Extension)
-- **Mobile Wallets** (via QR Code)
+- **MetaMask** (Browser Extension) - Primary wallet
+- **Any EVM-compatible wallet** that supports custom networks
 
 ### Integration Details
 
 Wallet integration is located in `frontend/wallet/` and includes:
 
-- `config.js` - WalletConnect configuration
-- `connector.js` - DAppConnector wrapper
+- `metamask-connector.js` - MetaMask connection and interaction
 - `manager.js` - High-level wallet API
 - `modal.js` - Connection UI components
 - `state.js` - Connection state management
 
 ### Usage Example
 
-```
-// Connect wallet
+```javascript
+// Connect MetaMask
 await walletManager.connect();
 
 // Check connection
 if (walletManager.isWalletConnected()) {
-  const accountId = walletManager.getAccountId();
+  const address = walletManager.getAddress();
+  console.log('Connected:', address);
 }
 
 // Send transaction
-const result = await walletManager.sendTransaction(
-  '0.0.12345',  // recipient
-  '10'          // amount in HBAR
-);
+const result = await walletManager.sendTransaction({
+  to: '0x1234...5678',  // recipient address
+  value: ethers.parseEther('0.1')  // amount in MNT
+});
 
 // Listen to events
 window.addEventListener('wallet-connected', (event) => {
-  console.log('Connected:', event.detail.accountId);
+  console.log('Connected:', event.detail.address);
+});
+
+window.addEventListener('wallet-disconnected', () => {
+  console.log('Wallet disconnected');
 });
 ```
 ## 💰 Lending System for Investors
