@@ -149,7 +149,7 @@ All contracts are verified on Mantle Explorer for transparency:
 
 Features available in the live demo:
 - ✅ View 42 mapped coffee groves
-- ✅ Connect HashPack wallet (Testnet)
+- ✅ Connect MetaMask wallet (Mantle Sepolia)
 - ✅ Browse investment opportunities
 - ✅ Real-time grove tracking with satellite imagery
 - ✅ Interactive dashboard with market data
@@ -160,9 +160,9 @@ Features available in the live demo:
 
 - **Node.js 18+** or 20+
 - **pnpm** package manager (`npm install -g pnpm`)
-- **Hedera Testnet account** (get free HBAR from [portal.hedera.com](https://portal.hedera.com))
-- **WalletConnect Project ID** (get from [cloud.reown.com](https://cloud.reown.com))
-- **HashPack Wallet** (recommended) - [Download here](https://www.hashpack.app/)
+- **MetaMask Wallet** (browser extension) - [Download here](https://metamask.io/)
+- **Mantle Sepolia Testnet MNT** (get free MNT from [faucet.sepolia.mantle.xyz](https://faucet.sepolia.mantle.xyz/))
+- **Private Key** for contract deployment (export from MetaMask)
 
 ### Installation
 
