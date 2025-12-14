@@ -542,8 +542,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- [Hedera Hashgraph](https://hedera.com) - Distributed consensus platform
-- [WalletConnect](https://walletconnect.com) - Wallet integration protocol
+- [Mantle Network](https://mantle.xyz) - Modular Layer 2 blockchain platform
+- [Ethereum](https://ethereum.org) - EVM compatibility and standards
+- [OpenZeppelin](https://openzeppelin.com) - Secure smart contract libraries
+- [Hardhat](https://hardhat.org) - Ethereum development environment
+- [MetaMask](https://metamask.io) - Wallet integration
 - [Turso](https://turso.tech) - Edge database provider
 - [Vercel](https://vercel.com) - Deployment platform
 
