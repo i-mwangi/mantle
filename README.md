@@ -168,8 +168,8 @@ Features available in the live demo:
 
 ```bash
 # Clone the repository
-git clone https://github.com/i-mwangi/chai.git
-cd chai
+git clone https://github.com/i-mwangi/mantle.git
+cd mantle
 
 # Install dependencies
 pnpm install
@@ -179,21 +179,62 @@ cp .env.example .env
 # Edit .env with your configuration
 ```
 
+### Configure MetaMask for Mantle Sepolia
 
+Add Mantle Sepolia network to MetaMask:
+
+1. Open MetaMask
+2. Click network dropdown → "Add Network"
+3. Enter these details:
+   - **Network Name:** Mantle Sepolia Testnet
+   - **RPC URL:** https://rpc.sepolia.mantle.xyz
+   - **Chain ID:** 5003
+   - **Currency Symbol:** MNT
+   - **Block Explorer:** https://explorer.sepolia.mantle.xyz
+
+### Get Testnet Tokens
+
+Get free MNT for testing:
+```bash
+# Visit the faucet
+https://faucet.sepolia.mantle.xyz/
+
+# Request 100 MNT to your wallet address
+```
+
+### Deploy Contracts
+
+```bash
+# Compile contracts
+npm run compile:mantle
+
+# Deploy to Mantle Sepolia Testnet
+npm run deploy:mantle:testnet
+
+# Or deploy to local Hardhat network for testing
+npx hardhat node  # Terminal 1
+npm run deploy:mantle:local  # Terminal 2
+```
 
 ### Starting the Development Environment
 
- Backend API Server**
-
-node start-server.mjs
- Server running on http://localhost:3001
+**Backend API Server (Mock)**
+```bash
+pnpm run api:mock
+# Server running on http://localhost:3001
 ```
 
- Frontend Development Server**
-
+**Frontend Development Server**
+```bash
 pnpm run frontend:vite
+# ➜  Local:   http://localhost:3000/
 ```
-➜  Local:   http://localhost:3000/
+
+**Full Stack (with deployed contracts)**
+```bash
+pnpm run api  # Real API with blockchain
+pnpm run frontend
+```
 
 
 
