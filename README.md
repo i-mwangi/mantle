@@ -1,40 +1,53 @@
 # Chai Platform - Coffee Tree Tokenization Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Hedera](https://img.shields.io/badge/Hedera-Testnet-blue)](https://hedera.com)
-[![WalletConnect](https://img.shields.io/badge/WalletConnect-v2.0-blue)](https://walletconnect.com)
+[![Mantle Network](https://img.shields.io/badge/Mantle-Sepolia-blue)](https://mantle.xyz)
+[![Ethereum](https://img.shields.io/badge/Ethereum-Compatible-blue)](https://ethereum.org)
 
 
 ---
 
 ## 📋 Table of Contents
 - [Project Overview](#-project-overview)
-- [Hedera Integration](#-hedera-integration-detailed)
+- [Mantle Network Integration](#-mantle-network-integration)
 - [Quick Start](#-quick-start)
 - [Architecture](#-architecture-diagram)
-- [Deployed Hedera IDs](#-deployed-hedera-ids)
+- [Deployed Contracts](#-deployed-contracts)
 
-Chai Platform is a decentralized coffee tree tokenization platform built on the Hedera network. It enables farmers to tokenize their coffee groves and allows investors to purchase tokens representing ownership in coffee production, creating a transparent and efficient marketplace for sustainable coffee investment.
+Chai Platform is a decentralized coffee tree tokenization platform built on Mantle Network. It enables farmers to tokenize their coffee groves and allows investors to purchase tokens representing ownership in coffee production, creating a transparent and efficient marketplace for sustainable coffee investment.
 
 ## 🌱 Project Overview
 
 The Chai Platform connects coffee farmers with investors through blockchain technology, enabling:
 
-- **Farmers** to register their groves and tokenize their coffee trees
+- **Farmers** to register their groves and tokenize their coffee trees as ERC-20 tokens
 - **Investors** to purchase tokens representing ownership in coffee production
 - **Transparent revenue distribution** from coffee sales to token holders
 - **Earnings withdrawal** allowing investors to withdraw their earnings as USDC directly to their wallet
 - **Real-time monitoring** of tree health and environmental conditions
-- **Secure wallet integration** for all platform interactions
+- **Secure MetaMask integration** for all platform interactions
 - **Lending system** that allows investors to either provide liquidity to earn interest or take out loans using their coffee tree tokens as collateral
+
+## 🚀 Mantle Network Integration
+
+**Scalable, cost-efficient tokenization of coffee trees with Ethereum security and modular Layer 2 architecture**
+
+### Why Mantle Network?
+
+- **Ultra-Low Gas Fees** - Significantly cheaper than Ethereum mainnet
+- **High Throughput** - Fast transaction processing for seamless user experience
+- **Ethereum Security** - Inherits Ethereum's security through optimistic rollups
+- **EVM Compatible** - Full compatibility with Ethereum tools and standards
+- **Modular Architecture** - Separates execution, settlement, and data availability for optimal performance
+- **Energy Efficient** - Layer 2 solution with minimal environmental impact
 
 ## 🌐 Live Platform
 
 **Access the platform:** [https://qawa-platform-frontend.onrender.com/](https://qawa-platform-frontend.onrender.com/)
 
 Features available:
-- ✅ Connect HashPack wallet (Hedera Testnet)
-- ✅ Register and tokenize coffee groves
+- ✅ Connect MetaMask wallet (Mantle Sepolia Testnet)
+- ✅ Register and tokenize coffee groves as ERC-20 tokens
 - ✅ Browse and invest in tokenized groves
 - ✅ Track earnings and withdraw USDC
 - ✅ Provide liquidity or take out loans
