@@ -270,11 +270,7 @@ chai-platform/
 ```
 
 
-// Send transaction
-const result = await walletManager.sendTransaction({
-  to: '0x1234...5678',  // recipient address
-  value: ethers.parseEther('0.1')  // amount in MNT
-});
+
 
 // Listen to events
 window.addEventListener('wallet-connected', (event) => {
