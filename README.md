@@ -269,11 +269,6 @@ chai-platform/
 └── types/               # TypeScript definitions
 ```
 
-ection
-if (walletManager.isWalletConnected()) {
-  const address = walletManager.getAddress();
-  console.log('Connected:', address);
-}
 
 // Send transaction
 const result = await walletManager.sendTransaction({
