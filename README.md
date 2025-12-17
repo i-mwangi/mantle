@@ -270,13 +270,6 @@ chai-platform/
 ```
 
 
-
-
-
-window.addEventListener('wallet-disconnected', () => {
-  console.log('Wallet disconnected');
-});
-```
 ## 💰 Lending System for Investors
 
 The platform includes a comprehensive lending system that allows investors to either provide liquidity to earn interest or take out loans using their coffee tree tokens as collateral.
