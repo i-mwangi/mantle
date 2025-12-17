@@ -155,12 +155,6 @@ All contracts are verified on Mantle Explorer for transparency:
 - Read contract state
 - Interact with contracts directly
 
----
-
-Browse investment opportunities
-- ✅ Real-time grove tracking with satellite imagery
-- ✅ Interactive dashboard with market data
-
 ### Local Development Setup
 
 ### Prerequisites
