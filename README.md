@@ -49,8 +49,6 @@ The Chai Platform connects coffee farmers with investors through blockchain tech
 - **Energy Efficient** - Layer 2 solution with minimal environmental impact
 
 
-(https://qawa-platform-frontend.onrender.com/)
-
 Features available:
 - ✅ Connect MetaMask wallet (Mantle Sepolia Testnet)
 - ✅ Register and tokenize coffee groves as ERC-20 tokens
