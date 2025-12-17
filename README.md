@@ -269,30 +269,7 @@ chai-platform/
 └── types/               # TypeScript definitions
 ```
 
-## 🔐 Wallet Integration
-
-The platform uses **MetaMask** for secure wallet integration with Mantle Network.
-
-### Supported Wallets
-- **MetaMask** (Browser Extension) - Primary wallet
-- **Any EVM-compatible wallet** that supports custom networks
-
-### Integration Details
-
-Wallet integration is located in `frontend/wallet/` and includes:
-
-- `metamask-connector.js` - MetaMask connection and interaction
-- `manager.js` - High-level wallet API
-- `modal.js` - Connection UI components
-- `state.js` - Connection state management
-
-### Usage Example
-
-```javascript
-// Connect MetaMask
-await walletManager.connect();
-
-// Check connection
+ection
 if (walletManager.isWalletConnected()) {
   const address = walletManager.getAddress();
   console.log('Connected:', address);
