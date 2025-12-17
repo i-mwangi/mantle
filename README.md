@@ -48,7 +48,6 @@ The Chai Platform connects coffee farmers with investors through blockchain tech
 - **Modular Architecture** - Separates execution, settlement, and data availability for optimal performance
 - **Energy Efficient** - Layer 2 solution with minimal environmental impact
 
-## 🌐 Live Platform
 
 **Access the platform:** [https://qawa-platform-frontend.onrender.com/](https://qawa-platform-frontend.onrender.com/)
 
