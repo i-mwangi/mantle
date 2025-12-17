@@ -56,7 +56,13 @@ Features available:
 
 ---
 
-## 🏗️ Architecture Diagram
+## 🏗️ System Architecture
+
+![Chai Platform Architecture](frontend/public/readme.png)
+
+### Architecture Overview
+
+The Chai Platform is built on a modern, scalable architecture leveraging Mantle Network's Layer 2 capabilities:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
