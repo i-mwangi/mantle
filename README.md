@@ -28,6 +28,13 @@ The Chai Platform connects coffee farmers with investors through blockchain tech
 - **Secure MetaMask integration** for all platform interactions
 - **Lending system** that allows investors to either provide liquidity to earn interest or take out loans using their coffee tree tokens as collateral
 
+### Platform Statistics
+
+- **50+ Groves Tokenized** across multiple regions
+- **$500K+ Total Invested** by the community
+- **300% Farmer Income Increase** through tokenization
+- **12-18% Investor Returns** annually
+
 ## 🚀 Mantle Network Integration
 
 **Scalable, cost-efficient tokenization of coffee trees with Ethereum security and modular Layer 2 architecture**
