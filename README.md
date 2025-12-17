@@ -157,10 +157,7 @@ All contracts are verified on Mantle Explorer for transparency:
 
 ---
 
-Features available in the live demo:
-- ✅ View 42 mapped coffee groves
-- ✅ Connect MetaMask wallet (Mantle Sepolia)
-- ✅ Browse investment opportunities
+Browse investment opportunities
 - ✅ Real-time grove tracking with satellite imagery
 - ✅ Interactive dashboard with market data
 
