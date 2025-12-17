@@ -272,10 +272,6 @@ chai-platform/
 
 
 
-// Listen to events
-window.addEventListener('wallet-connected', (event) => {
-  console.log('Connected:', event.detail.address);
-});
 
 window.addEventListener('wallet-disconnected', () => {
   console.log('Wallet disconnected');
