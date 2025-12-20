@@ -156,6 +156,3 @@ Compatible with modern browsers:
 This project is part of the Coffee Tree Platform ecosystem.
 
 ## Developer Notes: Demo Bypass for Verification
-
-- **'Maybe Later' behavior**: The farmer onboarding modal includes a "Maybe Later" button which sets a demo bypass flag allowing farmers to use most features without completing verification. This is intended for demos and testing only.
- 
