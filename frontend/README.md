@@ -120,10 +120,3 @@ The interface is fully responsive and works on:
 - Tablets
 - Mobile devices
 
-## Browser Support
-
-Compatible with modern browsers:
-- Chrome 80+
-- Firefox 75+
-- Safari 13+
-- Edge 80+
