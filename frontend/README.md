@@ -107,9 +107,3 @@ The application automatically determines user type based on the connected wallet
 - Portfolio tracking with performance metrics
 - Secondary market trading capabilities
 
-### Revenue Distribution
-- Automatic calculation of token holder shares
-- Real-time distribution tracking
-- Earnings history and analytics
-- Performance visualization
-
