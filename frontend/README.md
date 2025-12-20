@@ -113,10 +113,3 @@ The application automatically determines user type based on the connected wallet
 - Earnings history and analytics
 - Performance visualization
 
-## Responsive Design
-
-The interface is fully responsive and works on:
-- Desktop computers
-- Tablets
-- Mobile devices
-
