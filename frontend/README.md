@@ -153,6 +153,3 @@ Compatible with modern browsers:
 
 ## License
 
-This project is part of the Coffee Tree Platform ecosystem.
-
-## Developer Notes: Demo Bypass for Verification
