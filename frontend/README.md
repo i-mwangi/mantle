@@ -135,13 +135,4 @@ Compatible with modern browsers:
 - Secure file upload handling
 - Protection against XSS attacks
 
-## Future Enhancements
-
-- Real Hedera wallet integration
-- Advanced charting and analytics
-- Mobile app development
-- Multi-language support
-- Enhanced mapping features
-- IoT sensor data integration
-
 
