@@ -144,12 +144,4 @@ Compatible with modern browsers:
 - Enhanced mapping features
 - IoT sensor data integration
 
-## Contributing
-
-1. Follow the existing code structure and naming conventions
-2. Test all functionality across different user types
-3. Ensure responsive design compatibility
-4. Update documentation for new features
-
-## License
 
