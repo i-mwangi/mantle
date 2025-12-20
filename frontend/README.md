@@ -159,4 +159,4 @@ This project is part of the Coffee Tree Platform ecosystem.
 
 - **'Maybe Later' behavior**: The farmer onboarding modal includes a "Maybe Later" button which sets a demo bypass flag allowing farmers to use most features without completing verification. This is intended for demos and testing only.
 - **Local storage keys**: `skipFarmerVerification` and `demoBypass` are set to `'true'` when the user clicks "Maybe Later". To re-enable verification prompts, remove these keys from the browser's localStorage or click "Complete verification" in the farmer dashboard banner.
-- **Server persistence**: The frontend attempts to persist the setting via `window.coffeeAPI.saveUserSettings(accountId, { skipFarmerVerification: true, demoBypass: true })` when available.
+- **Server persistence**: The f
