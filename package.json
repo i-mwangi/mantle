@@ -49,14 +49,16 @@
     "config:validate": "tsx scripts/test-config-validation.ts",
     "compile:mantle": "hardhat compile",
     "test:mantle": "hardhat test",
-    "deploy:mantle:testnet": "hardhat run scripts/mantle/deploy.ts --network mantleTestnet",
-    "deploy:mantle:local": "hardhat run scripts/mantle/deploy.ts --network hardhat"
+    "deploy:mantle:testnet": "hardhat run scripts/mantle/deploy-standard-bridge.cjs --network mantleSepolia",
+    "deploy:mantle:local": "hardhat run scripts/mantle/deploy-standard-bridge.cjs --network hardhat",
+    "deploy:mantle:bridge": "hardhat run scripts/mantle/deploy-standard-bridge.cjs --network mantleSepolia"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@libsql/client": "^0.15.1",
+    "@mantleio/contracts": "^0.1.0",
     "@openzeppelin/contracts": "^5.2.0",
     "@reown/appkit": "1.8.4",
     "@reown/appkit-adapter-ethers": "1.8.4",
