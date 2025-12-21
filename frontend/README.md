@@ -1,6 +1,6 @@
 # Coffee Tree Platform Frontend
 
-A web-based interface for the Coffee Tree Platform, providing both farmer and investor portals for managing coffee grove investments.
+A wbi for the Coffee Tree Platform, providing both farmer and investor portals for managing coffee grove investments.
 
 ## Features
 
