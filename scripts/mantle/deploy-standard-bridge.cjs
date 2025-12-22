@@ -88,16 +88,16 @@ async function main() {
   const priceOracleAddress = await priceOracle.getAddress();
   console.log("✅ Price Oracle:", priceOracleAddress);
 
-  // 3. Coffee Tree Issuer
-  const CoffeeTreeIssuer = await ethers.getContractFactory("CoffeeTreeIssuer");
-  const issuer = await CoffeeTreeIssuer.deploy(
+  // 3. Coffee Tree Issuer (Simple version to avoid size limit)
+  const CoffeeTreeIssuerSimple = await ethers.getContractFactory("CoffeeTreeIssuerSimple");
+  const issuer = await CoffeeTreeIssuerSimple.deploy(
     usdcAddress,
     farmerVerificationAddress,
     priceOracleAddress
   );
   await issuer.waitForDeployment();
   const issuerAddress = await issuer.getAddress();
-  console.log("✅ Coffee Tree Issuer:", issuerAddress);
+  console.log("✅ Coffee Tree Issuer (Simple):", issuerAddress);
 
   // 4. Lending Pool
   const CoffeeLendingPool = await ethers.getContractFactory("CoffeeLendingPool");
