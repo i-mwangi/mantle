@@ -100,8 +100,8 @@ async function main() {
   console.log("✅ Coffee Tree Issuer:", issuerAddress);
 
   // 4. Lending Pool
-  const LendingPool = await ethers.getContractFactory("LendingPool");
-  const lendingPool = await LendingPool.deploy(usdcAddress);
+  const CoffeeLendingPool = await ethers.getContractFactory("CoffeeLendingPool");
+  const lendingPool = await CoffeeLendingPool.deploy(usdcAddress);
   await lendingPool.waitForDeployment();
   const lendingPoolAddress = await lendingPool.getAddress();
   console.log("✅ Lending Pool:", lendingPoolAddress);
