@@ -62,8 +62,8 @@ async function main() {
   // Deploy USDC token (standard ERC20 for payments)
   console.log("💵 Deploying USDC Token...\n");
 
-  const USDC = await ethers.getContractFactory("USDC");
-  const usdc = await USDC.deploy();
+  const MockUSDC = await ethers.getContractFactory("MockUSDC");
+  const usdc = await MockUSDC.deploy();
   await usdc.waitForDeployment();
   const usdcAddress = await usdc.getAddress();
 
@@ -82,8 +82,8 @@ async function main() {
   console.log("✅ Farmer Verification:", farmerVerificationAddress);
 
   // 2. Price Oracle
-  const CoffeePriceOracle = await ethers.getContractFactory("CoffeePriceOracle");
-  const priceOracle = await CoffeePriceOracle.deploy();
+  const PriceOracle = await ethers.getContractFactory("PriceOracle");
+  const priceOracle = await PriceOracle.deploy();
   await priceOracle.waitForDeployment();
   const priceOracleAddress = await priceOracle.getAddress();
   console.log("✅ Price Oracle:", priceOracleAddress);
