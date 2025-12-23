@@ -25,22 +25,38 @@ class AdminAccessManager {
                 return false;
             }
 
-            // Check with backend
+            // Check with backend (if available)
             console.log('[Admin Access] Calling API to check admin status...');
-            const response = await fetch('/api/admin/check-access', {
-                headers: {
-                    'x-account-id': this.accountId
-                }
-            });
+            try {
+                const response = await fetch('/api/admin/check-access', {
+                    headers: {
+                        'x-account-id': this.accountId
+                    }
+                });
 
-            this.isAdmin = response.ok;
-            console.log('[Admin Access] API response:', response.status, 'isAdmin:', this.isAdmin);
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log('[Admin Access] Admin access granted:', data);
-            } else {
-                console.log('[Admin Access] Admin access denied');
+                this.isAdmin = response.ok;
+                console.log('[Admin Access] API response:', response.status, 'isAdmin:', this.isAdmin);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('[Admin Access] Admin access granted:', data);
+                } else {
+                    console.log('[Admin Access] Admin access denied');
+                }
+            } catch (apiError) {
+                // API not available - check against admin accounts from env
+                console.log('[Admin Access] API not available, checking against admin accounts list');
+                
+                // Get admin accounts from environment or use default
+                const adminAccounts = (window.ADMIN_ACCOUNTS || process.env.ADMIN_ACCOUNTS || '').split(',').map(a => a.trim().toLowerCase());
+                const currentAccount = this.accountId.toLowerCase();
+                
+                // Check if current account is in admin list
+                this.isAdmin = adminAccounts.includes(currentAccount);
+                
+                console.log('[Admin Access] Admin accounts:', adminAccounts);
+                console.log('[Admin Access] Current account:', currentAccount);
+                console.log('[Admin Access] Is admin (offline check):', this.isAdmin);
             }
             
             this.updateUI();

@@ -453,6 +453,12 @@ class DashboardEnhanced {
     }
 
     async refreshActivity() {
+        // Only refresh if wallet is connected
+        const accountId = window.walletManager?.getAccountId();
+        if (!accountId) {
+            return; // Skip refresh if not connected
+        }
+        
         console.log('[Dashboard] Refreshing activity feed...');
         await this.loadActivityFeed();
     }

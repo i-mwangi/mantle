@@ -30,11 +30,9 @@ export class WalletManager {
       // Setup button event listeners
       this.setupEventListeners();
       
-      // Check if MetaMask is already connected
-      if (metaMaskWallet.isMetaMaskInstalled() && window.ethereum.selectedAddress) {
-        console.log('MetaMask already connected, restoring session...');
-        await metaMaskWallet.connect();
-      }
+      // DON'T auto-connect - let user click the button
+      // This ensures MetaMask popup shows when user explicitly clicks connect
+      console.log('✅ Wallet manager initialized. Click "Connect Wallet" to connect.');
       
       // Load user type from localStorage
       this.userType = localStorage.getItem('userType') || 'investor';
@@ -52,36 +50,51 @@ export class WalletManager {
    * Setup event listeners for wallet buttons
    */
   setupEventListeners() {
-    // Wait for DOM to be ready
+    // Track if listeners are already attached to prevent duplicates
+    this._listenersAttached = this._listenersAttached || {};
+    
     const setupButtons = () => {
       const connectBtn = document.getElementById('connect-wallet-btn');
       const disconnectBtn = document.getElementById('disconnectWallet');
       const dashboardConnectBtn = document.getElementById('dashboardConnectBtn');
       
-      if (connectBtn) {
+      // Main connect button - use direct onclick to ensure it works
+      if (connectBtn && !this._listenersAttached.connectBtn) {
         console.log('✅ Setting up connect button event listener');
-        connectBtn.addEventListener('click', () => {
+        // Use onclick assignment to avoid duplicate listeners
+        connectBtn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
           console.log('🔘 Connect button clicked!');
           this.connect();
-        });
-      } else {
+        };
+        this._listenersAttached.connectBtn = true;
+      } else if (!connectBtn) {
         console.warn('⚠️ Connect button not found');
       }
       
-      if (disconnectBtn) {
+      // Disconnect button
+      if (disconnectBtn && !this._listenersAttached.disconnectBtn) {
         console.log('✅ Setting up disconnect button event listener');
-        disconnectBtn.addEventListener('click', () => {
+        disconnectBtn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
           console.log('🔘 Disconnect button clicked!');
           this.disconnect();
-        });
+        };
+        this._listenersAttached.disconnectBtn = true;
       }
       
-      if (dashboardConnectBtn) {
+      // Dashboard connect button
+      if (dashboardConnectBtn && !this._listenersAttached.dashboardConnectBtn) {
         console.log('✅ Setting up dashboard connect button event listener');
-        dashboardConnectBtn.addEventListener('click', () => {
+        dashboardConnectBtn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
           console.log('🔘 Dashboard connect button clicked!');
           this.connect();
-        });
+        };
+        this._listenersAttached.dashboardConnectBtn = true;
       }
     };
     
@@ -90,17 +103,33 @@ export class WalletManager {
     
     // Also setup after a short delay to catch dynamically loaded elements
     setTimeout(setupButtons, 500);
+    
+    // And setup after full page load as a fallback
+    window.addEventListener('load', () => {
+      setTimeout(setupButtons, 100);
+    });
   }
 
   /**
    * Connect wallet
    */
   async connect() {
+    console.log('🔌 WalletManager.connect() called');
+    
     try {
+      // Check if MetaMask is available first
+      if (!window.ethereum) {
+        console.error('❌ MetaMask not detected - window.ethereum is undefined');
+        this.showToast('MetaMask is not installed. Please install MetaMask to continue.', 'error');
+        return;
+      }
+      
+      console.log('✅ MetaMask detected, requesting connection...');
       this.showLoading('Connecting to MetaMask...');
       
       // Connect to MetaMask
       const result = await metaMaskWallet.connect();
+      console.log('✅ MetaMask connect result:', result);
       
       if (result.success) {
         // Check if on correct network (localhost or Mantle Sepolia)

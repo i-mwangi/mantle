@@ -31,16 +31,29 @@ export class MetaMaskConnector {
    */
   async connect() {
     try {
+      console.log('🔌 MetaMaskConnector.connect() starting...');
+      
       const ethers = getEthers();
+      console.log('✅ Ethers loaded:', !!ethers);
       
       if (!this.isMetaMaskInstalled()) {
         throw new Error('MetaMask is not installed. Please install MetaMask to continue.');
       }
+      console.log('✅ MetaMask is installed');
 
-      // Request account access
-      const accounts = await window.ethereum.request({
-        method: 'eth_requestAccounts'
+      // Force MetaMask popup by requesting permissions
+      // This will ALWAYS show the popup, even if already connected
+      console.log('📱 Requesting MetaMask permissions (popup will appear)...');
+      await window.ethereum.request({
+        method: 'wallet_requestPermissions',
+        params: [{ eth_accounts: {} }]
       });
+      
+      // Now get the accounts
+      const accounts = await window.ethereum.request({
+        method: 'eth_accounts'
+      });
+      console.log('✅ Accounts received:', accounts);
 
       if (!accounts || accounts.length === 0) {
         throw new Error('No accounts found. Please unlock MetaMask.');

@@ -304,7 +304,10 @@ class NotificationService {
             
             localStorage.setItem('lastNotificationCheck', Date.now().toString());
         } catch (error) {
-            console.error('[Notifications] Error checking for new notifications:', error);
+            // Silently fail if API is not available (offline mode)
+            if (error.message && !error.message.includes('<!DOCTYPE')) {
+                console.error('[Notifications] Error checking for new notifications:', error);
+            }
         }
     }
 

@@ -46,6 +46,13 @@
     <!-- Ethers.js v6 for Web3 functionality -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.0/dist/ethers.umd.min.js"></script>
     
+    <!-- Configuration -->
+    <script>
+        // Admin accounts configuration (for offline mode when API is not available)
+        // Add your admin wallet addresses here (comma-separated, lowercase)
+        window.ADMIN_ACCOUNTS = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266';
+    </script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
@@ -365,7 +372,7 @@
                 </div>
                 <div class="nav-user">
                     <div class="wallet-connection">
-                        <button id="connect-wallet-btn" class="btn btn-primary">Connect Wallet</button>
+                        <button id="connect-wallet-btn" class="btn btn-primary" onclick="console.log('Direct onclick fired'); if(window.walletManager) { window.walletManager.connect(); } else { console.error('walletManager not available'); }">Connect Wallet</button>
                         <div id="walletInfo" class="wallet-info hidden">
                             <span id="walletAddress"></span>
                             <button id="disconnectWallet" class="btn btn-danger btn-sm">Disconnect</button>
