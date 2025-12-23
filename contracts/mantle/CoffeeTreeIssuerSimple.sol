@@ -65,13 +65,6 @@ contract CoffeeTreeIssuerSimple {
         _;
     }
     
-    modifier onlyVerifiedFarmer() {
-        if (!farmerVerification.isVerifiedFarmer(msg.sender)) {
-            revert UnverifiedFarmer(msg.sender);
-        }
-        _;
-    }
-    
     modifier onlyGroveOwner(string memory groveName) {
         CoffeeGrove memory grove = coffeeGroves[groveName];
         if (grove.farmer == address(0)) revert GroveNotFound(groveName);
