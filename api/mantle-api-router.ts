@@ -574,12 +574,40 @@ async function handleGetHarvestHistory(req: VercelRequest, res: VercelResponse) 
       });
     }
 
-    // For now, return empty array since harvest tracking is not yet implemented
-    // TODO: Implement harvest tracking in database and smart contracts
+    // Get farmer's groves
+    const farmerGroves = await db.query.coffeeGroves.findMany({
+      where: eq(coffeeGroves.farmerAddress, farmerAddress),
+    });
+
+    if (farmerGroves.length === 0) {
+      return res.status(200).json({
+        success: true,
+        harvests: [],
+      });
+    }
+
+    // Get harvests for all farmer's groves
+    const harvestRecords = (await import('../../db/schema/index.js')).harvestRecords;
+    const groveIds = farmerGroves.map(g => g.id);
+    
+    const harvests = await db.select({
+      id: harvestRecords.id,
+      groveId: harvestRecords.groveId,
+      groveName: coffeeGroves.groveName,
+      yieldKg: harvestRecords.yieldKg,
+      qualityGrade: harvestRecords.qualityGrade,
+      harvestDate: harvestRecords.harvestDate,
+      notes: harvestRecords.notes,
+      revenueDistributed: harvestRecords.revenueDistributed,
+    })
+    .from(harvestRecords)
+    .leftJoin(coffeeGroves, eq(harvestRecords.groveId, coffeeGroves.id))
+    .where(eq(coffeeGroves.farmerAddress, farmerAddress))
+    .orderBy(harvestRecords.harvestDate);
+
     return res.status(200).json({
       success: true,
-      harvests: [],
-      message: 'Harvest tracking coming soon',
+      harvests,
     });
   } catch (error: any) {
     console.error('Error fetching harvest history:', error);
