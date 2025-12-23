@@ -107,6 +107,8 @@ export class MetaMaskConnector {
         data: error.data
       });
       throw error;
+    } finally {
+      this.isConnecting = false; // Reset the guard
     }
   }
 

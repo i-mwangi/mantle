@@ -186,12 +186,13 @@ export class WalletManager {
       } else if (error.code === 4001) {
         message = 'Connection request rejected by user';
       } else if (error.code === -32002) {
-        message = 'Connection request already pending. Please check MetaMask.';
+        message = 'Connection request already pending. Please check MetaMask and approve or reject the pending request.';
       }
       
       this.showToast(message, 'error');
       console.error('Final error message:', message);
-      throw error;
+      // Don't throw error to prevent uncaught promise rejection
+      return null;
     }
   }
 
