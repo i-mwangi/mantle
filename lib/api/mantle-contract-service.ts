@@ -40,7 +40,7 @@ export class MantleContractService {
     this.provider = new ethers.JsonRpcProvider(config.rpcUrl);
     
     // Create signer from private key
-    const privateKey = getEnv('PRIVATE_KEY');
+    const privateKey = process.env.PRIVATE_KEY;
     if (!privateKey) {
       throw new Error('PRIVATE_KEY not found in environment variables');
     }

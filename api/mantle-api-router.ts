@@ -387,4 +387,65 @@ async function handleSendPayment(req: VercelRequest, res: VercelResponse) {
   return res.status(result.success ? 200 : 400).json(result);
 }
 
+/**
+ * Get price history
+ */
+async function handleGetPriceHistory(req: VercelRequest, res: VercelResponse) {
+  try {
+    const priceHistory = await db.query.priceHistory.findMany({
+      orderBy: (prices, { desc }) => [desc(prices.timestamp)],
+      limit: 100,
+    });
+
+    return res.status(200).json({
+      success: true,
+      prices: priceHistory,
+    });
+  } catch (error: any) {
+    console.error('Error fetching price history:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch price history',
+    });
+  }
+}
+
+/**
+ * Get market overview
+ */
+async function handleGetMarketOverview(req: VercelRequest, res: VercelResponse) {
+  try {
+    // Get total groves
+    const groves = await db.query.coffeeGroves.findMany();
+    const totalGroves = groves.length;
+    const totalTrees = groves.reduce((sum, g) => sum + (g.treeCount || 0), 0);
+    
+    // Get total investments (sum of tokens sold)
+    const totalInvestment = groves.reduce((sum, g) => sum + (g.tokensSold || 0), 0);
+    
+    // Calculate average health score
+    const avgHealthScore = groves.length > 0
+      ? groves.reduce((sum, g) => sum + (g.currentHealthScore || 0), 0) / groves.length
+      : 0;
+
+    return res.status(200).json({
+      success: true,
+      overview: {
+        totalGroves,
+        totalTrees,
+        totalInvestment,
+        averageHealthScore: Math.round(avgHealthScore),
+        activeInvestors: 0, // TODO: Calculate from token holdings
+        totalRevenue: 0, // TODO: Calculate from harvest records
+      },
+    });
+  } catch (error: any) {
+    console.error('Error fetching market overview:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch market overview',
+    });
+  }
+}
+
 export default handleMantleAPI;
