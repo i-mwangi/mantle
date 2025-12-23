@@ -638,14 +638,61 @@ async function handleReportHarvest(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // For now, just return success
-    // TODO: Implement harvest reporting in database and smart contracts
+    if (!groveId && !groveName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Grove ID or name is required',
+      });
+    }
+
     console.log('📊 Harvest reported:', { groveId, groveName, yieldAmount, quality, farmerAddress });
+
+    // Find the grove
+    let grove;
+    if (groveId) {
+      grove = await db.query.coffeeGroves.findFirst({
+        where: eq(coffeeGroves.id, groveId),
+      });
+    } else if (groveName) {
+      grove = await db.query.coffeeGroves.findFirst({
+        where: eq(coffeeGroves.groveName, groveName),
+      });
+    }
+
+    if (!grove) {
+      return res.status(404).json({
+        success: false,
+        error: 'Grove not found',
+      });
+    }
+
+    // Save harvest to database
+    const harvestRecords = (await import('../../db/schema/index.js')).harvestRecords;
+    
+    const [harvest] = await db.insert(harvestRecords).values({
+      groveId: grove.id,
+      harvestDate: Date.now(),
+      yieldKg: Math.round(parseFloat(yieldAmount) || 0),
+      qualityGrade: parseInt(quality) || 5,
+      notes: notes || '',
+      revenueDistributed: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    }).returning();
+
+    console.log('✅ Harvest saved to database:', harvest);
 
     return res.status(200).json({
       success: true,
       message: 'Harvest reported successfully',
-      harvestId: Date.now(),
+      harvest: {
+        id: harvest.id,
+        groveId: harvest.groveId,
+        groveName: grove.groveName,
+        yieldKg: harvest.yieldKg,
+        qualityGrade: harvest.qualityGrade,
+        harvestDate: harvest.harvestDate,
+      },
     });
   } catch (error: any) {
     console.error('Error reporting harvest:', error);
