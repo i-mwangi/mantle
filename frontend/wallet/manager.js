@@ -176,14 +176,21 @@ export class WalletManager {
       
     } catch (error) {
       console.error('Connection error:', error);
+      console.error('Error type:', typeof error);
+      console.error('Error keys:', Object.keys(error));
       this.hideLoading();
       
       let message = 'Failed to connect wallet';
       if (error.message) {
         message = error.message;
+      } else if (error.code === 4001) {
+        message = 'Connection request rejected by user';
+      } else if (error.code === -32002) {
+        message = 'Connection request already pending. Please check MetaMask.';
       }
       
       this.showToast(message, 'error');
+      console.error('Final error message:', message);
       throw error;
     }
   }
