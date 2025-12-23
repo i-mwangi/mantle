@@ -17,6 +17,7 @@ export class MetaMaskConnector {
   constructor() {
     this.provider = null;
     this.signer = null;
+    this.isConnecting = false; // Guard against multiple simultaneous connections
   }
 
   /**
@@ -30,7 +31,14 @@ export class MetaMaskConnector {
    * Connect to MetaMask
    */
   async connect() {
+    // Prevent multiple simultaneous connection attempts
+    if (this.isConnecting) {
+      console.log('⏳ Connection already in progress, please wait...');
+      throw new Error('Connection already in progress. Please check MetaMask.');
+    }
+
     try {
+      this.isConnecting = true;
       console.log('🔌 MetaMaskConnector.connect() starting...');
       
       const ethers = getEthers();
