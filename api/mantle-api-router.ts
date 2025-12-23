@@ -432,8 +432,18 @@ async function handleGetPrice(req: VercelRequest, res: VercelResponse) {
       ...priceInfo,
     });
   } catch (error: any) {
+    // Return mock data when oracle is not initialized (expected during development)
+    if (error.message === 'Price oracle not initialized') {
+      return res.status(200).json({
+        success: true,
+        price: 0,
+        lastUpdate: Date.now(),
+        priceInCents: 0,
+        note: 'Price oracle not initialized - using default values',
+      });
+    }
+    
     console.error('Error getting price from oracle:', error.message);
-    // Return mock data when oracle is not initialized
     return res.status(200).json({
       success: true,
       price: 0,

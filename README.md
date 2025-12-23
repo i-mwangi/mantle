@@ -50,13 +50,13 @@ The Chai Platform connects coffee farmers with investors through blockchain tech
 
 
 Features available:
-- ✅ Connect MetaMask wallet (Mantle Sepolia Testnet)
-- ✅ Register and tokenize coffee groves as ERC-20 tokens
-- ✅ Browse and invest in tokenized groves
-- ✅ Track earnings and withdraw USDC
-- ✅ Provide liquidity or take out loans
-- ✅ Real-time revenue distribution
-- ✅ Secondary marketplace trading
+-  Connect MetaMask wallet (Mantle Sepolia Testnet)
+-  Register and tokenize coffee groves as ERC-20 tokens
+-  Browse and invest in tokenized groves
+- Track earnings and withdraw USDC
+-  Provide liquidity or take out loans
+-  Real-time revenue distribution
+-  Secondary marketplace trading
 
 ---
 

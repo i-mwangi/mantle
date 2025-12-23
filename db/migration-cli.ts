@@ -21,24 +21,24 @@ async function main() {
       break
 
     case 'rollback':
-      console.log('🔄 Rolling back last migration...\n')
+      console.log(' Rolling back last migration...\n')
       const result = await rollbackLastMigration()
       if (result.success) {
-        console.log(`\n✅ Successfully rolled back: ${result.migrationRolledBack}`)
+        console.log(`\n Successfully rolled back: ${result.migrationRolledBack}`)
       } else {
-        console.error(`\n❌ Rollback failed: ${result.error}`)
+        console.error(`\n Rollback failed: ${result.error}`)
         process.exit(1)
       }
       break
 
     case 'run':
     case 'migrate':
-      console.log('🔄 Running pending migrations...\n')
+      console.log(' Running pending migrations...\n')
       const migrationResult = await runMigrations()
       if (migrationResult.success) {
-        console.log('\n✅ Migrations completed successfully')
+        console.log('\n Migrations completed successfully')
       } else {
-        console.error('\n❌ Migration failed')
+        console.error('\n Migration failed')
         console.error('Errors:', migrationResult.errors)
         process.exit(1)
       }

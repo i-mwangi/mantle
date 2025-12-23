@@ -74,7 +74,7 @@ export class MigrationRunner {
       const migrationFiles = this.getMigrationFiles()
       
       if (migrationFiles.length === 0) {
-        console.log('✅ No migration files found')
+        console.log(' No migration files found')
         return result
       }
 
@@ -92,7 +92,7 @@ export class MigrationRunner {
           await this.executeMigration(file)
           await this.recordMigration(file)
           result.migrationsRun.push(file)
-          console.log(`✅ Executed migration: ${file}`)
+          console.log(` Executed migration: ${file}`)
         } catch (error) {
           const errorMsg = `Failed to execute migration ${file}: ${error instanceof Error ? error.message : String(error)}`
           console.error(`❌ ${errorMsg}`)
@@ -105,12 +105,12 @@ export class MigrationRunner {
 
       if (result.success) {
         if (result.migrationsRun.length > 0) {
-          console.log(`✅ Successfully ran ${result.migrationsRun.length} migrations`)
+          console.log(` Successfully ran ${result.migrationsRun.length} migrations`)
         } else {
-          console.log('✅ All migrations already applied')
+          console.log(' All migrations already applied')
         }
       } else {
-        console.error(`❌ Migration failed. Ran ${result.migrationsRun.length} migrations before failure`)
+        console.error(` Migration failed. Ran ${result.migrationsRun.length} migrations before failure`)
       }
 
     } catch (error) {
@@ -208,7 +208,7 @@ export class MigrationRunner {
         // Ignore errors - table will be created on first insert
       }
       
-      console.log('✅ In-memory database ready (user_settings table initialized)')
+      console.log(' In-memory database ready (user_settings table initialized)')
     } catch (error) {
       // Don't throw - in-memory DB will create tables on-demand anyway
       // Only log if it's not a simple "table doesn't exist" error
@@ -253,7 +253,7 @@ export class MigrationRunner {
         }
       }
       
-      console.log('✅ Migration history table created')
+      console.log(' Migration history table created')
     }
   }
 
@@ -407,7 +407,7 @@ export class MigrationRunner {
       
       result.success = true
       result.migrationRolledBack = migrationName
-      console.log(`✅ Successfully rolled back migration: ${migrationName}`)
+      console.log(` Successfully rolled back migration: ${migrationName}`)
       
     } catch (error) {
       result.error = `Rollback failed: ${error instanceof Error ? error.message : String(error)}`
@@ -484,7 +484,7 @@ export class MigrationRunner {
         result.existingTables.push(table)
       }
       
-      console.log('✅ In-memory database tables verified')
+      console.log(' In-memory database tables verified')
       return result
     }
 
@@ -507,12 +507,12 @@ export class MigrationRunner {
       }
 
       if (result.allTablesExist) {
-        console.log('✅ All required tables exist')
+        console.log('All required tables exist')
       } else {
-        console.warn(`⚠️  Missing tables: ${result.missingTables.join(', ')}`)
+        console.warn(`  Missing tables: ${result.missingTables.join(', ')}`)
       }
     } catch (error) {
-      console.error('❌ Error verifying tables:', error)
+      console.error(' Error verifying tables:', error)
       result.allTablesExist = false
     }
 

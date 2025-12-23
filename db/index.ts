@@ -305,7 +305,7 @@ if (FORCE_IN_MEMORY) {
     })
 
     dbVar = drizzle(client, { schema })
-    console.log('✅ Connected to Turso database successfully')
+    console.log(' Connected to Turso database successfully')
   } catch (e) {
     console.error('❌ Failed to connect to Turso:', e)
     console.warn('Falling back to in-memory DB for demo/testing.')
@@ -322,10 +322,10 @@ if (FORCE_IN_MEMORY) {
     const schemaEarnings = require('./schema/earnings-distribution')
     const schema = { ...schemaIndex, ...schemaEarnings }
 
-    console.log('📁 Using local SQLite database...')
+    console.log(' Using local SQLite database...')
     const sqliteInstance = new BetterSqlite3('./local-store/sqlite/sqlite.db')
     dbVar = drizzleMod.drizzle(sqliteInstance, { schema })
-    console.log('✅ Connected to local SQLite database')
+    console.log(' Connected to local SQLite database')
   } catch (e) {
     console.warn('Failed to load native SQLite bindings; falling back to in-memory DB for demo/testing.', e)
     dbVar = createInMemoryMockDb()

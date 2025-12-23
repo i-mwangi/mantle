@@ -61,6 +61,10 @@ export class MantlePriceOracleService {
       );
       return Number(price);
     } catch (error: any) {
+      // Silently fail if oracle not initialized (expected during development)
+      if (error.code === 'CALL_EXCEPTION' && error.reason === 'require(false)') {
+        throw new Error('Price oracle not initialized');
+      }
       console.error('❌ Failed to get price:', error);
       throw error;
     }
@@ -86,6 +90,10 @@ export class MantlePriceOracleService {
       );
       return Number(timestamp);
     } catch (error: any) {
+      // Silently fail if oracle not initialized (expected during development)
+      if (error.code === 'CALL_EXCEPTION' && error.reason === 'require(false)') {
+        throw new Error('Price oracle not initialized');
+      }
       console.error('❌ Failed to get last update time:', error);
       throw error;
     }
@@ -108,6 +116,10 @@ export class MantlePriceOracleService {
         lastUpdateDate: new Date(lastUpdate * 1000).toISOString(),
       };
     } catch (error: any) {
+      // Silently fail if oracle not initialized (expected during development)
+      if (error.message === 'Price oracle not initialized') {
+        throw error;
+      }
       console.error('❌ Failed to get price info:', error);
       throw error;
     }

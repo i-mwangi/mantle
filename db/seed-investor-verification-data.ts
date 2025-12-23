@@ -157,10 +157,10 @@ export async function seedInvestorVerificationData() {
 
       await db.insert(investorVerificationHistory).values(history)
 
-      console.log(`✅ Inserted ${insertedVerifications.length} auto-verified investor records`)
+      console.log(` Inserted ${insertedVerifications.length} auto-verified investor records`)
 
-      console.log('✅ Investor verification seed (auto-verified) inserted successfully!');
-      console.log(`📊 Seeded data summary:`);
+      console.log(' Investor verification seed (auto-verified) inserted successfully!');
+      console.log(` Seeded data summary:`);
       console.log(`   - ${investorProfileData.length} investor profiles`);
       console.log(`   - ${insertedVerifications.length} auto-verified investor records`);
       console.log(`   - ${history.length} verification history records`);
@@ -357,12 +357,12 @@ export async function seedInvestorVerificationData() {
 
       await db.insert(investorVerificationHistory).values(verificationHistoryData);
 
-      console.log('✅ Investor verification seed data inserted successfully!');
-      console.log(`📊 Seeded data summary:`);
+      console.log(' Investor verification seed data inserted successfully!');
+      console.log(` Seeded data summary:`);
       console.log(`   - ${investorProfileData.length} investor profiles`);
       console.log(`   - ${investorVerificationData.length} investor verifications`);
       console.log(`   - ${verificationHistoryData.length} verification history records`);
-      console.log(`\n📋 Verification status breakdown:`);
+      console.log(`\n Verification status breakdown:`);
       console.log(`   - Verified: 2 (1 basic, 1 accredited)`);
       console.log(`   - Pending: 2 (1 basic, 1 accredited)`);
       console.log(`   - Rejected: 1 (basic)`);

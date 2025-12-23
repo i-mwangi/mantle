@@ -255,8 +255,8 @@ export async function seedCoffeeData() {
 
     await db.insert(revenueDistributions).values(revenueDistributionData);
 
-    console.log('✅ Coffee tree seed data inserted successfully!');
-    console.log(`📊 Seeded data summary:`);
+    console.log(' Coffee tree seed data inserted successfully!');
+    console.log(` Seeded data summary:`);
     console.log(`   - ${farmerVerificationData.length} farmer verifications`);
     console.log(`   - ${coffeeGroveData.length} coffee groves`);
     console.log(`   - ${harvestData.length} harvest records`);
