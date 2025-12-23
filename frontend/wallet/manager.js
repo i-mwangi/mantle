@@ -27,6 +27,9 @@ export class WalletManager {
     try {
       console.log('Initializing WalletManager...');
       
+      // Setup button event listeners
+      this.setupEventListeners();
+      
       // Check if MetaMask is already connected
       if (metaMaskWallet.isMetaMaskInstalled() && window.ethereum.selectedAddress) {
         console.log('MetaMask already connected, restoring session...');
@@ -43,6 +46,50 @@ export class WalletManager {
     } catch (error) {
       console.error('Failed to initialize wallet manager:', error);
     }
+  }
+
+  /**
+   * Setup event listeners for wallet buttons
+   */
+  setupEventListeners() {
+    // Wait for DOM to be ready
+    const setupButtons = () => {
+      const connectBtn = document.getElementById('connect-wallet-btn');
+      const disconnectBtn = document.getElementById('disconnectWallet');
+      const dashboardConnectBtn = document.getElementById('dashboardConnectBtn');
+      
+      if (connectBtn) {
+        console.log('✅ Setting up connect button event listener');
+        connectBtn.addEventListener('click', () => {
+          console.log('🔘 Connect button clicked!');
+          this.connect();
+        });
+      } else {
+        console.warn('⚠️ Connect button not found');
+      }
+      
+      if (disconnectBtn) {
+        console.log('✅ Setting up disconnect button event listener');
+        disconnectBtn.addEventListener('click', () => {
+          console.log('🔘 Disconnect button clicked!');
+          this.disconnect();
+        });
+      }
+      
+      if (dashboardConnectBtn) {
+        console.log('✅ Setting up dashboard connect button event listener');
+        dashboardConnectBtn.addEventListener('click', () => {
+          console.log('🔘 Dashboard connect button clicked!');
+          this.connect();
+        });
+      }
+    };
+    
+    // Try to setup immediately
+    setupButtons();
+    
+    // Also setup after a short delay to catch dynamically loaded elements
+    setTimeout(setupButtons, 500);
   }
 
   /**
@@ -261,23 +308,21 @@ export class WalletManager {
         }
         if (walletAddress) {
           const accountId = this.getAccountId();
-          walletAddress.textContent = accountId ? accountId.toString ? accountId.toString() : String(accountId) : 'No account ID';
+          const shortAddress = accountId ? 
+            `${accountId.slice(0, 6)}...${accountId.slice(-4)}` : 
+            'No account';
+          walletAddress.textContent = shortAddress;
+          walletAddress.title = accountId; // Show full address on hover
         }
       } else {
         // Show connect button, hide wallet info
         connectBtn.classList.remove('hidden');
         connectBtn.textContent = 'Connect Wallet';
-        connectBtn.onclick = () => this.connect();
+        // Don't override onclick - it's set in setupEventListeners
         if (walletInfo) {
           walletInfo.classList.add('hidden');
         }
       }
-    }
-    
-    // Setup disconnect button
-    const disconnectBtn = document.getElementById('disconnectWallet');
-    if (disconnectBtn) {
-      disconnectBtn.onclick = () => this.disconnect();
     }
   }
 
