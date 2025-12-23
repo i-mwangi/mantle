@@ -3,8 +3,15 @@
  * Replaces HashConnect/Hedera wallet integration
  */
 
-import { ethers } from 'ethers';
 import { walletState } from './state.js';
+
+// Get ethers from window (loaded via CDN script tag)
+function getEthers() {
+  if (typeof window.ethers === 'undefined') {
+    throw new Error('Ethers.js not loaded. Please ensure the ethers CDN script is loaded before this module.');
+  }
+  return window.ethers;
+}
 
 export class MetaMaskConnector {
   constructor() {
@@ -24,6 +31,8 @@ export class MetaMaskConnector {
    */
   async connect() {
     try {
+      const ethers = getEthers();
+      
       if (!this.isMetaMaskInstalled()) {
         throw new Error('MetaMask is not installed. Please install MetaMask to continue.');
       }
@@ -163,6 +172,7 @@ export class MetaMaskConnector {
    * Send transaction
    */
   async sendTransaction(to, value) {
+    const ethers = getEthers();
     const signer = this.getSigner();
     
     const tx = await signer.sendTransaction({
@@ -181,6 +191,7 @@ export class MetaMaskConnector {
    * Call contract method (read-only)
    */
   async callContract(contractAddress, abi, method, ...args) {
+    const ethers = getEthers();
     const contract = new ethers.Contract(contractAddress, abi, this.provider);
     return await contract[method](...args);
   }
@@ -189,6 +200,7 @@ export class MetaMaskConnector {
    * Execute contract transaction (write)
    */
   async executeContract(contractAddress, abi, method, ...args) {
+    const ethers = getEthers();
     const signer = this.getSigner();
     const contract = new ethers.Contract(contractAddress, abi, signer);
     

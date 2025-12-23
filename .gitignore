@@ -141,6 +141,9 @@ frontend/*.bak
 
 
 # Test & Development Scripts 
+# Exclude all scripts folder (contains test, debug, and development scripts)
+scripts/
+
 # Test scripts
 scripts/test-*.ts
 scripts/test-*.mjs
