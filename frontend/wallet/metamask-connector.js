@@ -93,6 +93,11 @@ export class MetaMaskConnector {
 
     } catch (error) {
       console.error('❌ MetaMask connection error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        data: error.data
+      });
       throw error;
     }
   }
