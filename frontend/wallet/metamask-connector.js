@@ -159,14 +159,6 @@ export class MetaMaskConnector {
       throw error;
     }
   }
-      console.log('✅ Connected to MetaMask:', address);
-      return { success: true, accountId: address, chainId: Number(network.chainId) };
-
-    } catch (error) {
-      console.error('❌ MetaMask connection error:', error);
-      throw error;
-    }
-  }
 
   /**
    * Disconnect wallet
