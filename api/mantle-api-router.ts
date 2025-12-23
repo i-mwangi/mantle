@@ -55,6 +55,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleListGroves(req, res);
     }
 
+    // Register grove
+    if (url.includes('/groves/register') && method === 'POST') {
+      return await handleRegisterGrove(req, res);
+    }
+
     // Farmer verification
     if (url.includes('/farmers/verify') && method === 'POST') {
       return await handleVerifyFarmer(req, res);
@@ -188,6 +193,65 @@ async function handleListGroves(req: VercelRequest, res: VercelResponse) {
     success: true,
     groves,
   });
+}
+
+/**
+ * Register a new grove
+ */
+async function handleRegisterGrove(req: VercelRequest, res: VercelResponse) {
+  try {
+    const {
+      groveName,
+      location,
+      latitude,
+      longitude,
+      treeCount,
+      coffeeVariety,
+      expectedYieldPerTree,
+      tokensPerTree,
+      farmerAddress,
+      termsAccepted,
+      termsVersion
+    } = req.body;
+
+    // Validate required fields
+    if (!groveName || !location || !treeCount || !coffeeVariety || !farmerAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields',
+      });
+    }
+
+    // Insert grove into database
+    const result = await db.insert(coffeeGroves).values({
+      groveName,
+      farmerAddress,
+      location,
+      coordinatesLat: latitude,
+      coordinatesLng: longitude,
+      treeCount,
+      coffeeVariety,
+      expectedYieldPerTree: expectedYieldPerTree || 0,
+      tokensPerTree: tokensPerTree || 10,
+      verificationStatus: 'pending',
+      currentHealthScore: Math.floor(Math.random() * 20) + 70, // Random 70-90
+      isTokenized: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    }).returning();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Grove registered successfully',
+      grove: result[0],
+    });
+  } catch (error: any) {
+    console.error('Error registering grove:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to register grove',
+    });
+  }
 }
 
 /**
