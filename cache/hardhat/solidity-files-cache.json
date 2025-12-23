@@ -456,8 +456,8 @@
       ]
     },
     "C:\\Users\\Administrator\\Music\\mantle\\contracts\\mantle\\CoffeeTreeIssuerSimple.sol": {
-      "lastModificationDate": 1766475891035,
-      "contentHash": "47194c4cfaccadeac008e4be0c88ba2d",
+      "lastModificationDate": 1766527552899,
+      "contentHash": "e339f581a47a46429eddf6f5938ef0a1",
       "sourceName": "contracts/mantle/CoffeeTreeIssuerSimple.sol",
       "solcConfig": {
         "version": "0.8.29",

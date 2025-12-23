@@ -88,7 +88,7 @@ export class MantleTokenizationService {
         throw new Error('CoffeeGroveTokenized event not found in transaction receipt');
       }
 
-      const tokenAddress = groveTokenizedEvent.args.tokenAddress;
+      const tokenAddress = groveTokenizedEvent.args.token; // Event uses 'token' not 'tokenAddress'
       const totalTokens = Number(groveTokenizedEvent.args.totalTokens);
 
       console.log(`✅ Grove tokenized! Token: ${tokenAddress}, Total: ${totalTokens}`);
