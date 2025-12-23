@@ -120,6 +120,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetMarketOverview(req, res);
     }
 
+    // Harvest: Get history
+    if (url.includes('/api/harvest/history') && method === 'GET') {
+      return await handleGetHarvestHistory(req, res);
+    }
+
     // 404
     return res.status(404).json({
       success: false,
