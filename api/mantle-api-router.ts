@@ -105,6 +105,16 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleSendPayment(req, res);
     }
 
+    // Market: Get price history
+    if (url.includes('/api/market/prices') && method === 'GET') {
+      return await handleGetPriceHistory(req, res);
+    }
+
+    // Market: Get overview
+    if (url.includes('/api/market/overview') && method === 'GET') {
+      return await handleGetMarketOverview(req, res);
+    }
+
     // 404
     return res.status(404).json({
       success: false,
