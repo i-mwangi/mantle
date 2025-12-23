@@ -587,7 +587,6 @@ async function handleGetHarvestHistory(req: VercelRequest, res: VercelResponse) 
     }
 
     // Get harvests for all farmer's groves
-    const harvestRecords = (await import('../../db/schema/index.js')).harvestRecords;
     const groveIds = farmerGroves.map(g => g.id);
     
     const harvests = await db.select({
