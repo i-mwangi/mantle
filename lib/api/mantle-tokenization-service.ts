@@ -39,21 +39,40 @@ export class MantleTokenizationService {
       console.log('Trees:', params.numberOfTrees);
       console.log('Tokens per tree:', params.tokensPerTree);
 
-      // Calculate total supply
-      const totalSupply = params.numberOfTrees * params.tokensPerTree;
+      // Step 1: Register grove on-chain (if not already registered)
+      console.log('📝 Registering grove on-chain...');
+      try {
+        await this.mantleService.executeContract(
+          'ISSUER',
+          ISSUER_ABI,
+          'registerCoffeeGrove',
+          params.groveName,
+          params.location,
+          params.numberOfTrees,
+          'Arabica', // Default variety
+          100 // Default expected yield per tree
+        );
+        console.log('✅ Grove registered on-chain');
+      } catch (error: any) {
+        // Grove might already be registered, continue
+        if (error.message?.includes('GroveAlreadyExists')) {
+          console.log('ℹ️ Grove already registered on-chain, continuing...');
+        } else {
+          throw error;
+        }
+      }
 
-      // Call contract to tokenize grove
+      // Step 2: Tokenize the grove
+      console.log('🪙 Tokenizing grove...');
       const receipt = await this.mantleService.executeContract(
         'ISSUER',
         ISSUER_ABI,
-        'tokenizeGrove',
+        'tokenizeCoffeeGrove',
         params.groveName,
-        params.location,
-        params.numberOfTrees,
         params.tokensPerTree
       );
 
-      // Parse event to get grove ID and token address
+      // Parse event to get token address
       const issuerContract = this.mantleService.getContract('ISSUER', ISSUER_ABI);
       const groveTokenizedEvent = receipt.logs
         .map((log: any) => {
@@ -63,36 +82,31 @@ export class MantleTokenizationService {
             return null;
           }
         })
-        .find((event: any) => event?.name === 'GroveTokenized');
+        .find((event: any) => event?.name === 'CoffeeGroveTokenized');
 
       if (!groveTokenizedEvent) {
-        throw new Error('GroveTokenized event not found in transaction receipt');
+        throw new Error('CoffeeGroveTokenized event not found in transaction receipt');
       }
 
-      const groveId = Number(groveTokenizedEvent.args.groveId);
       const tokenAddress = groveTokenizedEvent.args.tokenAddress;
+      const totalTokens = Number(groveTokenizedEvent.args.totalTokens);
 
-      console.log(`✅ Grove tokenized! ID: ${groveId}, Token: ${tokenAddress}`);
+      console.log(`✅ Grove tokenized! Token: ${tokenAddress}, Total: ${totalTokens}`);
 
       // Update database
-      await db.insert(coffeeGroves).values({
-        groveName: params.groveName,
-        location: params.location,
-        numberOfTrees: params.numberOfTrees,
-        tokensPerTree: params.tokensPerTree,
-        totalSupply,
-        farmerAddress: params.farmerAddress,
-        tokenAddress,
-        groveId,
-        status: 'active',
-        createdAt: Date.now(),
-      });
+      await db.update(coffeeGroves)
+        .set({
+          isTokenized: true,
+          tokenAddress,
+          totalTokensIssued: totalTokens,
+          tokenizedAt: Date.now(),
+        })
+        .where(eq(coffeeGroves.groveName, params.groveName));
 
       return {
         success: true,
-        groveId,
         tokenAddress,
-        totalSupply: totalSupply.toString(),
+        totalSupply: totalTokens.toString(),
         transactionHash: receipt.hash,
       };
     } catch (error: any) {
@@ -150,21 +164,22 @@ export class MantleTokenizationService {
   /**
    * Get grove info from contract
    */
-  async getGroveInfo(groveId: number) {
+  async getGroveInfo(groveName: string) {
     try {
       const groveInfo = await this.mantleService.callContract(
         'ISSUER',
         ISSUER_ABI,
         'getGroveInfo',
-        groveId
+        groveName
       );
 
       return {
-        name: groveInfo[0],
-        location: groveInfo[1],
-        trees: Number(groveInfo[2]),
-        tokenAddress: groveInfo[3],
-        farmer: groveInfo[4],
+        name: groveInfo.groveName,
+        location: groveInfo.location,
+        trees: Number(groveInfo.treeCount),
+        tokenAddress: groveInfo.tokenAddress,
+        farmer: groveInfo.farmer,
+        isTokenized: groveInfo.isTokenized,
       };
     } catch (error: any) {
       console.error('❌ Failed to get grove info:', error);

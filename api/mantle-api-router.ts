@@ -163,17 +163,17 @@ async function handleTokenizeGrove(req: VercelRequest, res: VercelResponse) {
  * Get grove info
  */
 async function handleGetGrove(req: VercelRequest, res: VercelResponse) {
-  const groveId = parseInt(req.url?.split('/').pop() || '0');
+  const groveName = req.url?.split('/').pop() || '';
 
-  if (!groveId) {
+  if (!groveName) {
     return res.status(400).json({
       success: false,
-      error: 'Invalid grove ID',
+      error: 'Invalid grove name',
     });
   }
 
   const tokenService = getMantleTokenizationService();
-  const groveInfo = await tokenService.getGroveInfo(groveId);
+  const groveInfo = await tokenService.getGroveInfo(groveName);
 
   return res.status(200).json({
     success: true,
