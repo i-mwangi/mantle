@@ -217,6 +217,7 @@ export class WalletManager {
     try {
       await metaMaskWallet.disconnect();
       
+      localStorage.removeItem('walletConnected');
       localStorage.removeItem('connectedAccount');
       localStorage.removeItem('userType');
       
