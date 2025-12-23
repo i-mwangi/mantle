@@ -37,19 +37,12 @@ export class WalletManager {
       if (wasConnected && savedAccount && window.ethereum) {
         console.log('🔄 Auto-reconnecting to previously connected wallet...');
         try {
-          // Check if MetaMask still has this account connected
-          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-          if (accounts && accounts.length > 0 && accounts[0] === savedAccount) {
-            // Silently reconnect without popup
-            await metaMaskWallet.connect();
-            console.log('✅ Auto-reconnected successfully');
-          } else {
-            // Clear stale connection data
-            localStorage.removeItem('walletConnected');
-            localStorage.removeItem('connectedAccount');
-          }
+          // Use silent reconnect (no popup)
+          await metaMaskWallet.reconnect();
+          console.log('✅ Auto-reconnected successfully');
         } catch (error) {
           console.log('Auto-reconnect failed:', error.message);
+          // Clear stale connection data
           localStorage.removeItem('walletConnected');
           localStorage.removeItem('connectedAccount');
         }
