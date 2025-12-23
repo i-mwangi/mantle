@@ -632,7 +632,6 @@ async function handleGetHarvestStats(req: VercelRequest, res: VercelResponse) {
     }
 
     // Get harvests for farmer
-    const harvestRecords = (await import('../../db/schema/index.js')).harvestRecords;
     
     const harvests = await db.select({
       yieldKg: harvestRecords.yieldKg,
@@ -706,7 +705,6 @@ async function handleReportHarvest(req: VercelRequest, res: VercelResponse) {
     }
 
     // Save harvest to database
-    const harvestRecords = (await import('../../db/schema/index.js')).harvestRecords;
     
     const [harvest] = await db.insert(harvestRecords).values({
       groveId: grove.id,
