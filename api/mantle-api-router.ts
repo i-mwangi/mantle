@@ -397,15 +397,17 @@ async function handleGetPriceHistory(req: VercelRequest, res: VercelResponse) {
       limit: 100,
     });
 
+    // If no price history in database, return empty array
     return res.status(200).json({
       success: true,
-      prices: priceHistory,
+      prices: priceHistory || [],
     });
   } catch (error: any) {
     console.error('Error fetching price history:', error);
-    return res.status(500).json({
-      success: false,
-      error: error.message || 'Failed to fetch price history',
+    // Return empty array instead of error for better UX
+    return res.status(200).json({
+      success: true,
+      prices: [],
     });
   }
 }
