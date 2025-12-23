@@ -10,7 +10,7 @@ import { getMantleLendingService } from '../lib/api/mantle-lending-service.js';
 import { getMantleFarmerService } from '../lib/api/mantle-farmer-service.js';
 import { getMantlePriceOracleService } from '../lib/api/mantle-price-oracle-service.js';
 import { db } from '../db/index.js';
-import { coffeeGroves, farmers } from '../db/schema/index.js';
+import { coffeeGroves, farmers, harvestRecords } from '../db/schema/index.js';
 import { eq } from 'drizzle-orm';
 
 /**
