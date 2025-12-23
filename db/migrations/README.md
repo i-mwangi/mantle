@@ -7,7 +7,7 @@ This directory contains SQL migration files for the Coffee Chain platform databa
 ### 0005_add_investor_withdrawals.sql
 
 **Created:** 2025-11-09  
-**Status:** ✅ Applied to production (Turso)
+**Status:**  Applied to production (Turso)
 
 **Description:**  
 Adds investor withdrawal functionality and payment tracking to the platform.
@@ -93,7 +93,7 @@ Quick check of the revenue_distributions table structure and payment tracking fi
 
 | Migration | Status | Applied Date | Notes |
 |-----------|--------|--------------|-------|
-| 0005_add_investor_withdrawals.sql | ✅ Applied | 2025-11-09 | Production ready |
+| 0005_add_investor_withdrawals.sql |  Applied | 2025-11-09 | Production ready |
 
 ## Rollback Plan
 

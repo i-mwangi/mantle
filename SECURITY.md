@@ -42,8 +42,8 @@ If you discover a security vulnerability in the Chai Platform, please follow the
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.0.x   | ✅                 |
-| < 1.0   | ❌                 |
+| 1.0.x   |                  |
+| < 1.0   |                 |
 
 ## 🔄 Security Updates
 

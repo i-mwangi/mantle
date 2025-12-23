@@ -238,7 +238,7 @@ async function updateCreditScore(
         })
         .where(eq(creditScores.account, account))
     
-    console.log(`✅ Credit score updated for ${account}: ${newScore} (${paymentCategory.category})`)
+    console.log(` Credit score updated for ${account}: ${newScore} (${paymentCategory.category})`)
 }
 
 /**

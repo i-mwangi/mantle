@@ -164,10 +164,10 @@ class ErrorHandler {
         toast.className = `toast toast-${type}`;
         
         const iconMap = {
-            error: '❌',
-            success: '✅',
-            warning: '⚠️',
-            info: 'ℹ️'
+            error: '',
+            success: '',
+            warning: '',
+            info: 'ℹ'
         };
 
         toast.innerHTML = `

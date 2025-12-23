@@ -52,7 +52,7 @@ class FarmerDashboard {
     // Performance: Get cached data
     getCachedData(cacheKey) {
         if (this.isCacheValid(cacheKey)) {
-            console.log(`✅ Using cached data for ${cacheKey}`);
+            console.log(` Using cached data for ${cacheKey}`);
             return this.dataCache[cacheKey].data;
         }
         return null;
@@ -332,7 +332,7 @@ class FarmerDashboard {
             withdrawalForm.addEventListener('submit', this.boundHandleWithdrawalSubmit);
         }
 
-        console.log('✅ Farmer dashboard event listeners setup complete');
+        console.log(' Farmer dashboard event listeners setup complete');
     }
 
     setupMap() {
@@ -363,7 +363,7 @@ class FarmerDashboard {
             this.handleMapClick(e);
         });
 
-        console.log('✅ Map setup complete');
+        console.log(' Map setup complete');
     }
 
     closeModals() {
@@ -1148,7 +1148,7 @@ class FarmerDashboard {
                             <div class="detail-item">
                                 <span class="detail-label">Status</span>
                                 <span class="detail-value">
-                                    ${grove.verificationStatus === 'verified' ? '✅ Active & Verified' : '⏳ Pending Verification'}
+                                    ${grove.verificationStatus === 'verified' ? 'Active & Verified' : '⏳ Pending Verification'}
                                 </span>
                             </div>
                         </div>
@@ -2546,7 +2546,7 @@ class FarmerDashboard {
                                         </span>
                                     </div>
                                     <div class="harvest-status ${harvest.distributionStatus || 'pending'}">
-                                        ${harvest.distributionStatus === 'distributed' ? '✅ Distributed' : '⏳ Pending'}
+                                        ${harvest.distributionStatus === 'distributed' ? ' Distributed' : '⏳ Pending'}
                                     </div>
                                 </div>
                                 <div class="harvest-metrics">

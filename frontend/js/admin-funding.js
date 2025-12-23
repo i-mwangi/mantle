@@ -187,15 +187,15 @@ window.adminFunding = {
             const data = await response.json();
 
             if (data.success) {
-                alert(`✅ Request approved and funds disbursed!\n\nTransaction ID: ${data.transactionId}`);
+                alert(`Request approved and funds disbursed!\n\nTransaction ID: ${data.transactionId}`);
                 this.closeApproveModal();
                 this.loadDashboardData();
             } else {
-                alert(`❌ Error: ${data.error}`);
+                alert(` Error: ${data.error}`);
             }
         } catch (error) {
             console.error('[AdminFunding] Error approving request:', error);
-            alert(`❌ Error approving request: ${error.message}`);
+            alert(` Error approving request: ${error.message}`);
         }
     },
 
@@ -257,15 +257,15 @@ window.adminFunding = {
             const data = await response.json();
 
             if (data.success) {
-                alert('✅ Request rejected successfully.');
+                alert(' Request rejected successfully.');
                 this.closeRejectModal();
                 this.loadDashboardData();
             } else {
-                alert(`❌ Error: ${data.error}`);
+                alert(` Error: ${data.error}`);
             }
         } catch (error) {
             console.error('[AdminFunding] Error rejecting request:', error);
-            alert(`❌ Error rejecting request: ${error.message}`);
+            alert(` Error rejecting request: ${error.message}`);
         }
     }
 };

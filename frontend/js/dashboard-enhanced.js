@@ -524,7 +524,7 @@ function initializeQuickActions() {
         });
     });
     
-    console.log('✅ Quick action buttons initialized:', quickActionButtons.length);
+    console.log(' Quick action buttons initialized:', quickActionButtons.length);
 }
 
 // Initialize when DOM is ready

@@ -762,7 +762,7 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    alert(`✅ Request approved and funds disbursed!\n\nTransaction ID: ${data.transactionId}`);
+                    alert(` Request approved and funds disbursed!\n\nTransaction ID: ${data.transactionId}`);
                     closeApproveModal();
                     loadDashboardData();
                 } else {
@@ -819,15 +819,15 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    alert('✅ Request rejected successfully.');
+                    alert(' Request rejected successfully.');
                     closeRejectModal();
                     loadDashboardData();
                 } else {
-                    alert(`❌ Error: ${data.error}`);
+                    alert(` Error: ${data.error}`);
                 }
             } catch (error) {
                 console.error('Error rejecting request:', error);
-                alert(`❌ Error rejecting request: ${error.message}`);
+                alert(` Error rejecting request: ${error.message}`);
             }
         }
 
