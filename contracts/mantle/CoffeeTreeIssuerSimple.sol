@@ -116,8 +116,9 @@ contract CoffeeTreeIssuerSimple {
         
         uint64 totalTokens = grove.treeCount * _tokensPerTree;
         
-        // Mantle L2 Standard Bridge address
-        address l2Bridge = 0x4200000000000000000000000000000000000010;
+        // Use this contract as the L2 Bridge for minting purposes
+        // In production, this would be the actual Mantle L2 Standard Bridge
+        address l2Bridge = address(this);
         
         L2CoffeeTreeToken token = new L2CoffeeTreeToken(
             l2Bridge,
@@ -130,6 +131,7 @@ contract CoffeeTreeIssuerSimple {
             grove.expectedYieldPerTree
         );
         
+        // Mint tokens to this contract (issuer holds tokens for sale)
         token.mint(address(this), totalTokens);
         
         CoffeeRevenueReserve reserve = new CoffeeRevenueReserve(address(token), msg.sender, USDC);
