@@ -580,4 +580,67 @@ async function handleGetHarvestHistory(req: VercelRequest, res: VercelResponse) 
   }
 }
 
+/**
+ * Get harvest stats for a farmer
+ */
+async function handleGetHarvestStats(req: VercelRequest, res: VercelResponse) {
+  try {
+    const farmerAddress = req.query.farmerAddress as string;
+
+    if (!farmerAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Farmer address is required',
+      });
+    }
+
+    // Return mock stats for now
+    return res.status(200).json({
+      success: true,
+      stats: {
+        totalHarvests: 0,
+        totalYield: 0,
+        totalRevenue: 0,
+        averageYield: 0,
+      },
+      message: 'Harvest tracking coming soon',
+    });
+  } catch (error: any) {
+    console.error('Error fetching harvest stats:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch harvest stats',
+    });
+  }
+}
+
+/**
+ * Get farmer withdrawals
+ */
+async function handleGetFarmerWithdrawals(req: VercelRequest, res: VercelResponse) {
+  try {
+    const farmerAddress = req.url?.split('/').pop() || '';
+
+    if (!farmerAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Farmer address is required',
+      });
+    }
+
+    // Return empty array for now
+    return res.status(200).json({
+      success: true,
+      withdrawals: [],
+      message: 'Withdrawal tracking coming soon',
+    });
+  } catch (error: any) {
+    console.error('Error fetching farmer withdrawals:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch withdrawals',
+    });
+  }
+}
+
 export default handleMantleAPI;
