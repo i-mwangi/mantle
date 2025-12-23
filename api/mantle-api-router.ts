@@ -601,7 +601,7 @@ async function handleGetHarvestHistory(req: VercelRequest, res: VercelResponse) 
       yieldKg: harvestRecords.yieldKg,
       qualityGrade: harvestRecords.qualityGrade,
       harvestDate: harvestRecords.harvestDate,
-      notes: harvestRecords.notes,
+      totalRevenue: harvestRecords.totalRevenue,
       revenueDistributed: harvestRecords.revenueDistributed,
     })
     .from(harvestRecords)
