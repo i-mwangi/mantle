@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.29;
 
-import "./tokens/CoffeeTreeToken.sol";
+import "./tokens/L2CoffeeTreeToken.sol";
 import "./CoffeeRevenueReserve.sol";
 import "./FarmerVerification.sol";
 import "./PriceOracle.sol";
@@ -116,7 +116,12 @@ contract CoffeeTreeIssuerSimple {
         
         uint64 totalTokens = grove.treeCount * _tokensPerTree;
         
-        CoffeeTreeToken token = new CoffeeTreeToken(
+        // Mantle L2 Standard Bridge address
+        address l2Bridge = 0x4200000000000000000000000000000000000010;
+        
+        L2CoffeeTreeToken token = new L2CoffeeTreeToken(
+            l2Bridge,
+            address(0), // L1 token address (not used for now)
             string(abi.encodePacked("Coffee Grove: ", _groveName)),
             string(abi.encodePacked("TREE-", _groveName)),
             _groveName,
