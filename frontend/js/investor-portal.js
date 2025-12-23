@@ -599,13 +599,29 @@ class InvestorPortal {
             }
         });
 
-        // Purchase form handler
+        // Purchase form handler with submission guard
         const purchaseForm = modal.querySelector('#purchaseForm');
+        let isSubmitting = false;
+        
         purchaseForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // Prevent duplicate submissions
+            if (isSubmitting) {
+                console.log('[InvestorPortal] Already submitting, ignoring duplicate submission');
+                return;
+            }
+            
+            isSubmitting = true;
             console.log('[InvestorPortal] Purchase form submitted!');
-            await this.handleTokenPurchase(groveId, parseInt(tokenAmountInput.value));
-            document.body.removeChild(modal);
+            
+            try {
+                await this.handleTokenPurchase(groveId, parseInt(tokenAmountInput.value));
+                document.body.removeChild(modal);
+            } catch (error) {
+                console.error('[InvestorPortal] Purchase failed:', error);
+                isSubmitting = false; // Reset on error so user can retry
+            }
         });
     }
 
@@ -1046,7 +1062,14 @@ class InvestorPortal {
         window.walletManager.showLoading('Loading portfolio...');
 
         try {
-            const response = await window.coffeeAPI.getPortfolio(investorAddress);
+            // Add timeout to prevent hanging
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Portfolio load timeout')), 30000) // 30 second timeout
+            );
+            
+            const portfolioPromise = window.coffeeAPI.getPortfolio(investorAddress);
+            
+            const response = await Promise.race([portfolioPromise, timeoutPromise]);
             console.log(`[InvestorPortal] Portfolio response:`, response);
 
             if (response.success) {
@@ -1059,9 +1082,21 @@ class InvestorPortal {
                 this.renderHoldings();
             } else {
                 console.error(`[InvestorPortal] Failed to load portfolio:`, response.error);
+                // Show empty portfolio on error
+                this.portfolio = { holdings: [], totalValue: 0, totalInvested: 0 };
+                this.renderPortfolioStats();
+                this.renderHoldings();
             }
         } catch (error) {
             console.error(`[InvestorPortal] Error loading portfolio:`, error);
+            // Show empty portfolio on timeout/error
+            this.portfolio = { holdings: [], totalValue: 0, totalInvested: 0 };
+            this.renderPortfolioStats();
+            this.renderHoldings();
+            
+            if (error.message === 'Portfolio load timeout') {
+                window.walletManager.showToast('Portfolio loading is taking longer than expected. Please try refreshing.', 'warning');
+            }
         } finally {
             window.walletManager.hideLoading();
         }
