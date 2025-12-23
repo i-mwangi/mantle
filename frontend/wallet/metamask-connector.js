@@ -98,6 +98,77 @@ export class MetaMaskConnector {
   }
 
   /**
+   * Silently reconnect to MetaMask (no popup)
+   * Used for auto-reconnect on page load
+   */
+  async reconnect() {
+    try {
+      console.log('🔄 MetaMaskConnector.reconnect() starting (silent)...');
+      
+      const ethers = getEthers();
+      
+      if (!this.isMetaMaskInstalled()) {
+        throw new Error('MetaMask is not installed');
+      }
+
+      // Get accounts without requesting permissions (no popup)
+      const accounts = await window.ethereum.request({
+        method: 'eth_accounts'
+      });
+      
+      if (!accounts || accounts.length === 0) {
+        throw new Error('No accounts connected');
+      }
+
+      console.log('✅ Found connected accounts:', accounts);
+
+      // Create provider and signer
+      this.provider = new ethers.BrowserProvider(window.ethereum);
+      this.signer = await this.provider.getSigner();
+      const address = await this.signer.getAddress();
+      const network = await this.provider.getNetwork();
+
+      // Update state
+      walletState.setState({
+        isConnected: true,
+        accountId: address,
+        chainId: Number(network.chainId),
+        provider: this.provider,
+        signer: this.signer
+      });
+
+      // Listen for account changes
+      window.ethereum.on('accountsChanged', (accounts) => {
+        if (accounts.length === 0) {
+          this.disconnect();
+        } else {
+          walletState.setState({ accountId: accounts[0] });
+        }
+      });
+
+      // Listen for chain changes
+      window.ethereum.on('chainChanged', () => {
+        window.location.reload();
+      });
+
+      console.log('✅ Silently reconnected to MetaMask:', address);
+      return { success: true, accountId: address, chainId: Number(network.chainId) };
+
+    } catch (error) {
+      console.error('❌ Silent reconnect failed:', error);
+      throw error;
+    }
+  }
+      console.log('✅ Connected to MetaMask:', address);
+      return { success: true, accountId: address, chainId: Number(network.chainId) };
+
+    } catch (error) {
+      console.error('❌ MetaMask connection error:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Disconnect wallet
    */
   async disconnect() {
