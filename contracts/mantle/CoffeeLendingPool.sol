@@ -2,13 +2,14 @@
 pragma solidity 0.8.29;
 
 import "./tokens/LPToken.sol";
+import "./PriceOracle.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract CoffeeLendingPool {
     
     address public admin;
     address public USDC;
-    address public coffeeTreeToken;
+    PriceOracle public oracle;
     LPToken public lpToken;
     
     uint256 public totalLiquidity;
@@ -20,8 +21,13 @@ contract CoffeeLendingPool {
     uint256 public constant LIQUIDATION_THRESHOLD = 90; // 90%
     uint256 public constant INTEREST_RATE = 10; // 10%
     
+    // Supported collateral tokens (coffee tree tokens)
+    mapping(address => bool) public supportedCollateral;
+    address[] public collateralTokens;
+    
     struct Loan {
         address borrower;
+        address collateralToken;
         uint256 loanAmountUSDC;
         uint256 collateralAmount;
         uint256 liquidationPrice;
@@ -88,29 +94,56 @@ contract CoffeeLendingPool {
         uint256 timestamp
     );
     
+    event CollateralAdded(address indexed token, uint256 timestamp);
+    event CollateralRemoved(address indexed token, uint256 timestamp);
+    
     modifier onlyAdmin() {
         require(msg.sender == admin, "Only admin");
         _;
     }
     
-    constructor(address _usdcToken, address _coffeeTreeToken) {
+    constructor(address _usdcToken, address _oracle) {
         require(_usdcToken != address(0), "Invalid USDC address");
-        require(_coffeeTreeToken != address(0), "Invalid coffee tree token address");
+        require(_oracle != address(0), "Invalid oracle address");
         
         admin = msg.sender;
         USDC = _usdcToken;
-        coffeeTreeToken = _coffeeTreeToken;
+        oracle = PriceOracle(_oracle);
+        
+        // Create LP token immediately
+        lpToken = new LPToken("Coffee Lending Pool LP", "CLP-LP");
     }
     
     /**
-     * @dev Create LP token (called once by admin)
-     * 
-     * MIGRATION NOTE: Deploys ERC-20 contract instead of using HTS
+     * @dev Set oracle address (admin only)
      */
-    function createLPToken(string memory name, string memory symbol) external onlyAdmin {
-        require(address(lpToken) == address(0), "LP token already created");
+    function setOracle(address _oracle) external onlyAdmin {
+        require(_oracle != address(0), "Invalid oracle address");
+        oracle = PriceOracle(_oracle);
+    }
+    
+    /**
+     * @dev Add a coffee tree token as supported collateral
+     */
+    function addCollateralToken(address _token) external onlyAdmin {
+        require(_token != address(0), "Invalid token address");
+        require(!supportedCollateral[_token], "Token already supported");
         
-        lpToken = new LPToken(name, symbol);
+        supportedCollateral[_token] = true;
+        collateralTokens.push(_token);
+        
+        emit CollateralAdded(_token, block.timestamp);
+    }
+    
+    /**
+     * @dev Remove a coffee tree token from supported collateral
+     */
+    function removeCollateralToken(address _token) external onlyAdmin {
+        require(supportedCollateral[_token], "Token not supported");
+        
+        supportedCollateral[_token] = false;
+        
+        emit CollateralRemoved(_token, block.timestamp);
     }
     
     /**
@@ -185,23 +218,35 @@ contract CoffeeLendingPool {
     /**
      * @dev Take out a loan using coffee tree tokens as collateral
      */
-    function takeLoan(uint256 collateralAmount, uint256 loanAmount) external {
+    function takeLoan(address collateralToken, uint256 collateralAmount, uint256 loanAmount) external {
+        require(supportedCollateral[collateralToken], "Collateral token not supported");
         require(collateralAmount > 0, "Collateral must be positive");
         require(loanAmount > 0, "Loan amount must be positive");
         require(!loans[msg.sender].isActive, "Existing loan must be repaid first");
         require(loanAmount <= availableLiquidity, "Insufficient pool liquidity");
         
-        uint256 requiredCollateral = (loanAmount * COLLATERALIZATION_RATIO) / 100;
-        require(collateralAmount >= requiredCollateral, "Insufficient collateral");
+        // Get token price from oracle (price per token in USDC with 6 decimals)
+        uint256 tokenPrice = oracle.getPrice(collateralToken);
+        require(tokenPrice > 0, "Token price not set");
+        
+        // Calculate collateral value in USDC
+        // collateralAmount is in token units (no decimals for coffee tree tokens)
+        // tokenPrice is in USDC (6 decimals), so result is already in USDC with 6 decimals
+        uint256 collateralValueUSDC = collateralAmount * tokenPrice;
+        
+        // Calculate required collateral value (125% of loan amount)
+        uint256 requiredCollateralValue = (loanAmount * COLLATERALIZATION_RATIO) / 100;
+        require(collateralValueUSDC >= requiredCollateralValue, "Insufficient collateral");
         
         // Transfer collateral from borrower to pool
-        IERC20(coffeeTreeToken).transferFrom(msg.sender, address(this), collateralAmount);
+        IERC20(collateralToken).transferFrom(msg.sender, address(this), collateralAmount);
         
         uint256 liquidationPrice = (loanAmount * LIQUIDATION_THRESHOLD) / 100;
         uint256 repayAmount = (loanAmount * (100 + INTEREST_RATE)) / 100;
         
         loans[msg.sender] = Loan({
             borrower: msg.sender,
+            collateralToken: collateralToken,
             loanAmountUSDC: loanAmount,
             collateralAmount: collateralAmount,
             liquidationPrice: liquidationPrice,
@@ -224,6 +269,22 @@ contract CoffeeLendingPool {
     }
     
     /**
+     * @dev Calculate collateral value in USDC
+     */
+    function getCollateralValue(address collateralToken, uint256 collateralAmount) public view returns (uint256) {
+        uint256 tokenPrice = oracle.getPrice(collateralToken);
+        return collateralAmount * tokenPrice;
+    }
+    
+    /**
+     * @dev Calculate maximum loan amount for given collateral
+     */
+    function getMaxLoanAmount(address collateralToken, uint256 collateralAmount) public view returns (uint256) {
+        uint256 collateralValue = getCollateralValue(collateralToken, collateralAmount);
+        return (collateralValue * 100) / COLLATERALIZATION_RATIO;
+    }
+    
+    /**
      * @dev Repay loan and get collateral back
      */
     function repayLoan() external {
@@ -235,7 +296,7 @@ contract CoffeeLendingPool {
         IERC20(USDC).transferFrom(msg.sender, address(this), loan.repayAmountUSDC);
         
         // Return collateral to borrower
-        IERC20(coffeeTreeToken).transfer(msg.sender, loan.collateralAmount);
+        IERC20(loan.collateralToken).transfer(msg.sender, loan.collateralAmount);
         
         uint256 interest = loan.repayAmountUSDC - loan.loanAmountUSDC;
         
@@ -328,6 +389,7 @@ contract CoffeeLendingPool {
      * @dev Get loan details
      */
     function getLoan(address borrower) external view returns (
+        address collateralToken,
         uint256 loanAmount,
         uint256 collateralAmount,
         uint256 repayAmount,
@@ -337,6 +399,7 @@ contract CoffeeLendingPool {
     ) {
         Loan memory loan = loans[borrower];
         return (
+            loan.collateralToken,
             loan.loanAmountUSDC,
             loan.collateralAmount,
             loan.repayAmountUSDC,
@@ -344,6 +407,20 @@ contract CoffeeLendingPool {
             loan.isActive,
             loan.isLiquidated
         );
+    }
+    
+    /**
+     * @dev Get all supported collateral tokens
+     */
+    function getSupportedCollateral() external view returns (address[] memory) {
+        return collateralTokens;
+    }
+    
+    /**
+     * @dev Check if a token is supported as collateral
+     */
+    function isCollateralSupported(address token) external view returns (bool) {
+        return supportedCollateral[token];
     }
     
     /**

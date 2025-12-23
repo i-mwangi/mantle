@@ -17,7 +17,6 @@ async function main() {
   const usdcAddress = "0xe96c82aBA229efCC7a46e46D194412C691feD1D5";
   const farmerVerificationAddress = "0xBeBd1F23dB2C0D6636bc311A44030123906129A5";
   const priceOracleAddress = "0xD9842968C7c80242d7BeC5dA986DC4f66d20D5a8";
-  const coffeeTokenAddress = "0xdA30154f6b904aeE05c11A2abd06FCDb9b625494"; // L2 Coffee Tree Token
 
   console.log("📦 Using Already Deployed Contracts:");
   console.log("   USDC:", usdcAddress);
@@ -29,8 +28,8 @@ async function main() {
   console.log("🌳 Deploying Coffee Tree Issuer (Simple)...");
   const CoffeeTreeIssuerSimple = await ethers.getContractFactory("CoffeeTreeIssuerSimple");
   const issuer = await CoffeeTreeIssuerSimple.deploy(
-    usdcAddress,
     farmerVerificationAddress,
+    usdcAddress,
     priceOracleAddress
   );
   await issuer.waitForDeployment();
@@ -38,22 +37,17 @@ async function main() {
   console.log("✅ Coffee Tree Issuer:", issuerAddress);
   console.log("");
 
-  // Deploy Lending Pool
+  // Deploy Lending Pool (creates LP token internally)
   console.log("💰 Deploying Lending Pool...");
   const CoffeeLendingPool = await ethers.getContractFactory("CoffeeLendingPool");
-  const lendingPool = await CoffeeLendingPool.deploy(usdcAddress, coffeeTokenAddress);
+  const lendingPool = await CoffeeLendingPool.deploy(usdcAddress, priceOracleAddress);
   await lendingPool.waitForDeployment();
   const lendingPoolAddress = await lendingPool.getAddress();
   console.log("✅ Lending Pool:", lendingPoolAddress);
-  console.log("");
-
-  // Deploy LP Token
-  console.log("🎫 Deploying LP Token...");
-  const LPToken = await ethers.getContractFactory("LPToken");
-  const lpToken = await LPToken.deploy("Coffee Lending Pool LP Token", "CLPLP");
-  await lpToken.waitForDeployment();
-  const lpTokenAddress = await lpToken.getAddress();
-  console.log("✅ LP Token:", lpTokenAddress);
+  
+  // Get LP token address from lending pool
+  const lpTokenAddress = await lendingPool.getLPToken();
+  console.log("✅ LP Token (auto-created):", lpTokenAddress);
   console.log("");
 
   console.log("=".repeat(70));
@@ -71,9 +65,8 @@ async function main() {
 
   // Verification instructions
   console.log("🔍 Verify contracts on Mantle Explorer:");
-  console.log(`   npx hardhat verify --network mantleSepolia ${issuerAddress} "${usdcAddress}" "${farmerVerificationAddress}" "${priceOracleAddress}"`);
-  console.log(`   npx hardhat verify --network mantleSepolia ${lendingPoolAddress} "${usdcAddress}"`);
-  console.log(`   npx hardhat verify --network mantleSepolia ${lpTokenAddress} "${lendingPoolAddress}"`);
+  console.log(`   npx hardhat verify --network mantleSepolia ${issuerAddress} "${farmerVerificationAddress}" "${usdcAddress}" "${priceOracleAddress}"`);
+  console.log(`   npx hardhat verify --network mantleSepolia ${lendingPoolAddress} "${usdcAddress}" "${priceOracleAddress}"`);
   console.log("");
 
   console.log("🎯 Next Steps:");

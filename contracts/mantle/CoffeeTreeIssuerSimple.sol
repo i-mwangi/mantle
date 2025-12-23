@@ -38,6 +38,7 @@ contract CoffeeTreeIssuerSimple {
     address public USDC;
     PriceOracle public oracle;
     FarmerVerification public farmerVerification;
+    address public lendingPool; // Optional lending pool integration
     
     mapping(string => CoffeeGrove) public coffeeGroves;
     mapping(string => address) public groveTokens;
@@ -83,6 +84,14 @@ contract CoffeeTreeIssuerSimple {
         farmerVerification = FarmerVerification(_farmerVerification);
         USDC = _usdc;
         oracle = PriceOracle(_oracle);
+    }
+    
+    /**
+     * @dev Set lending pool address (for collateral integration)
+     */
+    function setLendingPool(address _lendingPool) external onlyAdmin {
+        require(_lendingPool != address(0), "Invalid lending pool address");
+        lendingPool = _lendingPool;
     }
     
     function registerCoffeeGrove(
@@ -142,7 +151,7 @@ contract CoffeeTreeIssuerSimple {
         groveTokens[_groveName] = address(token);
         groveReserves[address(token)] = reserve;
         
-        oracle.setTokenPrice(address(token), 1_000000);
+        // Note: Price should be set by admin via oracle.setTokenPrice()
         
         emit CoffeeGroveTokenized(keccak256(bytes(_groveName)), address(token), totalTokens);
     }
