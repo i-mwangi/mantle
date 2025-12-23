@@ -540,4 +540,34 @@ async function handleGetMarketOverview(req: VercelRequest, res: VercelResponse) 
   }
 }
 
+/**
+ * Get harvest history for a farmer
+ */
+async function handleGetHarvestHistory(req: VercelRequest, res: VercelResponse) {
+  try {
+    const farmerAddress = req.query.farmerAddress as string;
+
+    if (!farmerAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Farmer address is required',
+      });
+    }
+
+    // For now, return empty array since harvest tracking is not yet implemented
+    // TODO: Implement harvest tracking in database and smart contracts
+    return res.status(200).json({
+      success: true,
+      harvests: [],
+      message: 'Harvest tracking coming soon',
+    });
+  } catch (error: any) {
+    console.error('Error fetching harvest history:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch harvest history',
+    });
+  }
+}
+
 export default handleMantleAPI;
