@@ -35,7 +35,7 @@
     "test:e2e:load": "vitest run tests/Performance/load-testing.spec.ts",
     "test:e2e:recovery": "vitest run tests/ErrorHandling/recovery-testing.spec.ts",
     "test:e2e:comprehensive": "vitest run tests/Integration/comprehensive-e2e-runner.spec.ts",
-    "api": "tsx api/server.ts",
+    "api": "tsx api/dev-server.ts",
     "api:mock": "node frontend/api-server.js",
     "frontend": "node frontend/server.js",
     "frontend:vite": "vite",

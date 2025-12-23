@@ -59,6 +59,23 @@
       "healthScore": 98,
       "verificationStatus": "pending",
       "createdAt": "2025-10-23T01:28:13.560Z"
+    },
+    {
+      "id": "5",
+      "groveName": "pinyo",
+      "location": "mukurweini",
+      "latitude": -0.581889,
+      "longitude": 37.073737,
+      "treeCount": 100,
+      "coffeeVariety": "Robusta",
+      "expectedYieldPerTree": 1000,
+      "tokensPerTree": 10,
+      "farmerAddress": "0x1d36088356C8282B4156D5b4d56E3F5f49eF1e56",
+      "termsAccepted": true,
+      "termsVersion": "1.0",
+      "healthScore": 79,
+      "verificationStatus": "pending",
+      "createdAt": "2025-12-23T17:34:21.094Z"
     }
   ],
   "harvests": [
