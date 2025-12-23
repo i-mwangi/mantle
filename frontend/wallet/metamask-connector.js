@@ -49,26 +49,10 @@ export class MetaMaskConnector {
       }
       console.log('✅ MetaMask is installed');
 
-      // Force MetaMask popup by requesting permissions
-      // This will ALWAYS show the popup, even if already connected
-      console.log('📱 Requesting MetaMask permissions (popup will appear)...');
+      // Connect to MetaMask - use simple method to avoid pending request issues
+      console.log('📱 Requesting MetaMask connection...');
       
-      try {
-        await window.ethereum.request({
-          method: 'wallet_requestPermissions',
-          params: [{ eth_accounts: {} }]
-        });
-      } catch (permError) {
-        // If permissions request fails due to pending request, try direct connection
-        if (permError.code === -32002) {
-          console.log('⚠️ Pending request detected, trying direct connection...');
-          // Fall through to eth_requestAccounts below
-        } else {
-          throw permError;
-        }
-      }
-      
-      // Now get the accounts
+      // Use eth_requestAccounts which is simpler and less prone to pending request issues
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts'
       });
