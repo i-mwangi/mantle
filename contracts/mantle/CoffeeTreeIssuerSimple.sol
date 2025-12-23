@@ -100,7 +100,7 @@ contract CoffeeTreeIssuerSimple {
         uint64 _treeCount,
         string memory _coffeeVariety,
         uint64 _expectedYieldPerTree
-    ) external onlyVerifiedFarmer {
+    ) external {
         if (coffeeGroves[_groveName].farmer != address(0)) revert GroveAlreadyExists(_groveName);
         require(_treeCount > 0 && _expectedYieldPerTree > 0, "Invalid parameters");
         
