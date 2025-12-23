@@ -718,10 +718,12 @@ async function handleReportHarvest(req: VercelRequest, res: VercelResponse) {
       harvestDate: Date.now(),
       yieldKg: Math.round(parseFloat(yieldAmount) || 0),
       qualityGrade: parseInt(quality) || 5,
-      notes: notes || '',
+      salePricePerKg: 0, // TODO: Get from price oracle
+      totalRevenue: 0, // TODO: Calculate
+      farmerShare: 0, // TODO: Calculate
+      investorShare: 0, // TODO: Calculate
       revenueDistributed: false,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      transactionHash: null,
     }).returning();
 
     console.log('✅ Harvest saved to database:', harvest);
