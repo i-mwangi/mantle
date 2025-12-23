@@ -574,10 +574,15 @@ async function handleGetHarvestHistory(req: VercelRequest, res: VercelResponse) 
       });
     }
 
+    console.log('📊 Fetching harvest history for:', farmerAddress);
+    console.log('harvestRecords table:', harvestRecords ? 'defined' : 'undefined');
+
     // Get farmer's groves
     const farmerGroves = await db.query.coffeeGroves.findMany({
       where: eq(coffeeGroves.farmerAddress, farmerAddress),
     });
+
+    console.log('Found groves:', farmerGroves.length);
 
     if (farmerGroves.length === 0) {
       return res.status(200).json({
@@ -603,6 +608,8 @@ async function handleGetHarvestHistory(req: VercelRequest, res: VercelResponse) 
     .leftJoin(coffeeGroves, eq(harvestRecords.groveId, coffeeGroves.id))
     .where(eq(coffeeGroves.farmerAddress, farmerAddress))
     .orderBy(harvestRecords.harvestDate);
+
+    console.log('Found harvests:', harvests.length);
 
     return res.status(200).json({
       success: true,
