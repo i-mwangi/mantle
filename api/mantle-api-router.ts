@@ -130,6 +130,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetHarvestStats(req, res);
     }
 
+    // Harvest: Report harvest
+    if (url.includes('/api/harvest/report') && method === 'POST') {
+      return await handleReportHarvest(req, res);
+    }
+
     // Farmer: Get withdrawals
     if (url.includes('/api/farmer/withdrawals/') && method === 'GET') {
       return await handleGetFarmerWithdrawals(req, res);
@@ -644,6 +649,40 @@ async function handleGetFarmerWithdrawals(req: VercelRequest, res: VercelRespons
     return res.status(500).json({
       success: false,
       error: error.message || 'Failed to fetch withdrawals',
+    });
+  }
+}
+
+/**
+ * Get farmer balance (revenue balance)
+ */
+async function handleGetFarmerBalance(req: VercelRequest, res: VercelResponse) {
+  try {
+    const farmerAddress = req.query.farmerAddress as string;
+
+    if (!farmerAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Farmer address is required',
+      });
+    }
+
+    // Return mock balance for now
+    return res.status(200).json({
+      success: true,
+      farmerAddress,
+      balance: {
+        available: '0.00',
+        pending: '0.00',
+        total: '0.00',
+      },
+      message: 'Revenue tracking coming soon',
+    });
+  } catch (error: any) {
+    console.error('Error fetching farmer balance:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch balance',
     });
   }
 }
