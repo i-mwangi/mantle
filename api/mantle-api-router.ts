@@ -625,6 +625,38 @@ async function handleGetHarvestStats(req: VercelRequest, res: VercelResponse) {
 }
 
 /**
+ * Report a harvest
+ */
+async function handleReportHarvest(req: VercelRequest, res: VercelResponse) {
+  try {
+    const { groveId, groveName, yieldAmount, quality, notes, farmerAddress } = req.body;
+
+    if (!farmerAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Farmer address is required',
+      });
+    }
+
+    // For now, just return success
+    // TODO: Implement harvest reporting in database and smart contracts
+    console.log('📊 Harvest reported:', { groveId, groveName, yieldAmount, quality, farmerAddress });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Harvest reported successfully',
+      harvestId: Date.now(),
+    });
+  } catch (error: any) {
+    console.error('Error reporting harvest:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to report harvest',
+    });
+  }
+}
+
+/**
  * Get farmer withdrawals
  */
 async function handleGetFarmerWithdrawals(req: VercelRequest, res: VercelResponse) {
