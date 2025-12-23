@@ -49,10 +49,29 @@ export class MetaMaskConnector {
       }
       console.log('✅ MetaMask is installed');
 
-      // Connect to MetaMask - use simple method to avoid pending request issues
+      // Connect to MetaMask - force popup to appear
       console.log('📱 Requesting MetaMask connection...');
       
-      // Use eth_requestAccounts which is simpler and less prone to pending request issues
+      // First, try to force a new permission request (shows popup)
+      try {
+        await window.ethereum.request({
+          method: 'wallet_requestPermissions',
+          params: [{ eth_accounts: {} }]
+        });
+        console.log('✅ Permissions granted');
+      } catch (permError) {
+        // If there's a pending request or user rejects, fall back to simple connection
+        if (permError.code === -32002) {
+          console.log('⚠️ Pending request detected, using existing connection...');
+        } else if (permError.code === 4001) {
+          console.log('❌ User rejected the connection request');
+          throw new Error('Connection request rejected by user');
+        } else {
+          console.log('⚠️ Permission request failed, trying simple connection...');
+        }
+      }
+      
+      // Get the accounts (will use existing connection if already connected)
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts'
       });
