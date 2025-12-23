@@ -632,16 +632,28 @@ async function handleGetHarvestStats(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Return mock stats for now
+    // Get harvests for farmer
+    const harvestRecords = (await import('../../db/schema/index.js')).harvestRecords;
+    
+    const harvests = await db.select({
+      yieldKg: harvestRecords.yieldKg,
+    })
+    .from(harvestRecords)
+    .leftJoin(coffeeGroves, eq(harvestRecords.groveId, coffeeGroves.id))
+    .where(eq(coffeeGroves.farmerAddress, farmerAddress));
+
+    const totalHarvests = harvests.length;
+    const totalYield = harvests.reduce((sum, h) => sum + (h.yieldKg || 0), 0);
+    const averageYield = totalHarvests > 0 ? Math.round(totalYield / totalHarvests) : 0;
+
     return res.status(200).json({
       success: true,
       stats: {
-        totalHarvests: 0,
-        totalYield: 0,
-        totalRevenue: 0,
-        averageYield: 0,
+        totalHarvests,
+        totalYield,
+        totalRevenue: 0, // TODO: Calculate from revenue distributions
+        averageYield,
       },
-      message: 'Harvest tracking coming soon',
     });
   } catch (error: any) {
     console.error('Error fetching harvest stats:', error);
