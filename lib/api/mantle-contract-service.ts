@@ -199,9 +199,11 @@ export class MantleContractService {
 // Create singleton instance
 let mantleService: MantleContractService | null = null;
 
-export function getMantleService(network: 'localhost' | 'mantleSepolia' = 'localhost') {
+export function getMantleService(network?: 'localhost' | 'mantleSepolia') {
   if (!mantleService) {
-    mantleService = new MantleContractService(network);
+    // Default to mantleSepolia if not specified
+    const defaultNetwork = (process.env.MANTLE_NETWORK as 'localhost' | 'mantleSepolia') || 'mantleSepolia';
+    mantleService = new MantleContractService(network || defaultNetwork);
   }
   return mantleService;
 }
