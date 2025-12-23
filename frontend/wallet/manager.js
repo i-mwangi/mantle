@@ -30,9 +30,32 @@ export class WalletManager {
       // Setup button event listeners
       this.setupEventListeners();
       
-      // DON'T auto-connect - let user click the button
-      // This ensures MetaMask popup shows when user explicitly clicks connect
-      console.log('✅ Wallet manager initialized. Click "Connect Wallet" to connect.');
+      // Check if user was previously connected
+      const wasConnected = localStorage.getItem('walletConnected') === 'true';
+      const savedAccount = localStorage.getItem('connectedAccount');
+      
+      if (wasConnected && savedAccount && window.ethereum) {
+        console.log('🔄 Auto-reconnecting to previously connected wallet...');
+        try {
+          // Check if MetaMask still has this account connected
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts && accounts.length > 0 && accounts[0] === savedAccount) {
+            // Silently reconnect without popup
+            await metaMaskWallet.connect();
+            console.log('✅ Auto-reconnected successfully');
+          } else {
+            // Clear stale connection data
+            localStorage.removeItem('walletConnected');
+            localStorage.removeItem('connectedAccount');
+          }
+        } catch (error) {
+          console.log('Auto-reconnect failed:', error.message);
+          localStorage.removeItem('walletConnected');
+          localStorage.removeItem('connectedAccount');
+        }
+      } else {
+        console.log('✅ Wallet manager initialized. Click "Connect Wallet" to connect.');
+      }
       
       // Load user type from localStorage
       this.userType = localStorage.getItem('userType') || 'investor';
@@ -148,6 +171,7 @@ export class WalletManager {
         this.showToast('Wallet connected successfully!', 'success');
         
         // Save to localStorage
+        localStorage.setItem('walletConnected', 'true');
         localStorage.setItem('connectedAccount', result.accountId);
         localStorage.setItem('userType', this.userType);
         
