@@ -63,7 +63,7 @@ Submit farmer verification documents for identity verification.
 }
 ```
 
-**Error R
+**Error 
 
 ### Verify Farmer
 
