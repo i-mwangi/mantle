@@ -285,9 +285,5 @@ npm run build
 node dist/api/server.js
 ```
 
-Or for development:
-```bash
-npx tsx api/server.ts
-```
 
  
