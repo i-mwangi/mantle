@@ -178,7 +178,7 @@ Register grove ownership for a verified farmer.
 **Error Responses:**
 - `400`: Invalid input data
 - `403`: Farmer must be verified before registering grove ownership
-- `409`: Grove name is already 
+- `409`: Grove name 
 ### Get Pending Verifications
 
 **GET** `/api/farmer-verification/pending`
