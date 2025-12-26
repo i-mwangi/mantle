@@ -64,7 +64,7 @@ Submit farmer verification documents for identity verification.
 ```
 
 **Error Responses:**
-- `400`: I
+- `400`: 
 
 ### Verify Farmer
 
