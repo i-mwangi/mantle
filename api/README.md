@@ -65,7 +65,7 @@ Submit farmer verification documents for identity verification.
 
 **Error Responses:**
 - `400`: Invalid input data
-- `409`: Farmer is already verified
+- `409`: Farmer is already 
 
 ### Verify Farmer
 
