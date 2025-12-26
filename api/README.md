@@ -176,7 +176,6 @@ Register grove ownership for a verified farmer.
 ```
 
 **Error Responses:**
-- `400`: Invalid input data
 ### Get Pending Verifications
 
 **GET** `/api/farmer-verification/pending`
