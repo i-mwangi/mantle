@@ -290,4 +290,4 @@ Or for development:
 npx tsx api/server.ts
 ```
 
-The server will start on port 3001 by default, or the port specified in the ` 
+The server will start on port 3001 by default, 
