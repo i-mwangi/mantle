@@ -651,38 +651,49 @@ class FarmerDashboard {
                     const variety = selectedGrove.coffeeVariety || '';
                     console.log('[Harvest] Setting variety to:', variety);
                     
-                    // Try to set the variety value (case-insensitive match)
-                    varietySelect.value = variety;
+                    // Replace dropdown with read-only text input
+                    const varietyContainer = varietySelect.parentElement;
+                    const label = varietyContainer.querySelector('label');
                     
-                    // If exact match didn't work, try case-insensitive
-                    if (!varietySelect.value && variety) {
-                        const options = Array.from(varietySelect.options);
-                        const matchingOption = options.find(opt => 
-                            opt.value.toLowerCase() === variety.toLowerCase() ||
-                            opt.text.toLowerCase() === variety.toLowerCase()
-                        );
-                        if (matchingOption) {
-                            varietySelect.value = matchingOption.value;
-                            console.log('[Harvest] Matched variety case-insensitively:', matchingOption.value);
-                        }
+                    // Create read-only input
+                    const readOnlyInput = document.createElement('input');
+                    readOnlyInput.type = 'text';
+                    readOnlyInput.id = 'coffeeVariety';
+                    readOnlyInput.name = 'coffeeVariety';
+                    readOnlyInput.value = variety;
+                    readOnlyInput.readOnly = true;
+                    readOnlyInput.className = 'form-control';
+                    readOnlyInput.style.background = '#1a1a1a';
+                    readOnlyInput.style.cursor = 'not-allowed';
+                    readOnlyInput.style.color = '#ccc';
+                    
+                    // Replace the select with input
+                    varietySelect.replaceWith(readOnlyInput);
+                    
+                    console.log('[Harvest] Replaced dropdown with read-only input showing:', variety);
+                } else if (varietySelect && !selectedGrove) {
+                    console.log('[Harvest] No grove selected');
+                    // If it's an input (was previously locked), restore the dropdown
+                    if (varietySelect.tagName === 'INPUT') {
+                        const varietyContainer = varietySelect.parentElement;
+                        
+                        // Recreate the select dropdown
+                        const newSelect = document.createElement('select');
+                        newSelect.id = 'coffeeVariety';
+                        newSelect.name = 'coffeeVariety';
+                        newSelect.className = 'form-select';
+                        newSelect.required = true;
+                        newSelect.innerHTML = `
+                            <option value="">Select variety</option>
+                            <option value="Arabica">Arabica</option>
+                            <option value="Robusta">Robusta</option>
+                            <option value="Specialty">Specialty</option>
+                            <option value="Organic">Organic</option>
+                        `;
+                        
+                        varietySelect.replaceWith(newSelect);
+                        console.log('[Harvest] Restored dropdown');
                     }
-                    
-                    // Disable the field so it can't be changed
-                    varietySelect.disabled = true;
-                    varietySelect.style.background = '#1a1a1a';
-                    varietySelect.style.cursor = 'not-allowed';
-                    varietySelect.style.opacity = '0.7';
-                    
-                    console.log('[Harvest] Variety field disabled and set to:', varietySelect.value);
-                    console.log('[Harvest] Selected option text:', varietySelect.options[varietySelect.selectedIndex]?.text);
-                } else if (varietySelect) {
-                    console.log('[Harvest] No grove selected, re-enabling variety field');
-                    // Re-enable if no grove selected
-                    varietySelect.disabled = false;
-                    varietySelect.style.background = '';
-                    varietySelect.style.cursor = '';
-                    varietySelect.style.opacity = '';
-                    varietySelect.value = '';
                 }
             });
         } else {
