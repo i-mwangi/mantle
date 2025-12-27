@@ -1582,11 +1582,6 @@ class FarmerDashboard {
                                         <span id="totalFundraising">$0.00</span>
                                     </div>
                                 </div>
-                                <div class="form-actions">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-rocket"></i> Tokenize Grove
-                                    </button>
-                                </div>
                             </form>
                         </div>
                     </div>
