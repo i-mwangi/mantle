@@ -407,7 +407,7 @@ class FarmerDashboard {
             longitude: parseFloat(formData.get('longitude')) || 0,
             treeCount: parseInt(formData.get('treeCount')) || 0,
             coffeeVariety: formData.get('coffeeVariety') || 'Arabica',
-            expectedYieldPerTree: parseFloat(formData.get('expectedYield')) || 100, // Default to 100 if not provided
+            expectedYieldPerTree: parseFloat(formData.get('expectedYield')) || parseFloat(formData.get('expectedYieldPerTree')) || 100,
             tokensPerTree: parseInt(formData.get('tokensPerTree')) || 10,
             farmerAddress: window.walletManager?.getAccountId(),
             termsAccepted: true,
@@ -415,6 +415,18 @@ class FarmerDashboard {
         };
 
         console.log('Grove data to register:', groveData);
+        
+        // Validate required fields
+        if (!groveData.groveName || !groveData.location || groveData.treeCount <= 0) {
+            this.showNotification('Please fill in all required fields (name, location, tree count)', 'error');
+            return;
+        }
+        
+        // Ensure expectedYieldPerTree is valid
+        if (groveData.expectedYieldPerTree <= 0) {
+            console.warn('Expected yield is 0 or invalid, using default of 100');
+            groveData.expectedYieldPerTree = 100;
+        }
 
         try {
             // Step 1: Register on blockchain first (with user's wallet)
