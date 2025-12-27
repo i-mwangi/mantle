@@ -39,30 +39,51 @@ export class MantleTokenizationService {
       console.log('Trees:', params.numberOfTrees);
       console.log('Tokens per tree:', params.tokensPerTree);
 
-      // Step 1: Register grove on-chain (if not already registered)
-      console.log('📝 Registering grove on-chain...');
+      // Step 1: Check if grove is already registered on-chain
+      console.log('📝 Checking if grove is registered on-chain...');
+      let isRegistered = false;
       try {
-        await this.mantleService.executeContract(
+        const groveInfo = await this.mantleService.callContract(
           'ISSUER',
           ISSUER_ABI,
-          'registerCoffeeGrove',
-          params.groveName,
-          params.location,
-          params.numberOfTrees,
-          'Arabica', // Default variety
-          100 // Default expected yield per tree
+          'getGroveInfo',
+          params.groveName
         );
-        console.log('✅ Grove registered on-chain');
+        // If farmer address is not zero, grove is registered
+        isRegistered = groveInfo.farmer !== '0x0000000000000000000000000000000000000000';
+        console.log('ℹ️ Grove registration status:', isRegistered ? 'Already registered' : 'Not registered');
       } catch (error: any) {
-        // Grove might already be registered, continue
-        if (error.message?.includes('GroveAlreadyExists')) {
-          console.log('ℹ️ Grove already registered on-chain, continuing...');
-        } else {
-          throw error;
-        }
+        console.log('ℹ️ Grove not found on-chain, will register');
       }
 
-      // Step 2: Tokenize the grove
+      // Step 2: Register grove on-chain if not already registered
+      if (!isRegistered) {
+        console.log('📝 Registering grove on-chain...');
+        try {
+          await this.mantleService.executeContract(
+            'ISSUER',
+            ISSUER_ABI,
+            'registerCoffeeGrove',
+            params.groveName,
+            params.location,
+            params.numberOfTrees,
+            'Arabica', // Default variety
+            100 // Default expected yield per tree
+          );
+          console.log('✅ Grove registered on-chain');
+        } catch (error: any) {
+          // Grove might already be registered, continue
+          if (error.message?.includes('GroveAlreadyExists')) {
+            console.log('ℹ️ Grove already registered on-chain, continuing...');
+          } else {
+            throw error;
+          }
+        }
+      } else {
+        console.log('✅ Grove already registered on-chain, skipping registration');
+      }
+
+      // Step 3: Tokenize the grove
       console.log('🪙 Tokenizing grove...');
       const receipt = await this.mantleService.executeContract(
         'ISSUER',
