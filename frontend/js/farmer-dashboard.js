@@ -1715,19 +1715,59 @@ class FarmerDashboard {
         const tokenForm = modal.querySelector('#tokenizationForm');
         tokenForm?.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const totalTokens = parseInt(modal.querySelector('#totalTokens').value);
+            const pricePerToken = parseFloat(modal.querySelector('#tokenPrice').value);
+            const projectedReturn = parseFloat(modal.querySelector('#projectedReturn').value);
+            
+            // Calculate tokens per tree
+            const tokensPerTree = Math.floor(totalTokens / grove.numberOfTrees);
+            
             const tokenData = {
-                groveId: grove.id,
-                totalTokens: parseInt(modal.querySelector('#totalTokens').value),
-                pricePerToken: parseFloat(modal.querySelector('#tokenPrice').value),
-                projectedReturn: parseFloat(modal.querySelector('#projectedReturn').value)
+                groveName: grove.name,
+                location: grove.location,
+                numberOfTrees: grove.numberOfTrees,
+                tokensPerTree: tokensPerTree,
+                farmerAddress: window.walletManager?.getAccountId()
             };
 
             console.log('Tokenizing grove:', tokenData);
-            // TODO: Call blockchain contract to tokenize
-            // await window.coffeeAPI.tokenizeGrove(tokenData);
-
-            window.walletManager?.showToast(`Grove tokenized! ${tokenData.totalTokens} tokens created.`, 'success');
-            modal.remove();
+            
+            try {
+                // Show loading state
+                const submitBtn = tokenForm.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Tokenizing...';
+                
+                // Call blockchain contract to tokenize
+                const response = await window.coffeeAPI.tokenizeGrove(tokenData);
+                
+                if (response.success) {
+                    window.walletManager?.showToast(
+                        `Grove tokenized! ${response.totalSupply} tokens created at ${response.tokenAddress.slice(0, 10)}...`,
+                        'success'
+                    );
+                    
+                    // Refresh the groves list to show updated status
+                    await this.loadGroves();
+                    
+                    modal.remove();
+                } else {
+                    throw new Error(response.error || 'Tokenization failed');
+                }
+            } catch (error) {
+                console.error('Tokenization error:', error);
+                window.walletManager?.showToast(
+                    `Failed to tokenize grove: ${error.message}`,
+                    'error'
+                );
+                
+                // Re-enable the button
+                const submitBtn = tokenForm.querySelector('button[type="submit"]');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Tokenize Grove';
+            }
         });
     }
 
