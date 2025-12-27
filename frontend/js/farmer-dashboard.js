@@ -408,46 +408,76 @@ class FarmerDashboard {
             treeCount: parseInt(formData.get('treeCount')),
             coffeeVariety: formData.get('coffeeVariety'),
             expectedYieldPerTree: parseFloat(formData.get('expectedYield')),
-            tokensPerTree: parseInt(formData.get('tokensPerTree')) || 10, // Include tokens per tree
-            farmerAddress: window.walletManager?.getAccountId(), // Include farmer address
+            tokensPerTree: parseInt(formData.get('tokensPerTree')) || 10,
+            farmerAddress: window.walletManager?.getAccountId(),
             termsAccepted: true,
             termsVersion: '1.0'
         };
 
         try {
-            // Show loading notification
-            this.showNotification('Registering grove and creating tokens...', 'info');
-
-            // Corrected: Use the 'registerGrove' method which exists in api.js
+            // Step 1: Register on blockchain first (with user's wallet)
+            this.showNotification('Step 1/2: Registering grove on blockchain...', 'info');
+            
+            // Get contract details from environment
+            const issuerAddress = '0xaf4da1406A8EE17AfEF5AeE644481a6b1cB01a9c'; // From .env
+            const issuerABI = [
+                'function registerCoffeeGrove(string groveName, string location, uint64 treeCount, string variety, uint64 expectedYield)'
+            ];
+            
+            // Call contract from user's wallet
+            const signer = window.walletManager?.metaMaskWallet?.getSigner();
+            if (!signer) {
+                throw new Error('Wallet not connected. Please connect your wallet first.');
+            }
+            
+            const ethers = window.ethers;
+            const issuerContract = new ethers.Contract(issuerAddress, issuerABI, signer);
+            
+            // Register grove on blockchain
+            const tx = await issuerContract.registerCoffeeGrove(
+                groveData.groveName,
+                groveData.location,
+                groveData.treeCount,
+                groveData.coffeeVariety,
+                Math.floor(groveData.expectedYieldPerTree)
+            );
+            
+            this.showNotification('Waiting for blockchain confirmation...', 'info');
+            await tx.wait();
+            
+            console.log('✅ Grove registered on blockchain:', tx.hash);
+            
+            // Step 2: Save to database
+            this.showNotification('Step 2/2: Saving to database...', 'info');
+            
             if (window.coffeeAPI && typeof window.coffeeAPI.registerGrove === 'function') {
                 const response = await window.coffeeAPI.registerGrove(groveData);
 
                 if (response && response.success) {
-                    // Check if tokenization was successful
-                    if (response.tokenization && response.tokenization.success) {
-                        const totalTokens = response.tokenization.totalTokens;
-                        const tokenSymbol = response.tokenization.tokenSymbol;
-                        this.showNotification(
-                            `Grove registered! ${totalTokens} ${tokenSymbol} ERC-20 tokens created on Mantle.`,
-                            'success'
-                        );
-                    } else {
-                        this.showNotification(
-                            'Grove registered successfully (tokenization pending)',
-                            'success'
-                        );
-                    }
+                    this.showNotification(
+                        `Grove "${groveData.groveName}" registered successfully on blockchain and database!`,
+                        'success'
+                    );
                     this.closeModals();
-                    this.loadGroves(groveData.farmerAddress); // Refresh the groves list
+                    this.loadGroves(groveData.farmerAddress);
                 } else {
-                    throw new Error(response?.error || 'Failed to register grove');
+                    throw new Error(response?.error || 'Failed to save grove to database');
                 }
             } else {
                 throw new Error('API method not available');
             }
         } catch (error) {
             console.error('Error adding grove:', error);
-            const friendlyError = window.translateError ? window.translateError(error) : 'Failed to add grove. Please try again.';
+            let friendlyError = 'Failed to register grove. Please try again.';
+            
+            if (error.message?.includes('user rejected')) {
+                friendlyError = 'Transaction rejected by user';
+            } else if (error.message?.includes('GroveAlreadyExists')) {
+                friendlyError = 'A grove with this name already exists';
+            } else if (error.message) {
+                friendlyError = error.message;
+            }
+            
             this.showNotification(friendlyError, 'error');
         }
     }
