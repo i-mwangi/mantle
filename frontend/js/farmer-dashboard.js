@@ -403,16 +403,18 @@ class FarmerDashboard {
         const groveData = {
             groveName: formData.get('groveName'),
             location: formData.get('location'),
-            latitude: parseFloat(formData.get('latitude')),
-            longitude: parseFloat(formData.get('longitude')),
-            treeCount: parseInt(formData.get('treeCount')),
-            coffeeVariety: formData.get('coffeeVariety'),
-            expectedYieldPerTree: parseFloat(formData.get('expectedYield')),
+            latitude: parseFloat(formData.get('latitude')) || 0,
+            longitude: parseFloat(formData.get('longitude')) || 0,
+            treeCount: parseInt(formData.get('treeCount')) || 0,
+            coffeeVariety: formData.get('coffeeVariety') || 'Arabica',
+            expectedYieldPerTree: parseFloat(formData.get('expectedYield')) || 100, // Default to 100 if not provided
             tokensPerTree: parseInt(formData.get('tokensPerTree')) || 10,
             farmerAddress: window.walletManager?.getAccountId(),
             termsAccepted: true,
             termsVersion: '1.0'
         };
+
+        console.log('Grove data to register:', groveData);
 
         try {
             // Step 1: Register on blockchain first (with user's wallet)
