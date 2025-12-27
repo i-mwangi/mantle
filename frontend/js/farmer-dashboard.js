@@ -632,6 +632,28 @@ class FarmerDashboard {
                 this.groves.map(grove =>
                     `<option value="${grove.id}">${grove.groveName} - ${grove.location}</option>`
                 ).join('');
+            
+            // Auto-fill coffee variety when grove is selected
+            groveSelect.addEventListener('change', (e) => {
+                const selectedGroveId = parseInt(e.target.value);
+                const selectedGrove = this.groves.find(g => g.id === selectedGroveId);
+                const varietySelect = document.getElementById('coffeeVariety');
+                
+                if (selectedGrove && varietySelect) {
+                    // Set the variety value
+                    varietySelect.value = selectedGrove.coffeeVariety || '';
+                    // Disable the field so it can't be changed
+                    varietySelect.disabled = true;
+                    varietySelect.style.background = '#1a1a1a';
+                    varietySelect.style.cursor = 'not-allowed';
+                } else if (varietySelect) {
+                    // Re-enable if no grove selected
+                    varietySelect.disabled = false;
+                    varietySelect.style.background = '';
+                    varietySelect.style.cursor = '';
+                    varietySelect.value = '';
+                }
+            });
         } else {
             console.warn('No groves available or grove select not found');
             if (groveSelect) {
