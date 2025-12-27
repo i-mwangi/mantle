@@ -1119,15 +1119,15 @@ class FarmerDashboard {
         modal.className = 'modal active';
         modal.innerHTML = `
             <div class="modal-overlay"></div>
-            <div class="modal-content modal-large">
-                <div class="modal-header">
+            <div class="modal-content modal-large" style="background: #2d2d2d !important;">
+                <div class="modal-header" style="background: #2d2d2d !important;">
                     <h4><i class="fas fa-info-circle"></i> Grove Details: ${grove.groveName}</h4>
                     <button class="modal-close">&times;</button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="background: #2d2d2d !important;">
                     ${grove.isTokenized && grove.tokenAddress && grove.farmerAddress !== '0.0.5792828' ? `
                     <!-- Token Claim Section (hidden for operator account) -->
-                    <div class="detail-section">
+                    <div class="detail-section" style="background: #2d2d2d !important;">
                         <h5><i class="fas fa-gift"></i> 🎁 Claim Your Grove Tokens</h5>
                         <div class="detail-grid">
                             <div class="detail-item">
