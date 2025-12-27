@@ -643,48 +643,31 @@ class FarmerDashboard {
                 const selectedGroveId = parseInt(e.target.value);
                 const selectedGrove = this.groves.find(g => g.id === selectedGroveId);
                 const varietySelect = document.getElementById('coffeeVariety');
+                const readOnlyInput = document.getElementById('coffeeVarietyReadOnly');
                 
                 console.log('[Harvest] Selected grove:', selectedGrove);
                 console.log('[Harvest] Variety select element:', varietySelect);
+                console.log('[Harvest] Read-only input element:', readOnlyInput);
                 
-                if (selectedGrove && varietySelect) {
+                if (selectedGrove && varietySelect && readOnlyInput) {
                     const variety = selectedGrove.coffeeVariety || '';
                     console.log('[Harvest] Setting variety to:', variety);
-                    
-                    // Check if read-only input already exists
-                    let readOnlyInput = document.getElementById('coffeeVarietyReadOnly');
-                    
-                    if (!readOnlyInput) {
-                        // Create read-only input
-                        readOnlyInput = document.createElement('input');
-                        readOnlyInput.type = 'text';
-                        readOnlyInput.id = 'coffeeVarietyReadOnly';
-                        readOnlyInput.name = 'coffeeVariety';
-                        readOnlyInput.className = 'form-control';
-                        readOnlyInput.readOnly = true;
-                        readOnlyInput.required = true;
-                        readOnlyInput.style.background = '#1a1a1a';
-                        readOnlyInput.style.cursor = 'not-allowed';
-                        readOnlyInput.style.color = '#ccc';
-                        
-                        // Insert after the select
-                        varietySelect.parentNode.insertBefore(readOnlyInput, varietySelect.nextSibling);
-                    }
                     
                     // Set value and show/hide appropriately
                     readOnlyInput.value = variety;
                     readOnlyInput.style.display = 'block';
-                    varietySelect.style.display = 'none';
-                    varietySelect.removeAttribute('required'); // Remove required from hidden select
+                    readOnlyInput.setAttribute('required', 'required');
                     
-                    console.log('[Harvest] Showing read-only input with variety:', variety);
-                } else if (varietySelect) {
+                    varietySelect.style.display = 'none';
+                    varietySelect.removeAttribute('required');
+                    
+                    console.log('[Harvest] Dropdown hidden, showing read-only input with variety:', variety);
+                } else if (varietySelect && readOnlyInput) {
                     console.log('[Harvest] No grove selected, showing dropdown');
                     // Show dropdown, hide read-only input
-                    const readOnlyInput = document.getElementById('coffeeVarietyReadOnly');
-                    if (readOnlyInput) {
-                        readOnlyInput.style.display = 'none';
-                    }
+                    readOnlyInput.style.display = 'none';
+                    readOnlyInput.removeAttribute('required');
+                    
                     varietySelect.style.display = 'block';
                     varietySelect.setAttribute('required', 'required');
                     varietySelect.value = '';
