@@ -1868,14 +1868,6 @@ class FarmerDashboard {
         tokenForm?.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Prevent duplicate submissions
-            if (this.isTokenizing) {
-                console.log('⏳ Tokenization already in progress');
-                return;
-            }
-            
-            this.isTokenizing = true;
-            
             const totalTokens = parseInt(modal.querySelector('#totalTokens').value);
             const pricePerToken = parseFloat(modal.querySelector('#tokenPrice').value);
             const projectedReturn = parseFloat(modal.querySelector('#projectedReturn').value);
@@ -1884,12 +1876,15 @@ class FarmerDashboard {
             const treeCount = grove.treeCount || grove.numberOfTrees || 0;
             const tokensPerTree = Math.floor(totalTokens / treeCount);
             
-            console.log('Tokenizing grove:', {
-                name: grove.groveName,
-                trees: treeCount,
+            const tokenData = {
+                groveName: grove.groveName || grove.name,
+                location: grove.location,
+                numberOfTrees: treeCount,
                 tokensPerTree: tokensPerTree,
-                totalTokens: totalTokens
-            });
+                farmerAddress: window.walletManager?.getAccountId()
+            };
+
+            console.log('Tokenizing grove:', tokenData);
             
             try {
                 // Show loading state
@@ -1898,131 +1893,61 @@ class FarmerDashboard {
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Tokenizing...';
                 
-                // Check wallet connection
-                if (!window.walletManager || !window.walletManager.isWalletConnected()) {
-                    throw new Error('Wallet not connected. Please connect your wallet first.');
-                }
+                // Call blockchain contract to tokenize
+                const response = await window.coffeeAPI.tokenizeGrove(tokenData);
                 
-                this.showNotification('Tokenizing grove on blockchain...', 'info');
-                
-                // Get signer from MetaMask
-                const ethers = window.ethers;
-                if (!ethers) {
-                    throw new Error('Ethers library not loaded');
-                }
-                
-                const provider = new ethers.BrowserProvider(window.ethereum);
-                const signer = await provider.getSigner();
-                
-                // Contract details
-                const issuerAddress = '0xaf4da1406A8EE17AfEF5AeE644481a6b1cB01a9c';
-                const issuerABI = [
-                    'function tokenizeCoffeeGrove(string groveName, uint64 tokensPerTree)',
-                    'event CoffeeGroveTokenized(bytes32 indexed groveNameHash, address indexed token, uint64 totalTokens)'
-                ];
-                
-                const issuerContract = new ethers.Contract(issuerAddress, issuerABI, signer);
-                
-                // Tokenize grove on blockchain
-                const tx = await issuerContract.tokenizeCoffeeGrove(
-                    grove.groveName,
-                    tokensPerTree
-                );
-                
-                this.showNotification('Waiting for blockchain confirmation...', 'info');
-                const receipt = await tx.wait();
-                
-                console.log('✅ Grove tokenized on blockchain:', receipt.hash);
-                
-                // Parse the event to get token address
-                const groveTokenizedEvent = receipt.logs
-                    .map(log => {
-                        try {
-                            return issuerContract.interface.parseLog(log);
-                        } catch {
-                            return null;
-                        }
-                    })
-                    .find(event => event?.name === 'CoffeeGroveTokenized');
-                
-                if (!groveTokenizedEvent) {
-                    throw new Error('Tokenization event not found. Transaction may have failed.');
-                }
-                
-                const tokenAddress = groveTokenizedEvent.args.token;
-                const totalTokensCreated = Number(groveTokenizedEvent.args.totalTokens);
-                
-                console.log('Token created:', tokenAddress, 'Total:', totalTokensCreated);
-                
-                // Update database
-                this.showNotification('Updating database...', 'info');
-                
-                const updateResponse = await window.coffeeAPI.request('/api/groves/update-tokenization', {
-                    method: 'POST',
-                    body: {
-                        groveName: grove.groveName,
-                        tokenAddress: tokenAddress,
-                        totalTokensIssued: totalTokensCreated,
-                        transactionHash: receipt.hash
+                if (response.success) {
+                    // Show detailed success message
+                    const tokenAddressShort = response.tokenAddress.slice(0, 10) + '...' + response.tokenAddress.slice(-8);
+                    const explorerUrl = `https://sepolia.mantlescan.xyz/address/${response.tokenAddress}`;
+                    
+                    window.notificationManager?.show({
+                        title: '🎉 Grove Tokenized Successfully!',
+                        message: `
+                            <div style="line-height: 1.6;">
+                                <p><strong>${response.totalSupply} tokens</strong> created for ${grove.groveName || grove.name}</p>
+                                <p><strong>Token Address:</strong><br/>
+                                <code style="font-size: 0.85em; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px;">${tokenAddressShort}</code></p>
+                                <p><a href="${explorerUrl}" target="_blank" style="color: #4CAF50; text-decoration: underline;">View on Mantle Explorer →</a></p>
+                            </div>
+                        `,
+                        type: 'success',
+                        duration: 10000
+                    });
+                    
+                    // Fallback toast if notification manager not available
+                    if (!window.notificationManager) {
+                        window.walletManager?.showToast(
+                            `Grove tokenized! ${response.totalSupply} tokens created at ${tokenAddressShort}`,
+                            'success'
+                        );
                     }
-                });
-                
-                if (!updateResponse.success) {
-                    console.warn('Database update failed, but tokenization succeeded on blockchain');
+                    
+                    // Log details to console for reference
+                    console.log('✅ Tokenization successful:', {
+                        groveName: grove.groveName || grove.name,
+                        tokenAddress: response.tokenAddress,
+                        totalSupply: response.totalSupply,
+                        transactionHash: response.transactionHash,
+                        explorerUrl: explorerUrl
+                    });
+                    
+                    // Refresh the groves list to show updated status
+                    await this.loadGroves();
+                    
+                    modal.remove();
+                } else {
+                    throw new Error(response.error || 'Tokenization failed');
                 }
-                
-                // Show success message
-                const tokenAddressShort = tokenAddress.slice(0, 10) + '...' + tokenAddress.slice(-8);
-                const explorerUrl = `https://sepolia.mantlescan.xyz/address/${tokenAddress}`;
-                
-                window.notificationManager?.show({
-                    title: '🎉 Grove Tokenized Successfully!',
-                    message: `
-                        <div style="line-height: 1.6;">
-                            <p><strong>${totalTokensCreated} tokens</strong> created for ${grove.groveName}</p>
-                            <p><strong>Token Address:</strong><br/>
-                            <code style="font-size: 0.85em; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px;">${tokenAddressShort}</code></p>
-                            <p><a href="${explorerUrl}" target="_blank" style="color: #4CAF50; text-decoration: underline;">View on Mantle Explorer →</a></p>
-                        </div>
-                    `,
-                    type: 'success',
-                    duration: 10000
-                });
-                
-                // Refresh the groves list
-                await this.loadGroves();
-                modal.remove();
-                
             } catch (error) {
                 console.error('Tokenization error:', error);
-                
-                let friendlyError = 'Failed to tokenize grove. Please try again.';
-                
-                if (error.message?.includes('user rejected') || error.message?.includes('User denied')) {
-                    friendlyError = 'Transaction rejected. Please try again when ready.';
-                } else if (error.message?.includes('Already tokenized')) {
-                    friendlyError = 'This grove has already been tokenized.';
-                } else if (error.message?.includes('insufficient funds')) {
-                    friendlyError = 'Insufficient MNT for gas fees. Please add more MNT to your wallet.';
-                } else if (error.message) {
-                    friendlyError = error.message;
-                }
-                
-                window.notificationManager?.show({
-                    title: 'Tokenization Failed',
-                    message: friendlyError,
-                    type: 'error',
-                    duration: 5000
-                });
+                window.walletManager?.showToast(
+                    `Failed to tokenize grove: ${error.message}`,
+                    'error'
+                );
                 
                 // Re-enable the button
                 const submitBtn = tokenForm.querySelector('button[type="submit"]');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Tokenize Grove';
-            } finally {
-                this.isTokenizing = false;
-            }
-        });
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Tokenize Grove';
             }

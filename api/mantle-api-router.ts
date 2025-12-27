@@ -44,6 +44,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
     if (url.includes('/groves/tokenize') && method === 'POST') {
       return await handleTokenizeGrove(req, res);
     }
+    
+    // Update grove tokenization status (after blockchain tokenization)
+    if (url.includes('/groves/update-tokenization') && method === 'POST') {
+      return await handleUpdateTokenization(req, res);
+    }
 
     // Get grove info
     if (url.includes('/groves/') && method === 'GET') {
