@@ -1125,39 +1125,47 @@ class FarmerDashboard {
                     <button class="modal-close">&times;</button>
                 </div>
                 <div class="modal-body" style="background: #2d2d2d !important;">
-                    ${grove.isTokenized && grove.tokenAddress && grove.farmerAddress !== '0.0.5792828' ? `
-                    <!-- Token Claim Section (hidden for operator account) -->
+                    ${grove.isTokenized && grove.tokenAddress ? `
+                    <!-- Tokenization Status Section -->
                     <div class="detail-section" style="background: #2d2d2d !important;">
-                        <h5><i class="fas fa-gift"></i> 🎁 Claim Your Grove Tokens</h5>
+                        <h5><i class="fas fa-coins"></i> 📊 Tokenization Status</h5>
                         <div class="detail-grid">
                             <div class="detail-item">
                                 <span class="detail-label">Token Symbol</span>
-                                <span class="detail-value highlight-green">${grove.tokenSymbol || 'N/A'}</span>
+                                <span class="detail-value highlight-green">${grove.tokenSymbol || 'CGT'}</span>
                             </div>
                             <div class="detail-item">
-                                <span class="detail-label">Total Tokens</span>
+                                <span class="detail-label">Total Tokens Minted</span>
                                 <span class="detail-value highlight-green">${(grove.totalTokensIssued || 0).toLocaleString()}</span>
                             </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Tokens Sold</span>
+                                <span class="detail-value">${(grove.tokensSold || 0).toLocaleString()}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Available for Sale</span>
+                                <span class="detail-value highlight-green">${((grove.totalTokensIssued || 0) - (grove.tokensSold || 0)).toLocaleString()}</span>
+                            </div>
                             <div class="detail-item full-width">
-                                <span class="detail-label">Token ID</span>
+                                <span class="detail-label">Token Contract Address</span>
                                 <span class="detail-value mono-text">${grove.tokenAddress}</span>
                             </div>
-                            <div class="detail-item full-width" style="margin-top: 1rem;">
-                                <button class="btn btn-primary btn-large claim-tokens-btn" data-token-id="${grove.tokenAddress}" data-grove-id="${grove.id}" style="width: 100%; padding: 1rem; font-size: 1.1rem;">
-                                    🎁 Claim Your Tokens Now
-                                </button>
-                            </div>
                             <div class="detail-item full-width" style="margin-top: 1rem; padding: 1rem; background: rgba(76, 175, 80, 0.1); border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.3);">
-                                <span class="detail-label" style="color: #4CAF50; margin-bottom: 0.75rem; display: block;">What happens when you click:</span>
+                                <span class="detail-label" style="color: #4CAF50; margin-bottom: 0.75rem; display: block;">✅ Grove Successfully Tokenized</span>
                                 <div style="color: #ccc; font-size: 0.9rem; line-height: 1.6;">
-                                    <div style="margin-bottom: 0.5rem;">1️⃣ HashPack wallet opens automatically</div>
-                                    <div style="margin-bottom: 0.5rem;">2️⃣ You associate the token (~$0.05 HBAR fee)</div>
-                                    <div style="margin-bottom: 0.5rem;">3️⃣ Tokens transfer to your wallet automatically</div>
-                                    <div>4️⃣ Done! Refresh your wallet to see tokens ✅</div>
+                                    <div style="margin-bottom: 0.5rem;">• Your grove tokens are ERC20 tokens on Mantle Network</div>
+                                    <div style="margin-bottom: 0.5rem;">• Tokens are held in the Issuer smart contract</div>
+                                    <div style="margin-bottom: 0.5rem;">• Investors can purchase tokens directly from the marketplace</div>
+                                    <div>• Revenue sharing happens automatically via smart contracts</div>
                                 </div>
                             </div>
-                            <div class="detail-item full-width" style="text-align: center; margin-top: 0.5rem;">
-                                <span class="detail-label" style="font-size: 0.85rem;">💡 This is a one-time process. Takes about 30 seconds.</span>
+                            <div class="detail-item full-width" style="margin-top: 1rem; display: flex; gap: 1rem;">
+                                <a href="https://sepolia.mantlescan.xyz/address/${grove.tokenAddress}" target="_blank" class="btn btn-secondary" style="flex: 1; text-align: center; padding: 0.75rem;">
+                                    <i class="fas fa-external-link-alt"></i> View on Mantle Explorer
+                                </a>
+                                <button class="btn btn-primary" style="flex: 1; padding: 0.75rem;" onclick="alert('Marketplace listing coming soon!')">
+                                    <i class="fas fa-store"></i> List Tokens for Sale
+                                </button>
                             </div>
                         </div>
                     </div>
