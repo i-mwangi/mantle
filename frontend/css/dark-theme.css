@@ -1,4 +1,3 @@
-
 /**
  * Complete Dark Theme for Chai Platform
  * Modern neumorphism + glassmorphism design
@@ -701,11 +700,11 @@ body {
 }
 
 .detail-section {
-    background: #e8e8e8;
+    background: rgba(0, 0, 0, 0.2);
     padding: 1.5rem;
     border-radius: 8px;
     margin-bottom: 1.5rem;
-    border: 1px solid #d0d0d0;
+    border: 1px solid #333;
 }
 
 .detail-section h5 {
@@ -1169,14 +1168,14 @@ body {
 }
 
 .modal-content {
-    background: #f0f0f0;
+    background: linear-gradient(135deg, #2a2a2a 0%, #252525 100%);
     border-radius: 16px;
     max-width: 600px;
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    border: 1px solid #d0d0d0;
+    border: 1px solid #333;
 }
 
 .modal-header {
@@ -1215,7 +1214,6 @@ body {
 
 .modal-body {
     padding: 2rem;
-    background: #f0f0f0;
 }
 
 .modal-actions {
