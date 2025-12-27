@@ -525,6 +525,9 @@ class FarmerDashboard {
             } else {
                 this.showNotification(friendlyError, 'error');
             }
+        } finally {
+            // Always reset the submission flag
+            this.isSubmittingGrove = false;
         }
     }
 
