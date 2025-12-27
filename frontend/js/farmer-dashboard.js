@@ -1601,7 +1601,7 @@ class FarmerDashboard {
                     </div>
 
                     <!-- Close Button -->
-                    <div class="modal-footer">
+                    <div class="modal-footer" style="justify-content: center;">
                         <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
                             <i class="fas fa-times"></i> Close
                         </button>
