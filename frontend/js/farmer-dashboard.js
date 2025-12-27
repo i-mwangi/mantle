@@ -1164,7 +1164,7 @@ class FarmerDashboard {
                     ` : ''}
                     
                     <!-- Grove Overview Section -->
-                    <div class="detail-section">
+                    <div class="detail-section" style="background: #2d2d2d !important;">
                         <h5><i class="fas fa-map-marked-alt"></i> Location & Identification</h5>
                         <div class="detail-grid">
                             <div class="detail-item">
@@ -1197,7 +1197,7 @@ class FarmerDashboard {
                     </div>
 
                     <!-- Agricultural Information -->
-                    <div class="detail-section">
+                    <div class="detail-section" style="background: #2d2d2d !important;">
                         <h5><i class="fas fa-seedling"></i> Agricultural Information</h5>
                         <div class="detail-grid">
                             <div class="detail-item">
@@ -1222,7 +1222,7 @@ class FarmerDashboard {
                     </div>
 
                     <!-- Health & Performance -->
-                    <div class="detail-section">
+                    <div class="detail-section" style="background: #2d2d2d !important;">
                         <h5><i class="fas fa-heartbeat"></i> Health & Performance</h5>
                         <div class="detail-grid">
                             <div class="detail-item">
@@ -1255,7 +1255,7 @@ class FarmerDashboard {
                     </div>
 
                     <!-- Blockchain Information -->
-                    <div class="detail-section">
+                    <div class="detail-section" style="background: #2d2d2d !important;">
                         <h5><i class="fas fa-link"></i> Blockchain & Ownership</h5>
                         <div class="detail-grid">
                             <div class="detail-item full-width">
