@@ -65,7 +65,8 @@ class NotificationManager {
         return this.show({
             type: 'error',
             message,
-            autoDismiss: false, // Errors don't auto-dismiss by default
+            autoDismiss: true, // Auto-dismiss errors after duration
+            duration: 5000, // 5 seconds for errors
             ...options
         });
     }
