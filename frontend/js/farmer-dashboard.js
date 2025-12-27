@@ -633,24 +633,41 @@ class FarmerDashboard {
                     `<option value="${grove.id}">${grove.groveName} - ${grove.location}</option>`
                 ).join('');
             
+            // Remove any existing event listeners
+            const newGroveSelect = groveSelect.cloneNode(true);
+            groveSelect.parentNode.replaceChild(newGroveSelect, groveSelect);
+            
             // Auto-fill coffee variety when grove is selected
-            groveSelect.addEventListener('change', (e) => {
+            newGroveSelect.addEventListener('change', (e) => {
+                console.log('[Harvest] Grove selected:', e.target.value);
                 const selectedGroveId = parseInt(e.target.value);
                 const selectedGrove = this.groves.find(g => g.id === selectedGroveId);
                 const varietySelect = document.getElementById('coffeeVariety');
                 
+                console.log('[Harvest] Selected grove:', selectedGrove);
+                console.log('[Harvest] Variety select element:', varietySelect);
+                
                 if (selectedGrove && varietySelect) {
+                    const variety = selectedGrove.coffeeVariety || '';
+                    console.log('[Harvest] Setting variety to:', variety);
+                    
                     // Set the variety value
-                    varietySelect.value = selectedGrove.coffeeVariety || '';
+                    varietySelect.value = variety;
+                    
                     // Disable the field so it can't be changed
                     varietySelect.disabled = true;
                     varietySelect.style.background = '#1a1a1a';
                     varietySelect.style.cursor = 'not-allowed';
+                    varietySelect.style.opacity = '0.7';
+                    
+                    console.log('[Harvest] Variety field disabled and set to:', varietySelect.value);
                 } else if (varietySelect) {
+                    console.log('[Harvest] No grove selected, re-enabling variety field');
                     // Re-enable if no grove selected
                     varietySelect.disabled = false;
                     varietySelect.style.background = '';
                     varietySelect.style.cursor = '';
+                    varietySelect.style.opacity = '';
                     varietySelect.value = '';
                 }
             });
