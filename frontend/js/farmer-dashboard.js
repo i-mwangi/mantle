@@ -655,10 +655,11 @@ class FarmerDashboard {
                     
                     // Set value and show/hide appropriately
                     readOnlyInput.value = variety;
-                    readOnlyInput.style.display = 'block';
+                    readOnlyInput.style.display = 'block !important';
                     readOnlyInput.setAttribute('required', 'required');
                     
-                    varietySelect.style.display = 'none';
+                    varietySelect.style.display = 'none !important';
+                    varietySelect.style.visibility = 'hidden';
                     varietySelect.removeAttribute('required');
                     
                     console.log('[Harvest] Dropdown hidden, showing read-only input with variety:', variety);
