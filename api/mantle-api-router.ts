@@ -190,6 +190,73 @@ async function handleTokenizeGrove(req: VercelRequest, res: VercelResponse) {
 }
 
 /**
+ * Update grove tokenization status (called after blockchain tokenization)
+ */
+async function handleUpdateTokenization(req: VercelRequest, res: VercelResponse) {
+  try {
+    const { groveName, tokenAddress, totalTokensIssued, transactionHash } = req.body;
+
+    if (!groveName || !tokenAddress || !totalTokensIssued) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: groveName, tokenAddress, totalTokensIssued',
+      });
+    }
+
+    console.log('📝 Updating tokenization in database:', {
+      groveName,
+      tokenAddress,
+      totalTokensIssued,
+      transactionHash,
+    });
+
+    // Find the grove by name
+    const grove = await db.query.coffeeGroves.findFirst({
+      where: eq(coffeeGroves.groveName, groveName),
+    });
+
+    if (!grove) {
+      return res.status(404).json({
+        success: false,
+        error: `Grove '${groveName}' not found`,
+      });
+    }
+
+    // Update the grove with tokenization info
+    await db
+      .update(coffeeGroves)
+      .set({
+        isTokenized: true,
+        tokenAddress: tokenAddress,
+        totalTokensIssued: parseInt(totalTokensIssued),
+        tokenizedAt: Date.now(),
+        transactionHash: transactionHash || null,
+        updatedAt: Date.now(),
+      })
+      .where(eq(coffeeGroves.id, grove.id));
+
+    console.log('✅ Grove tokenization updated in database');
+
+    return res.status(200).json({
+      success: true,
+      message: 'Grove tokenization updated successfully',
+      grove: {
+        id: grove.id,
+        groveName: grove.groveName,
+        tokenAddress,
+        totalTokensIssued,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error updating tokenization:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to update tokenization',
+    });
+  }
+}
+
+/**
  * Get grove info
  */
 async function handleGetGrove(req: VercelRequest, res: VercelResponse) {
