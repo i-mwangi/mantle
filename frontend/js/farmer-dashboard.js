@@ -492,15 +492,29 @@ class FarmerDashboard {
             console.error('Error adding grove:', error);
             let friendlyError = 'Failed to register grove. Please try again.';
             
-            if (error.message?.includes('user rejected')) {
-                friendlyError = 'Transaction rejected by user';
-            } else if (error.message?.includes('GroveAlreadyExists')) {
-                friendlyError = 'A grove with this name already exists';
+            if (error.message?.includes('user rejected') || error.message?.includes('User denied')) {
+                friendlyError = 'Transaction rejected. Please try again when ready.';
+            } else if (error.message?.includes('GroveAlreadyExists') || error.message?.includes('already exists')) {
+                friendlyError = `Grove "${groveData.groveName}" already exists. Please choose a different name.`;
+            } else if (error.message?.includes('Invalid parameters')) {
+                friendlyError = 'Invalid grove data. Please ensure all fields are filled correctly (especially Expected Yield).';
+            } else if (error.message?.includes('insufficient funds')) {
+                friendlyError = 'Insufficient MNT for gas fees. Please add more MNT to your wallet.';
             } else if (error.message) {
                 friendlyError = error.message;
             }
             
-            this.showNotification(friendlyError, 'error');
+            // Show error with 5 second timeout
+            if (window.notificationManager) {
+                window.notificationManager.show({
+                    title: 'Registration Failed',
+                    message: friendlyError,
+                    type: 'error',
+                    duration: 5000 // Auto-dismiss after 5 seconds
+                });
+            } else {
+                this.showNotification(friendlyError, 'error');
+            }
         }
     }
 
