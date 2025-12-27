@@ -354,6 +354,14 @@ export class CoffeeTreeAPI {
         });
     }
 
+    async tokenizeGrove(tokenizeData) {
+        // Tokenize a registered grove on the blockchain
+        return this.request('/api/groves/tokenize', {
+            method: 'POST',
+            body: tokenizeData
+        });
+    }
+
     async updateTreeHealth(groveId, healthData) {
         try {
             const body = {
