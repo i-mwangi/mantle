@@ -1425,7 +1425,30 @@ class FarmerDashboard {
                         <div class="tab-content" data-tab-content="harvest">
                             <h5><i class="fas fa-apple-alt"></i> Report Harvest</h5>
                             <form id="harvestReportForm" class="management-form">
-                                <div class="form-group">
+                                <!-- Grove Info (Read-only) -->
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="harvestGroveName">Grove Name</label>
+                                        <input type="text" id="harvestGroveName" value="${grove.groveName}" readonly style="background: #1a1a1a; cursor: not-allowed;">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="harvestLocation">Location</label>
+                                        <input type="text" id="harvestLocation" value="${grove.location}" readonly style="background: #1a1a1a; cursor: not-allowed;">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="harvestVariety">Coffee Variety</label>
+                                        <input type="text" id="harvestVariety" value="${grove.coffeeVariety || 'N/A'}" readonly style="background: #1a1a1a; cursor: not-allowed;">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="harvestTreeCount">Number of Trees</label>
+                                        <input type="text" id="harvestTreeCount" value="${(grove.treeCount || 0).toLocaleString()}" readonly style="background: #1a1a1a; cursor: not-allowed;">
+                                    </div>
+                                </div>
+                                
+                                <!-- Harvest Data (Editable) -->
+                                <div class="form-group" style="margin-top: 1.5rem;">
                                     <label for="harvestDate">Harvest Date</label>
                                     <input type="date" id="harvestDate" value="${new Date().toISOString().split('T')[0]}" required>
                                 </div>
