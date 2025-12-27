@@ -1721,12 +1721,13 @@ class FarmerDashboard {
             const projectedReturn = parseFloat(modal.querySelector('#projectedReturn').value);
             
             // Calculate tokens per tree
-            const tokensPerTree = Math.floor(totalTokens / grove.numberOfTrees);
+            const treeCount = grove.treeCount || grove.numberOfTrees || 0;
+            const tokensPerTree = Math.floor(totalTokens / treeCount);
             
             const tokenData = {
-                groveName: grove.name,
+                groveName: grove.groveName || grove.name,
                 location: grove.location,
-                numberOfTrees: grove.numberOfTrees,
+                numberOfTrees: treeCount,
                 tokensPerTree: tokensPerTree,
                 farmerAddress: window.walletManager?.getAccountId()
             };
