@@ -230,7 +230,6 @@ async function handleUpdateTokenization(req: VercelRequest, res: VercelResponse)
         tokenAddress: tokenAddress,
         totalTokensIssued: parseInt(totalTokensIssued),
         tokenizedAt: Date.now(),
-        transactionHash: transactionHash || null,
         updatedAt: Date.now(),
       })
       .where(eq(coffeeGroves.id, grove.id));
