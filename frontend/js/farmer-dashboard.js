@@ -390,12 +390,22 @@ class FarmerDashboard {
 
     async handleGroveSubmit(e) {
         e.preventDefault();
+        
+        // Prevent duplicate submissions
+        if (this.isSubmittingGrove) {
+            console.log('⏳ Grove registration already in progress, ignoring duplicate');
+            return;
+        }
+        
+        this.isSubmittingGrove = true;
+        
         const formData = new FormData(e.target);
 
         // Check terms acceptance
         const termsCheckbox = document.getElementById('termsCheckbox');
         if (!termsCheckbox || !termsCheckbox.checked) {
             this.showNotification('You must accept the Terms and Conditions to register a grove', 'error');
+            this.isSubmittingGrove = false;
             return;
         }
 
