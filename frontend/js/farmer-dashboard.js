@@ -1118,6 +1118,12 @@ class FarmerDashboard {
         const modal = document.createElement('div');
         modal.className = 'modal active';
         modal.innerHTML = `
+            <style>
+                .detail-value { color: #ccc !important; }
+                .detail-label { color: #999 !important; }
+                .detail-value.highlight-green { color: #4CAF50 !important; }
+                .detail-value.mono-text { color: #4CAF50 !important; }
+            </style>
             <div class="modal-overlay"></div>
             <div class="modal-content modal-large" style="background: #2d2d2d !important;">
                 <div class="modal-header" style="background: #2d2d2d !important;">
