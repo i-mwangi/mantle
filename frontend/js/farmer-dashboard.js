@@ -651,8 +651,21 @@ class FarmerDashboard {
                     const variety = selectedGrove.coffeeVariety || '';
                     console.log('[Harvest] Setting variety to:', variety);
                     
-                    // Set the variety value
+                    // Try to set the variety value (case-insensitive match)
                     varietySelect.value = variety;
+                    
+                    // If exact match didn't work, try case-insensitive
+                    if (!varietySelect.value && variety) {
+                        const options = Array.from(varietySelect.options);
+                        const matchingOption = options.find(opt => 
+                            opt.value.toLowerCase() === variety.toLowerCase() ||
+                            opt.text.toLowerCase() === variety.toLowerCase()
+                        );
+                        if (matchingOption) {
+                            varietySelect.value = matchingOption.value;
+                            console.log('[Harvest] Matched variety case-insensitively:', matchingOption.value);
+                        }
+                    }
                     
                     // Disable the field so it can't be changed
                     varietySelect.disabled = true;
@@ -661,6 +674,7 @@ class FarmerDashboard {
                     varietySelect.style.opacity = '0.7';
                     
                     console.log('[Harvest] Variety field disabled and set to:', varietySelect.value);
+                    console.log('[Harvest] Selected option text:', varietySelect.options[varietySelect.selectedIndex]?.text);
                 } else if (varietySelect) {
                     console.log('[Harvest] No grove selected, re-enabling variety field');
                     // Re-enable if no grove selected
