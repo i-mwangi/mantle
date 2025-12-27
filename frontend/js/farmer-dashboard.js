@@ -936,6 +936,27 @@ class FarmerDashboard {
                         <span class="info-label">Total Expected Yield:</span>
                         <span class="info-value">${((grove.treeCount || 0) * (grove.expectedYieldPerTree || 0)).toLocaleString()} kg</span>
                     </div>
+                    ${grove.isTokenized ? `
+                    <div class="info-row tokenization-status">
+                        <span class="info-label"><i class="fas fa-coins"></i> Tokenization:</span>
+                        <span class="info-value success-text">✅ Tokenized</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Total Tokens:</span>
+                        <span class="info-value highlight-green">${(grove.totalTokensIssued || 0).toLocaleString()}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Token Address:</span>
+                        <span class="info-value mono-text" style="font-size: 0.75rem;" title="${grove.tokenAddress}">
+                            ${grove.tokenAddress ? grove.tokenAddress.slice(0, 10) + '...' + grove.tokenAddress.slice(-8) : 'N/A'}
+                        </span>
+                    </div>
+                    ` : `
+                    <div class="info-row tokenization-status">
+                        <span class="info-label"><i class="fas fa-coins"></i> Tokenization:</span>
+                        <span class="info-value warning-text">⏳ Not Tokenized</span>
+                    </div>
+                    `}
                 </div>
 
                 <!-- Grove Actions -->
@@ -1399,6 +1420,45 @@ class FarmerDashboard {
                         <!-- Tokenization Tab -->
                         <div class="tab-content" data-tab-content="tokenize">
                             <h5><i class="fas fa-coins"></i> Grove Tokenization</h5>
+                            
+                            ${grove.isTokenized ? `
+                            <!-- Already Tokenized Status -->
+                            <div class="tokenization-info">
+                                <div class="info-card success-card" style="background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.3);">
+                                    <h6 style="color: #4CAF50; margin-bottom: 1rem;">
+                                        <i class="fas fa-check-circle"></i> Grove Already Tokenized
+                                    </h6>
+                                    <div class="tokenization-details" style="display: grid; gap: 0.75rem;">
+                                        <div class="detail-row">
+                                            <span style="color: #888;">Total Tokens:</span>
+                                            <span style="color: #4CAF50; font-weight: bold;">${(grove.totalTokensIssued || 0).toLocaleString()}</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span style="color: #888;">Token Address:</span>
+                                            <code style="font-size: 0.85em; background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px; display: block; margin-top: 4px; word-break: break-all;">
+                                                ${grove.tokenAddress}
+                                            </code>
+                                        </div>
+                                        <div class="detail-row" style="margin-top: 0.5rem;">
+                                            <a href="https://sepolia.mantlescan.xyz/address/${grove.tokenAddress}" 
+                                               target="_blank" 
+                                               class="btn btn-secondary btn-sm" 
+                                               style="width: 100%; text-align: center;">
+                                                <i class="fas fa-external-link-alt"></i> View on Mantle Explorer
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem; padding: 1rem; background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 8px;">
+                                <p style="margin: 0; color: #FFC107;">
+                                    <i class="fas fa-info-circle"></i> 
+                                    <strong>Note:</strong> Tokens are held by the Issuer contract and available for investors to purchase. 
+                                    You can track token sales and revenue in the Revenue section.
+                                </p>
+                            </div>
+                            ` : `
+                            <!-- Tokenization Form -->
                             <div class="tokenization-info">
                                 <div class="info-card">
                                     <p><i class="fas fa-info-circle"></i> 
@@ -1411,7 +1471,9 @@ class FarmerDashboard {
                                     <div class="form-group">
                                         <label for="totalTokens">Total Tokens to Issue</label>
                                         <input type="number" id="totalTokens" min="1" 
-                                               placeholder="e.g., 1000" required>
+                                               placeholder="e.g., ${(grove.treeCount || 0) * 10}" 
+                                               value="${(grove.treeCount || 0) * 10}" required>
+                                        <small style="color: #888;">Recommended: ${(grove.treeCount || 0) * 10} tokens (10 per tree)</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="tokenPrice">Price per Token (USD)</label>
@@ -1427,6 +1489,17 @@ class FarmerDashboard {
                                 <div class="tokenization-calculation">
                                     <div class="calc-row">
                                         <span>Total Fundraising Goal:</span>
+                                        <span id="totalFundraising">$0.00</span>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-rocket"></i> Tokenize Grove
+                                    </button>
+                                </div>
+                            </form>
+                            `}
+                        </div>
                                         <span id="totalFundraising">$0.00</span>
                                     </div>
                                 </div>
@@ -1745,10 +1818,40 @@ class FarmerDashboard {
                 const response = await window.coffeeAPI.tokenizeGrove(tokenData);
                 
                 if (response.success) {
-                    window.walletManager?.showToast(
-                        `Grove tokenized! ${response.totalSupply} tokens created at ${response.tokenAddress.slice(0, 10)}...`,
-                        'success'
-                    );
+                    // Show detailed success message
+                    const tokenAddressShort = response.tokenAddress.slice(0, 10) + '...' + response.tokenAddress.slice(-8);
+                    const explorerUrl = `https://sepolia.mantlescan.xyz/address/${response.tokenAddress}`;
+                    
+                    window.notificationManager?.show({
+                        title: '🎉 Grove Tokenized Successfully!',
+                        message: `
+                            <div style="line-height: 1.6;">
+                                <p><strong>${response.totalSupply} tokens</strong> created for ${grove.groveName || grove.name}</p>
+                                <p><strong>Token Address:</strong><br/>
+                                <code style="font-size: 0.85em; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px;">${tokenAddressShort}</code></p>
+                                <p><a href="${explorerUrl}" target="_blank" style="color: #4CAF50; text-decoration: underline;">View on Mantle Explorer →</a></p>
+                            </div>
+                        `,
+                        type: 'success',
+                        duration: 10000
+                    });
+                    
+                    // Fallback toast if notification manager not available
+                    if (!window.notificationManager) {
+                        window.walletManager?.showToast(
+                            `Grove tokenized! ${response.totalSupply} tokens created at ${tokenAddressShort}`,
+                            'success'
+                        );
+                    }
+                    
+                    // Log details to console for reference
+                    console.log('✅ Tokenization successful:', {
+                        groveName: grove.groveName || grove.name,
+                        tokenAddress: response.tokenAddress,
+                        totalSupply: response.totalSupply,
+                        transactionHash: response.transactionHash,
+                        explorerUrl: explorerUrl
+                    });
                     
                     // Refresh the groves list to show updated status
                     await this.loadGroves();
