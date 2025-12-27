@@ -651,49 +651,43 @@ class FarmerDashboard {
                     const variety = selectedGrove.coffeeVariety || '';
                     console.log('[Harvest] Setting variety to:', variety);
                     
-                    // Replace dropdown with read-only text input
-                    const varietyContainer = varietySelect.parentElement;
-                    const label = varietyContainer.querySelector('label');
+                    // Check if read-only input already exists
+                    let readOnlyInput = document.getElementById('coffeeVarietyReadOnly');
                     
-                    // Create read-only input
-                    const readOnlyInput = document.createElement('input');
-                    readOnlyInput.type = 'text';
-                    readOnlyInput.id = 'coffeeVariety';
-                    readOnlyInput.name = 'coffeeVariety';
-                    readOnlyInput.value = variety;
-                    readOnlyInput.readOnly = true;
-                    readOnlyInput.className = 'form-control';
-                    readOnlyInput.style.background = '#1a1a1a';
-                    readOnlyInput.style.cursor = 'not-allowed';
-                    readOnlyInput.style.color = '#ccc';
-                    
-                    // Replace the select with input
-                    varietySelect.replaceWith(readOnlyInput);
-                    
-                    console.log('[Harvest] Replaced dropdown with read-only input showing:', variety);
-                } else if (varietySelect && !selectedGrove) {
-                    console.log('[Harvest] No grove selected');
-                    // If it's an input (was previously locked), restore the dropdown
-                    if (varietySelect.tagName === 'INPUT') {
-                        const varietyContainer = varietySelect.parentElement;
+                    if (!readOnlyInput) {
+                        // Create read-only input
+                        readOnlyInput = document.createElement('input');
+                        readOnlyInput.type = 'text';
+                        readOnlyInput.id = 'coffeeVarietyReadOnly';
+                        readOnlyInput.name = 'coffeeVariety';
+                        readOnlyInput.className = 'form-control';
+                        readOnlyInput.readOnly = true;
+                        readOnlyInput.required = true;
+                        readOnlyInput.style.background = '#1a1a1a';
+                        readOnlyInput.style.cursor = 'not-allowed';
+                        readOnlyInput.style.color = '#ccc';
                         
-                        // Recreate the select dropdown
-                        const newSelect = document.createElement('select');
-                        newSelect.id = 'coffeeVariety';
-                        newSelect.name = 'coffeeVariety';
-                        newSelect.className = 'form-select';
-                        newSelect.required = true;
-                        newSelect.innerHTML = `
-                            <option value="">Select variety</option>
-                            <option value="Arabica">Arabica</option>
-                            <option value="Robusta">Robusta</option>
-                            <option value="Specialty">Specialty</option>
-                            <option value="Organic">Organic</option>
-                        `;
-                        
-                        varietySelect.replaceWith(newSelect);
-                        console.log('[Harvest] Restored dropdown');
+                        // Insert after the select
+                        varietySelect.parentNode.insertBefore(readOnlyInput, varietySelect.nextSibling);
                     }
+                    
+                    // Set value and show/hide appropriately
+                    readOnlyInput.value = variety;
+                    readOnlyInput.style.display = 'block';
+                    varietySelect.style.display = 'none';
+                    varietySelect.removeAttribute('required'); // Remove required from hidden select
+                    
+                    console.log('[Harvest] Showing read-only input with variety:', variety);
+                } else if (varietySelect) {
+                    console.log('[Harvest] No grove selected, showing dropdown');
+                    // Show dropdown, hide read-only input
+                    const readOnlyInput = document.getElementById('coffeeVarietyReadOnly');
+                    if (readOnlyInput) {
+                        readOnlyInput.style.display = 'none';
+                    }
+                    varietySelect.style.display = 'block';
+                    varietySelect.setAttribute('required', 'required');
+                    varietySelect.value = '';
                 }
             });
         } else {
