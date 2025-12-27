@@ -34,10 +34,8 @@ export class WalletManager {
       const wasConnected = localStorage.getItem('walletConnected') === 'true';
       const savedAccount = localStorage.getItem('connectedAccount');
       
-      // DISABLED: Auto-reconnect feature
-      // Users must explicitly click "Connect Wallet" to connect
-      // This ensures MetaMask popup appears for authorization
-      if (wasConnected && savedAccount && window.ethereum && false) { // Disabled with && false
+      // Auto-reconnect if previously connected
+      if (wasConnected && savedAccount && window.ethereum) {
         console.log('🔄 Auto-reconnecting to previously connected wallet...');
         try {
           // Use silent reconnect (no popup)
@@ -51,12 +49,6 @@ export class WalletManager {
         }
       } else {
         console.log('✅ Wallet manager initialized. Click "Connect Wallet" to connect.');
-        // Clear any stale connection state on page load
-        if (wasConnected) {
-          console.log('🧹 Clearing previous connection state - user must reconnect manually');
-          localStorage.removeItem('walletConnected');
-          localStorage.removeItem('connectedAccount');
-        }
       }
       
       // Load user type from localStorage

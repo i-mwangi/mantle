@@ -418,19 +418,27 @@ class FarmerDashboard {
             // Step 1: Register on blockchain first (with user's wallet)
             this.showNotification('Step 1/2: Registering grove on blockchain...', 'info');
             
-            // Get contract details from environment
-            const issuerAddress = '0xaf4da1406A8EE17AfEF5AeE644481a6b1cB01a9c'; // From .env
+            // Check if wallet is connected
+            if (!window.walletManager || !window.walletManager.isWalletConnected()) {
+                throw new Error('Wallet not connected. Please connect your wallet first.');
+            }
+            
+            // Get signer from MetaMask
+            const ethers = window.ethers;
+            if (!ethers) {
+                throw new Error('Ethers library not loaded');
+            }
+            
+            // Create provider and signer
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            
+            // Get contract details
+            const issuerAddress = '0xaf4da1406A8EE17AfEF5AeE644481a6b1cB01a9c';
             const issuerABI = [
                 'function registerCoffeeGrove(string groveName, string location, uint64 treeCount, string variety, uint64 expectedYield)'
             ];
             
-            // Call contract from user's wallet
-            const signer = window.walletManager?.metaMaskWallet?.getSigner();
-            if (!signer) {
-                throw new Error('Wallet not connected. Please connect your wallet first.');
-            }
-            
-            const ethers = window.ethers;
             const issuerContract = new ethers.Contract(issuerAddress, issuerABI, signer);
             
             // Register grove on blockchain
