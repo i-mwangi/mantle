@@ -447,7 +447,7 @@ class FarmerDashboard {
                 groveData.location,
                 groveData.treeCount,
                 groveData.coffeeVariety,
-                Math.floor(groveData.expectedYieldPerTree)
+                groveData.expectedYieldPerTree > 0 ? Math.floor(groveData.expectedYieldPerTree) : 100 // Default to 100 if not provided
             );
             
             this.showNotification('Waiting for blockchain confirmation...', 'info');
