@@ -459,7 +459,7 @@ class DashboardEnhanced {
             return; // Skip refresh if not connected
         }
         
-        console.log('[Dashboard] Refreshing activity feed...');
+        // Silently refresh activity feed (removed console log to reduce spam)
         await this.loadActivityFeed();
     }
 
