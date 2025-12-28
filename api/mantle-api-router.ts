@@ -140,6 +140,16 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleReportHarvest(req, res);
     }
 
+    // Harvest: Preview distribution
+    if (url.includes('/api/harvest/preview-distribution/') && method === 'GET') {
+      return await handlePreviewDistribution(req, res);
+    }
+
+    // Harvest: Confirm distribution
+    if (url.includes('/api/harvest/confirm-distribution') && method === 'POST') {
+      return await handleConfirmDistribution(req, res);
+    }
+
     // Farmer: Get withdrawals
     if (url.includes('/api/farmer/withdrawals/') && method === 'GET') {
       return await handleGetFarmerWithdrawals(req, res);
