@@ -660,40 +660,36 @@ class FarmerDashboard {
                 console.log('[Harvest] Grove selected:', e.target.value);
                 const selectedGroveId = parseInt(e.target.value);
                 const selectedGrove = this.groves.find(g => g.id === selectedGroveId);
-                const varietySelect = document.getElementById('coffeeVariety');
-                const readOnlyInput = document.getElementById('coffeeVarietyReadOnly');
+                const container = document.getElementById('varietyFieldContainer');
                 
                 console.log('[Harvest] Selected grove:', selectedGrove);
-                console.log('[Harvest] Variety select element:', varietySelect);
-                console.log('[Harvest] Read-only input element:', readOnlyInput);
+                console.log('[Harvest] Container element:', container);
                 
-                if (selectedGrove && varietySelect && readOnlyInput) {
+                if (selectedGrove && container) {
                     const variety = selectedGrove.coffeeVariety || '';
                     console.log('[Harvest] Setting variety to:', variety);
                     
-                    // Set value and show/hide appropriately
-                    readOnlyInput.value = variety;
-                    readOnlyInput.style.setProperty('display', 'block', 'important');
-                    readOnlyInput.setAttribute('required', 'required');
-                    readOnlyInput.setAttribute('name', 'coffeeVariety'); // Enable for form submission
+                    // Replace container content with read-only input
+                    container.innerHTML = `
+                        <input class="form-input" type="text" id="coffeeVarietyReadOnly" 
+                            name="coffeeVariety" value="${variety}" readonly required
+                            style="background: #1a1a1a; cursor: not-allowed; color: #ccc;">
+                    `;
                     
-                    varietySelect.style.setProperty('display', 'none', 'important');
-                    varietySelect.style.setProperty('visibility', 'hidden', 'important');
-                    varietySelect.removeAttribute('required');
-                    varietySelect.removeAttribute('name'); // Remove from form submission
-                    
-                    console.log('[Harvest] Dropdown hidden, showing read-only input with variety:', variety);
-                } else if (varietySelect && readOnlyInput) {
+                    console.log('[Harvest] Showing read-only input with variety:', variety);
+                } else if (container) {
                     console.log('[Harvest] No grove selected, showing dropdown');
-                    // Show dropdown, hide read-only input
-                    readOnlyInput.style.display = 'none';
-                    readOnlyInput.removeAttribute('required');
-                    readOnlyInput.removeAttribute('name'); // Remove from form submission
                     
-                    varietySelect.style.display = 'block';
-                    varietySelect.setAttribute('required', 'required');
-                    varietySelect.setAttribute('name', 'coffeeVariety'); // Enable for form submission
-                    varietySelect.value = '';
+                    // Replace container content with dropdown
+                    container.innerHTML = `
+                        <select class="form-select" id="coffeeVariety" name="coffeeVariety" required>
+                            <option value="">Select variety</option>
+                            <option value="Arabica">Arabica</option>
+                            <option value="Robusta">Robusta</option>
+                            <option value="Specialty">Specialty</option>
+                            <option value="Organic">Organic</option>
+                        </select>
+                    `;
                 }
             });
         } else {
