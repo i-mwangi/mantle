@@ -543,6 +543,12 @@ class FarmerDashboard {
         this.isSubmittingHarvest = true;
 
         const formData = new FormData(e.target);
+        
+        // Log ALL form entries for debugging
+        console.log('📋 ALL FORM DATA ENTRIES:');
+        for (let [key, value] of formData.entries()) {
+            console.log(`  ${key}: "${value}" (type: ${typeof value})`);
+        }
 
         const groveId = formData.get('groveId');
         const grove = this.groves.find(g => g.id == groveId);
