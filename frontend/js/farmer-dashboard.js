@@ -663,10 +663,12 @@ class FarmerDashboard {
                     readOnlyInput.value = variety;
                     readOnlyInput.style.setProperty('display', 'block', 'important');
                     readOnlyInput.setAttribute('required', 'required');
+                    readOnlyInput.setAttribute('name', 'coffeeVariety'); // Enable for form submission
                     
                     varietySelect.style.setProperty('display', 'none', 'important');
                     varietySelect.style.setProperty('visibility', 'hidden', 'important');
                     varietySelect.removeAttribute('required');
+                    varietySelect.removeAttribute('name'); // Remove from form submission
                     
                     console.log('[Harvest] Dropdown hidden, showing read-only input with variety:', variety);
                 } else if (varietySelect && readOnlyInput) {
@@ -674,9 +676,11 @@ class FarmerDashboard {
                     // Show dropdown, hide read-only input
                     readOnlyInput.style.display = 'none';
                     readOnlyInput.removeAttribute('required');
+                    readOnlyInput.removeAttribute('name'); // Remove from form submission
                     
                     varietySelect.style.display = 'block';
                     varietySelect.setAttribute('required', 'required');
+                    varietySelect.setAttribute('name', 'coffeeVariety'); // Enable for form submission
                     varietySelect.value = '';
                 }
             });
