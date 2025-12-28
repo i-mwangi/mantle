@@ -573,6 +573,12 @@ class FarmerDashboard {
         };
 
         console.log('📊 Submitting harvest report:', harvestData);
+        console.log('📊 Harvest details:', {
+            yieldKg: harvestData.yieldKg,
+            qualityGrade: harvestData.qualityGrade,
+            salePricePerKg: harvestData.salePricePerKg,
+            totalRevenue: harvestData.totalRevenue
+        });
 
         // Submit to backend (required - no local fallback)
         try {
