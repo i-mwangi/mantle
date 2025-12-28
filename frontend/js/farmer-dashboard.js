@@ -557,6 +557,18 @@ class FarmerDashboard {
         const yieldKg = parseFloat(formData.get('yieldKg'));
         const salePricePerKg = parseFloat(formData.get('salePrice'));
 
+        console.log('📊 Raw form values:', {
+            groveId: formData.get('groveId'),
+            harvestDate: formData.get('harvestDate'),
+            coffeeVariety: formData.get('coffeeVariety'),
+            yieldKg_raw: formData.get('yieldKg'),
+            yieldKg_parsed: yieldKg,
+            qualityGrade_raw: formData.get('qualityGrade'),
+            qualityGrade_parsed: qualityGrade,
+            salePrice_raw: formData.get('salePrice'),
+            salePrice_parsed: salePricePerKg
+        });
+
         const harvestData = {
             id: Date.now(),
             groveId: grove.id,
