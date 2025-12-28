@@ -929,3 +929,126 @@ async function handleGetFarmerBalance(req: VercelRequest, res: VercelResponse) {
 }
 
 export default handleMantleAPI;
+
+
+/**
+ * Preview revenue distribution for a harvest
+ */
+async function handlePreviewDistribution(req: VercelRequest, res: VercelResponse) {
+  try {
+    const url = req.url || '';
+    const harvestId = parseInt(url.split('/').pop() || '0');
+
+    if (!harvestId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Harvest ID is required',
+      });
+    }
+
+    // Get harvest record
+    const harvest = await db.query.harvestRecords.findFirst({
+      where: eq(harvestRecords.id, harvestId),
+    });
+
+    if (!harvest) {
+      return res.status(404).json({
+        success: false,
+        error: 'Harvest not found',
+      });
+    }
+
+    // Get grove info
+    const grove = await db.query.coffeeGroves.findFirst({
+      where: eq(coffeeGroves.id, harvest.groveId),
+    });
+
+    if (!grove) {
+      return res.status(404).json({
+        success: false,
+        error: 'Grove not found',
+      });
+    }
+
+    // TODO: Get actual investor count from token holders
+    // For now, return mock data
+    const investorCount = 0;
+
+    return res.status(200).json({
+      success: true,
+      preview: {
+        harvestId: harvest.id,
+        groveName: grove.groveName,
+        totalRevenue: harvest.totalRevenue || 0,
+        farmerShare: harvest.farmerShare || 0,
+        investorPool: harvest.investorShare || 0,
+        investorCount: investorCount,
+        alreadyDistributed: harvest.revenueDistributed || false,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error previewing distribution:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to preview distribution',
+    });
+  }
+}
+
+/**
+ * Confirm and execute revenue distribution
+ */
+async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse) {
+  try {
+    const { harvestId } = req.body;
+
+    if (!harvestId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Harvest ID is required',
+      });
+    }
+
+    // Get harvest record
+    const harvest = await db.query.harvestRecords.findFirst({
+      where: eq(harvestRecords.id, harvestId),
+    });
+
+    if (!harvest) {
+      return res.status(404).json({
+        success: false,
+        error: 'Harvest not found',
+      });
+    }
+
+    if (harvest.revenueDistributed) {
+      return res.status(400).json({
+        success: false,
+        error: 'Revenue has already been distributed for this harvest',
+      });
+    }
+
+    // TODO: Implement actual blockchain distribution
+    // For now, just mark as distributed
+    await db.update(harvestRecords)
+      .set({ 
+        revenueDistributed: true,
+        transactionHash: '0x' + Date.now().toString(16), // Mock transaction hash
+      })
+      .where(eq(harvestRecords.id, harvestId));
+
+    console.log('✅ Revenue distribution marked as complete for harvest:', harvestId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Revenue distribution completed successfully',
+      transactionHash: '0x' + Date.now().toString(16),
+    });
+  } catch (error: any) {
+    console.error('Error confirming distribution:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to confirm distribution',
+    });
+  }
+}
