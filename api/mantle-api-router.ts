@@ -745,7 +745,19 @@ async function handleGetHarvestStats(req: VercelRequest, res: VercelResponse) {
  */
 async function handleReportHarvest(req: VercelRequest, res: VercelResponse) {
   try {
-    const { groveId, groveName, yieldAmount, quality, notes, farmerAddress } = req.body;
+    const { 
+      groveId, 
+      groveName, 
+      yieldKg,
+      qualityGrade,
+      salePricePerKg,
+      harvestDate,
+      coffeeVariety,
+      farmerAddress,
+      // Legacy field names for backwards compatibility
+      yieldAmount,
+      quality
+    } = req.body;
 
     if (!farmerAddress) {
       return res.status(400).json({
@@ -761,7 +773,22 @@ async function handleReportHarvest(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    console.log('📊 Harvest reported:', { groveId, groveName, yieldAmount, quality, farmerAddress });
+    // Use new field names, fallback to legacy names
+    const finalYieldKg = yieldKg || yieldAmount;
+    const finalQualityGrade = qualityGrade || quality;
+    const finalSalePricePerKg = salePricePerKg || 0;
+    const finalHarvestDate = harvestDate ? new Date(harvestDate).getTime() : Date.now();
+
+    console.log('📊 Harvest reported:', { 
+      groveId, 
+      groveName, 
+      yieldKg: finalYieldKg, 
+      qualityGrade: finalQualityGrade,
+      salePricePerKg: finalSalePricePerKg,
+      harvestDate: finalHarvestDate,
+      coffeeVariety,
+      farmerAddress 
+    });
 
     // Find the grove
     let grove;
@@ -782,17 +809,23 @@ async function handleReportHarvest(req: VercelRequest, res: VercelResponse) {
       });
     }
 
+    // Calculate revenue and shares
+    const yieldKgValue = parseFloat(finalYieldKg) || 0;
+    const pricePerKg = parseFloat(finalSalePricePerKg) || 0;
+    const totalRevenue = yieldKgValue * pricePerKg;
+    const farmerShare = totalRevenue * 0.3; // 30% to farmer
+    const investorShare = totalRevenue * 0.7; // 70% to investors
+
     // Save harvest to database
-    
     const [harvest] = await db.insert(harvestRecords).values({
       groveId: grove.id,
-      harvestDate: Date.now(),
-      yieldKg: Math.round(parseFloat(yieldAmount) || 0),
-      qualityGrade: parseInt(quality) || 5,
-      salePricePerKg: 0, // TODO: Get from price oracle
-      totalRevenue: 0, // TODO: Calculate
-      farmerShare: 0, // TODO: Calculate
-      investorShare: 0, // TODO: Calculate
+      harvestDate: finalHarvestDate,
+      yieldKg: Math.round(yieldKgValue),
+      qualityGrade: parseInt(finalQualityGrade) || 5,
+      salePricePerKg: pricePerKg,
+      totalRevenue: totalRevenue,
+      farmerShare: farmerShare,
+      investorShare: investorShare,
       revenueDistributed: false,
       transactionHash: null,
     }).returning();
@@ -808,6 +841,8 @@ async function handleReportHarvest(req: VercelRequest, res: VercelResponse) {
         groveName: grove.groveName,
         yieldKg: harvest.yieldKg,
         qualityGrade: harvest.qualityGrade,
+        salePricePerKg: harvest.salePricePerKg,
+        totalRevenue: harvest.totalRevenue,
         harvestDate: harvest.harvestDate,
       },
     });
