@@ -435,7 +435,8 @@ class FarmerRevenueTracking {
      */
     async loadWithdrawalHistory(farmerAddress) {
         try {
-            const response = await fetch(`/api/farmer/withdrawals/${farmerAddress}`);
+            const apiBaseUrl = 'http://localhost:3001';
+            const response = await fetch(`${apiBaseUrl}/api/farmer/withdrawals/${farmerAddress}`);
             const result = await response.json();
 
             if (!result.success) {
