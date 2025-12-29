@@ -34,7 +34,6 @@ export class WalletManager {
       const wasConnected = localStorage.getItem('walletConnected') === 'true';
       const savedAccount = localStorage.getItem('connectedAccount');
       
-      // Auto-reconnect if previously connected
       if (wasConnected && savedAccount && window.ethereum) {
         console.log('🔄 Auto-reconnecting to previously connected wallet...');
         try {
