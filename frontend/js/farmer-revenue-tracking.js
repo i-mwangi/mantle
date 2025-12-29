@@ -51,8 +51,10 @@ class FarmerRevenueTracking {
             this.loadWithdrawalHistory(farmerAddress);
             this.loadTransactionHistory(farmerAddress);
 
-            if (response.success && response.data) {
-                this.groveBalances = response.data.groves || [];
+            if (response.success) {
+                // Handle different response structures
+                const groves = response.data?.groves || response.groves || [];
+                this.groveBalances = groves;
                 console.log('[Revenue Tracking] Grove balances:', this.groveBalances);
 
                 this.renderRevenueMetrics();
@@ -491,7 +493,8 @@ class FarmerRevenueTracking {
      */
     async loadTransactionHistory(farmerAddress) {
         try {
-            const response = await fetch(`/api/farmer/transactions/${farmerAddress}`);
+            const apiBaseUrl = 'http://localhost:3001';
+            const response = await fetch(`${apiBaseUrl}/api/farmer/transactions/${farmerAddress}`);
             const result = await response.json();
 
             if (!result.success) {
