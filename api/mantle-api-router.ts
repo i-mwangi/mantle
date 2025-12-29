@@ -1093,10 +1093,10 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
     );
     
     // Get total supply and issuer balance
-    const totalTokens = await tokenContract.totalSupply();
+    const totalTokens: bigint = await tokenContract.totalSupply();
     const issuerAddress = process.env.MANTLE_ISSUER_ADDRESS;
-    const tokensHeldByIssuer = await tokenContract.balanceOf(issuerAddress);
-    const tokensSold = totalTokens - tokensHeldByIssuer;
+    const tokensHeldByIssuer: bigint = await tokenContract.balanceOf(issuerAddress);
+    const tokensSold: bigint = totalTokens - tokensHeldByIssuer;
     
     console.log('📊 Token analysis:', {
       totalTokens: totalTokens.toString(),
