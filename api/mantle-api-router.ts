@@ -1058,3 +1058,30 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
     });
   }
 }
+
+
+/**
+ * Get farmer transactions (stub for now)
+ */
+async function handleGetFarmerTransactions(req: VercelRequest, res: VercelResponse) {
+  try {
+    const url = req.url || '';
+    const farmerAddress = url.split('/').pop();
+
+    console.log('📊 Getting transactions for farmer:', farmerAddress);
+
+    // TODO: Implement actual transaction history from blockchain
+    // For now, return empty array
+    return res.status(200).json({
+      success: true,
+      transactions: [],
+      message: 'Transaction history coming soon'
+    });
+  } catch (error: any) {
+    console.error('Error getting farmer transactions:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get transactions',
+    });
+  }
+}
