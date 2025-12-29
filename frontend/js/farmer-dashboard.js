@@ -3598,8 +3598,25 @@ class FarmerDashboard {
 
         try {
             // Fetch distribution preview
-            const previewResponse = await fetch(`/api/harvest/preview-distribution/${harvestId}`);
-            const previewData = await previewResponse.json();
+            const url = `/api/harvest/preview-distribution/${harvestId}`;
+            console.log('[Distribution] Fetching preview from:', url);
+            console.log('[Distribution] Full URL:', window.location.origin + url);
+            
+            const previewResponse = await fetch(url);
+            console.log('[Distribution] Response status:', previewResponse.status);
+            console.log('[Distribution] Response headers:', [...previewResponse.headers.entries()]);
+            
+            const responseText = await previewResponse.text();
+            console.log('[Distribution] Response text (first 200 chars):', responseText.substring(0, 200));
+            
+            let previewData;
+            try {
+                previewData = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('[Distribution] Failed to parse JSON:', parseError);
+                console.error('[Distribution] Response was:', responseText);
+                throw new Error('Server returned invalid JSON response');
+            }
 
             // Re-enable button
             button.disabled = false;
