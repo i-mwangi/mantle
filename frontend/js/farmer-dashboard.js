@@ -3597,14 +3597,13 @@ class FarmerDashboard {
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
 
         try {
-            // Fetch distribution preview
-            const url = `/api/harvest/preview-distribution/${harvestId}`;
+            // Fetch distribution preview - call API server directly
+            const apiBaseUrl = 'http://localhost:3001';
+            const url = `${apiBaseUrl}/api/harvest/preview-distribution/${harvestId}`;
             console.log('[Distribution] Fetching preview from:', url);
-            console.log('[Distribution] Full URL:', window.location.origin + url);
             
             const previewResponse = await fetch(url);
             console.log('[Distribution] Response status:', previewResponse.status);
-            console.log('[Distribution] Response headers:', [...previewResponse.headers.entries()]);
             
             const responseText = await previewResponse.text();
             console.log('[Distribution] Response text (first 200 chars):', responseText.substring(0, 200));
