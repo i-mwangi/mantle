@@ -156,6 +156,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetFarmerWithdrawals(req, res);
     }
 
+    // Farmer: Get transactions
+    if (url.includes('/api/farmer/transactions/') && method === 'GET') {
+      return await handleGetFarmerTransactions(req, res);
+    }
+
     // Revenue: Get farmer balance
     if (url.includes('/api/revenue/farmer-balance') && method === 'GET') {
       return await handleGetFarmerBalance(req, res);
