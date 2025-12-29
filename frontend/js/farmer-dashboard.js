@@ -3678,11 +3678,13 @@ class FarmerDashboard {
         try {
             console.log(`[Distribution] Distributing revenue for harvest ${harvestId}`);
 
-            const response = await fetch(`/api/harvest/distribute/${harvestId}`, {
+            const apiBaseUrl = 'http://localhost:3001';
+            const response = await fetch(`${apiBaseUrl}/api/harvest/confirm-distribution`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({ harvestId: parseInt(harvestId) })
             });
 
             const result = await response.json();
