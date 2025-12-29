@@ -1070,28 +1070,78 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
         distribution: {
           farmerShare: harvest.totalRevenue,
           investorShare: 0,
-          tokenized: false,
+          tokensSold: 0,
+          totalTokens: 0,
         },
       });
     }
 
-    // TODO: Implement blockchain distribution
-    // For now, just mark as distributed with calculated shares
-    console.log('📊 Grove is tokenized, calculating distribution...');
+    // Grove is tokenized - check how many tokens are sold
+    console.log('📊 Grove is tokenized, checking token sales...');
     
-    const farmerShare = Math.floor((harvest.totalRevenue || 0) * 0.3);
-    const investorShare = (harvest.totalRevenue || 0) - farmerShare;
+    // Query blockchain to get token balances
+    const { MantleContractService } = await import('../lib/api/mantle-contract-service.js');
+    const { GROVE_TOKEN_ABI } = await import('../lib/api/contract-abis.js');
+    
+    const contractService = new MantleContractService(
+      process.env.NETWORK === 'mantleSepolia' ? 'mantleSepolia' : 'localhost'
+    );
+    
+    const tokenContract = contractService.getContractByAddress(
+      grove.tokenAddress,
+      GROVE_TOKEN_ABI
+    );
+    
+    // Get total supply and issuer balance
+    const totalTokens = await tokenContract.totalSupply();
+    const issuerAddress = process.env.MANTLE_ISSUER_ADDRESS;
+    const tokensHeldByIssuer = await tokenContract.balanceOf(issuerAddress);
+    const tokensSold = totalTokens - tokensHeldByIssuer;
+    
+    console.log('📊 Token analysis:', {
+      totalTokens: totalTokens.toString(),
+      tokensHeldByIssuer: tokensHeldByIssuer.toString(),
+      tokensSold: tokensSold.toString(),
+    });
+
+    // Calculate distribution based on token ownership
+    let farmerShare: number;
+    let investorShare: number;
+
+    if (tokensSold === 0n) {
+      // No tokens sold - farmer gets 100%
+      console.log('📊 No tokens sold, farmer gets 100%');
+      farmerShare = harvest.totalRevenue || 0;
+      investorShare = 0;
+    } else {
+      // Tokens sold - calculate proportional split
+      // Investor portion = (tokensSold / totalTokens) * revenue * 70%
+      // Farmer portion = remaining revenue
+      const totalRevenue = harvest.totalRevenue || 0;
+      const soldPercentage = Number(tokensSold) / Number(totalTokens);
+      const investorRevenuePool = Math.floor(totalRevenue * soldPercentage);
+      
+      investorShare = Math.floor(investorRevenuePool * 0.7);
+      farmerShare = totalRevenue - investorShare;
+      
+      console.log('📊 Distribution calculation:', {
+        soldPercentage: (soldPercentage * 100).toFixed(2) + '%',
+        investorRevenuePool,
+        investorShare,
+        farmerShare,
+      });
+    }
 
     await db.update(harvestRecords)
       .set({ 
         revenueDistributed: true,
         farmerShare: farmerShare,
         investorShare: investorShare,
-        transactionHash: '0x' + Date.now().toString(16), // Mock transaction hash
+        transactionHash: '0x' + Date.now().toString(16), // Mock transaction hash for now
       })
       .where(eq(harvestRecords.id, harvestId));
 
-    console.log('✅ Revenue distribution marked as complete for harvest:', harvestId);
+    console.log('✅ Revenue distribution calculated and recorded for harvest:', harvestId);
 
     return res.status(200).json({
       success: true,
@@ -1099,8 +1149,9 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
       distribution: {
         farmerShare: farmerShare,
         investorShare: investorShare,
-        tokenized: true,
-        note: 'Blockchain integration pending - shares calculated and recorded',
+        tokensSold: tokensSold.toString(),
+        totalTokens: totalTokens.toString(),
+        soldPercentage: tokensSold === 0n ? 0 : (Number(tokensSold) / Number(totalTokens) * 100).toFixed(2),
       },
       transactionHash: '0x' + Date.now().toString(16),
     });
