@@ -161,6 +161,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetFarmerTransactions(req, res);
     }
 
+    // Admin: Get token holders for a grove
+    if (url.includes('/api/admin/token-holders') && method === 'GET') {
+      return await handleGetTokenHolders(req, res);
+    }
+
     // Revenue: Get farmer balance
     if (url.includes('/api/revenue/farmer-balance') && method === 'GET') {
       return await handleGetFarmerBalance(req, res);
@@ -1199,6 +1204,112 @@ async function handleGetFarmerTransactions(req: VercelRequest, res: VercelRespon
     return res.status(500).json({
       success: false,
       error: error.message || 'Failed to get transactions',
+    });
+  }
+}
+
+
+/**
+ * Get token holders for a grove
+ */
+async function handleGetTokenHolders(req: VercelRequest, res: VercelResponse) {
+  try {
+    const url = req.url || '';
+    const params = new URLSearchParams(url.split('?')[1]);
+    const groveId = params.get('groveId');
+
+    if (!groveId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Grove ID is required',
+      });
+    }
+
+    console.log('📊 Getting token holders for grove:', groveId);
+
+    // Get grove from database
+    const grove = await db.query.coffeeGroves.findFirst({
+      where: eq(coffeeGroves.id, parseInt(groveId)),
+    });
+
+    if (!grove) {
+      return res.status(404).json({
+        success: false,
+        error: 'Grove not found',
+      });
+    }
+
+    if (!grove.tokenAddress) {
+      // Grove not tokenized - no token holders
+      return res.status(200).json({
+        success: true,
+        holders: [],
+        message: 'Grove not tokenized',
+      });
+    }
+
+    // Query blockchain for token holders
+    // Note: This is a simplified implementation
+    // In production, you'd want to:
+    // 1. Index Transfer events to track all holders
+    // 2. Cache the results
+    // 3. Use a subgraph or indexer service
+    
+    const { MantleContractService } = await import('../lib/api/mantle-contract-service.js');
+    const { GROVE_TOKEN_ABI } = await import('../lib/api/contract-abis.js');
+    
+    const contractService = new MantleContractService(
+      process.env.NETWORK === 'mantleSepolia' ? 'mantleSepolia' : 'localhost'
+    );
+    
+    const tokenContract = contractService.getContractByAddress(
+      grove.tokenAddress,
+      GROVE_TOKEN_ABI
+    );
+
+    // Get total supply
+    const totalSupply: bigint = await tokenContract.totalSupply();
+    
+    // For now, return a simplified response
+    // TODO: Implement proper event indexing to track all token holders
+    const holders = [];
+    
+    // Check issuer balance
+    const issuerAddress = process.env.MANTLE_ISSUER_ADDRESS;
+    const issuerBalance: bigint = await tokenContract.balanceOf(issuerAddress);
+    
+    if (issuerBalance > 0n) {
+      holders.push({
+        address: issuerAddress,
+        balance: issuerBalance.toString(),
+        percentage: (Number(issuerBalance) / Number(totalSupply) * 100).toFixed(2),
+      });
+    }
+
+    // Check farmer balance
+    const farmerBalance: bigint = await tokenContract.balanceOf(grove.farmerAddress);
+    if (farmerBalance > 0n) {
+      holders.push({
+        address: grove.farmerAddress,
+        balance: farmerBalance.toString(),
+        percentage: (Number(farmerBalance) / Number(totalSupply) * 100).toFixed(2),
+      });
+    }
+
+    console.log('📊 Found', holders.length, 'token holders');
+
+    return res.status(200).json({
+      success: true,
+      holders: holders,
+      totalSupply: totalSupply.toString(),
+      tokenAddress: grove.tokenAddress,
+      note: 'Simplified implementation - only shows issuer and farmer. Full holder tracking requires event indexing.',
+    });
+  } catch (error: any) {
+    console.error('Error getting token holders:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get token holders',
     });
   }
 }
