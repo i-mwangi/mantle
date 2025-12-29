@@ -1015,7 +1015,9 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
       });
     }
 
-    // Get harvest record
+    console.log('📊 Starting revenue distribution for harvest:', harvestId);
+
+    // Get harvest record from database
     const harvest = await db.query.harvestRecords.findFirst({
       where: eq(harvestRecords.id, harvestId),
     });
@@ -1034,11 +1036,57 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
       });
     }
 
-    // TODO: Implement actual blockchain distribution
-    // For now, just mark as distributed
+    // Get grove info from database
+    const grove = await db.query.coffeeGroves.findFirst({
+      where: eq(coffeeGroves.id, harvest.groveId),
+    });
+
+    if (!grove) {
+      return res.status(404).json({
+        success: false,
+        error: 'Grove not found',
+      });
+    }
+
+    console.log('📊 Grove:', grove.groveName, 'Token:', grove.tokenAddress);
+
+    // Check if grove is tokenized
+    if (!grove.tokenAddress) {
+      // Grove not tokenized - farmer gets 100%
+      console.log('📊 Grove not tokenized, farmer gets 100%');
+      
+      await db.update(harvestRecords)
+        .set({ 
+          revenueDistributed: true,
+          farmerShare: harvest.totalRevenue,
+          investorShare: 0,
+          transactionHash: 'NOT_TOKENIZED',
+        })
+        .where(eq(harvestRecords.id, harvestId));
+
+      return res.status(200).json({
+        success: true,
+        message: 'Revenue recorded - Grove not tokenized, farmer receives 100%',
+        distribution: {
+          farmerShare: harvest.totalRevenue,
+          investorShare: 0,
+          tokenized: false,
+        },
+      });
+    }
+
+    // TODO: Implement blockchain distribution
+    // For now, just mark as distributed with calculated shares
+    console.log('📊 Grove is tokenized, calculating distribution...');
+    
+    const farmerShare = Math.floor((harvest.totalRevenue || 0) * 0.3);
+    const investorShare = (harvest.totalRevenue || 0) - farmerShare;
+
     await db.update(harvestRecords)
       .set({ 
         revenueDistributed: true,
+        farmerShare: farmerShare,
+        investorShare: investorShare,
         transactionHash: '0x' + Date.now().toString(16), // Mock transaction hash
       })
       .where(eq(harvestRecords.id, harvestId));
@@ -1048,6 +1096,12 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
     return res.status(200).json({
       success: true,
       message: 'Revenue distribution completed successfully',
+      distribution: {
+        farmerShare: farmerShare,
+        investorShare: investorShare,
+        tokenized: true,
+        note: 'Blockchain integration pending - shares calculated and recorded',
+      },
       transactionHash: '0x' + Date.now().toString(16),
     });
   } catch (error: any) {
