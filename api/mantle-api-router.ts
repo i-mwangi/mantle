@@ -142,6 +142,7 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
 
     // Harvest: Preview distribution
     if (url.includes('/api/harvest/preview-distribution/') && method === 'GET') {
+      console.log('📊 Preview distribution request received:', url);
       return await handlePreviewDistribution(req, res);
     }
 
