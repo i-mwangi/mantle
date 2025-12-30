@@ -3018,10 +3018,10 @@ class FarmerDashboard {
                                         <i class="fas fa-check-circle"></i> Revenue distributed successfully
                                     </div>
                                     <div class="distributed-details">
-                                        ${harvest.distributedAt ? `
+                                        ${harvest.createdAt ? `
                                         <div class="detail-item">
                                             <i class="fas fa-clock"></i>
-                                            <span>Distributed: ${new Date(harvest.distributedAt).toLocaleString()}</span>
+                                            <span>Recorded: ${new Date(harvest.createdAt).toLocaleString()}</span>
                                         </div>
                                         ` : ''}
                                         ${harvest.transactionHash && harvest.transactionHash !== 'NOT_TOKENIZED' && harvest.transactionHash.startsWith('0x') ? `
@@ -3300,12 +3300,17 @@ class FarmerDashboard {
 
             if (balanceResponse.success) {
                 console.log('[Revenue] Balance from API:', balanceResponse);
+                console.log('[Revenue] Available balance (cents):', balanceResponse.availableBalance);
+                console.log('[Revenue] Pending distribution (cents):', balanceResponse.pendingDistribution);
+                console.log('[Revenue] This month distribution (cents):', balanceResponse.thisMonthDistribution);
 
                 // Values are already in cents from backend, convert to dollars
                 const availableBalance = (balanceResponse.availableBalance || 0) / 100;
                 const pendingBalance = (balanceResponse.pendingDistribution || 0) / 100;
                 const totalWithdrawn = (balanceResponse.totalWithdrawn || 0) / 100;
                 const thisMonthDistribution = (balanceResponse.thisMonthDistribution || 0) / 100;
+
+                console.log('[Revenue] Converted values - Available: $' + availableBalance + ', Pending: $' + pendingBalance + ', This Month: $' + thisMonthDistribution);
 
                 document.getElementById('farmerAvailableBalance').textContent = `$${availableBalance.toFixed(2)}`;
                 document.getElementById('farmerPendingBalance').textContent = `$${pendingBalance.toFixed(2)}`;
