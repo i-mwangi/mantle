@@ -1231,13 +1231,10 @@ class FarmerDashboard {
                                     <div>• Revenue sharing happens automatically via smart contracts</div>
                                 </div>
                             </div>
-                            <div class="detail-item full-width" style="margin-top: 1rem; display: flex; gap: 1rem;">
-                                <a href="https://sepolia.mantlescan.xyz/address/${grove.tokenAddress}" target="_blank" class="btn btn-secondary" style="flex: 1; text-align: center; padding: 0.75rem;">
+                            <div class="detail-item full-width" style="margin-top: 1rem;">
+                                <a href="https://sepolia.mantlescan.xyz/address/${grove.tokenAddress}" target="_blank" class="btn btn-secondary" style="display: block; text-align: center; padding: 0.75rem;">
                                     <i class="fas fa-external-link-alt"></i> View on Mantle Explorer
                                 </a>
-                                <button class="btn btn-primary" style="flex: 1; padding: 0.75rem;" onclick="alert('Marketplace listing coming soon!')">
-                                    <i class="fas fa-store"></i> List Tokens for Sale
-                                </button>
                             </div>
                         </div>
                     </div>
