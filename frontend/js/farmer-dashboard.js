@@ -3245,16 +3245,14 @@ class FarmerDashboard {
                 if (monthlyEarningsEl) monthlyEarningsEl.textContent = `$${stats.monthlyEarnings.toFixed(2)}`;
             }
 
-            if (balanceResponse.success && balanceResponse.data) {
-                const balance = balanceResponse.data;
+            if (balanceResponse.success) {
+                console.log('[Revenue] Balance from API:', balanceResponse);
 
-                console.log('[Revenue] Balance from API:', balance);
-
-                // Update withdrawal stats
-                // Convert from cents to dollars (values are in cents from API)
-                const availableBalance = (balance.availableBalance || 0) / 100;
-                const pendingBalance = (balance.pendingDistribution || balance.pendingBalance || 0) / 100;
-                const totalWithdrawn = (balance.totalWithdrawn || 0) / 100;
+                // Values are already in cents from backend, convert to dollars
+                const availableBalance = (balanceResponse.availableBalance || 0) / 100;
+                const pendingBalance = (balanceResponse.pendingDistribution || 0) / 100;
+                const totalWithdrawn = (balanceResponse.totalWithdrawn || 0) / 100;
+                const thisMonthDistribution = (balanceResponse.thisMonthDistribution || 0) / 100;
 
                 document.getElementById('farmerAvailableBalance').textContent = `$${availableBalance.toFixed(2)}`;
                 document.getElementById('farmerPendingBalance').textContent = `$${pendingBalance.toFixed(2)}`;
