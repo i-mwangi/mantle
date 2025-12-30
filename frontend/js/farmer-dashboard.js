@@ -1744,6 +1744,35 @@ class FarmerDashboard {
 
         totalTokensInput?.addEventListener('input', updateTokenCalc);
         tokenPriceInput?.addEventListener('input', updateTokenCalc);
+        
+        // Auto-calculate projected return
+        const calcProjectedReturn = async () => {
+            const tokens = parseFloat(totalTokensInput?.value || 0);
+            const price = parseFloat(tokenPriceInput?.value || 0);
+            if (tokens > 0 && price > 0 && grove.treeCount && grove.expectedYieldPerTree && projectedReturnInput) {
+                try {
+                    const priceResponse = await window.coffeeAPI.getPriceHistory();
+                    let pricePerKg = 4.50;
+                    if (priceResponse.success && priceResponse.prices) {
+                        const varietyPrice = priceResponse.prices.find(p => p.variety === grove.coffeeVariety);
+                        if (varietyPrice) pricePerKg = varietyPrice.pricePerKg;
+                    }
+                    const annualYield = grove.treeCount * grove.expectedYieldPerTree;
+                    const annualRevenue = annualYield * pricePerKg;
+                    const investorShare = annualRevenue * 0.7;
+                    const totalInvestment = tokens * price;
+                    const projectedReturn = (investorShare / totalInvestment) * 100;
+                    if (!isNaN(projectedReturn) && isFinite(projectedReturn)) {
+                        projectedReturnInput.value = Math.max(0, Math.min(100, projectedReturn)).toFixed(2);
+                    }
+                } catch (error) {
+                    console.log('Auto-calc error:', error);
+                }
+            }
+        };
+        totalTokensInput?.addEventListener('input', calcProjectedReturn);
+        tokenPriceInput?.addEventListener('input', calcProjectedReturn);
+        setTimeout(calcProjectedReturn, 100);
 
         // Form submissions
         this.setupManagementForms(modal, grove);
