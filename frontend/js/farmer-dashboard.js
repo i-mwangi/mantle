@@ -559,6 +559,13 @@ class FarmerDashboard {
             return;
         }
 
+        // Validate that grove is tokenized
+        if (!grove.isTokenized || !grove.tokenAddress) {
+            this.showNotification('This grove must be tokenized before reporting harvests. Please tokenize it first in Grove Management.', 'error');
+            this.isSubmittingHarvest = false;
+            return;
+        }
+
         const qualityGrade = parseInt(formData.get('qualityGrade'));
         const yieldKg = parseFloat(formData.get('yieldKg'));
         const salePricePerKg = parseFloat(formData.get('salePrice'));
