@@ -919,16 +919,115 @@ async function handleGetFarmerBalance(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Return mock balance for now
+    console.log('📊 Calculating farmer balance for:', farmerAddress);
+
+    // Get farmer's groves
+    const farmerGroves = await db.query.coffeeGroves.findMany({
+      where: eq(coffeeGroves.farmerAddress, farmerAddress),
+    });
+
+    if (farmerGroves.length === 0) {
+      return res.status(200).json({
+        success: true,
+        farmerAddress,
+        availableBalance: 0,
+        pendingDistribution: 0,
+        totalDistributed: 0,
+        totalWithdrawn: 0,
+        thisMonthDistribution: 0,
+        groveBalances: [],
+      });
+    }
+
+    const groveIds = farmerGroves.map(g => g.id);
+
+    // Get all harvests for farmer's groves
+    const allHarvests = await db.select()
+      .from(harvestRecords)
+      .where(eq(harvestRecords.groveId, groveIds[0])); // Start with first grove
+
+    // Get harvests for all groves (if multiple)
+    let harvests = allHarvests;
+    if (groveIds.length > 1) {
+      for (let i = 1; i < groveIds.length; i++) {
+        const moreHarvests = await db.select()
+          .from(harvestRecords)
+          .where(eq(harvestRecords.groveId, groveIds[i]));
+        harvests = [...harvests, ...moreHarvests];
+      }
+    }
+
+    console.log('📊 Found', harvests.length, 'harvests for farmer');
+
+    // Calculate balances
+    let totalDistributed = 0;
+    let pendingDistribution = 0;
+    let thisMonthDistribution = 0;
+    const totalWithdrawn = 0; // TODO: Track withdrawals in separate table
+
+    const now = Date.now();
+    const thisMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+
+    for (const harvest of harvests) {
+      const farmerShare = harvest.farmerShare || 0;
+      
+      if (harvest.revenueDistributed) {
+        totalDistributed += farmerShare;
+        
+        // Check if distributed this month
+        const harvestDate = typeof harvest.harvestDate === 'number' 
+          ? harvest.harvestDate 
+          : new Date(harvest.harvestDate).getTime();
+        
+        if (harvestDate >= thisMonthStart) {
+          thisMonthDistribution += farmerShare;
+        }
+      } else {
+        pendingDistribution += farmerShare;
+      }
+    }
+
+    // Available balance = total distributed - total withdrawn
+    const availableBalance = totalDistributed - totalWithdrawn;
+
+    // Calculate per-grove balances
+    const groveBalances = [];
+    for (const grove of farmerGroves) {
+      const groveHarvests = harvests.filter(h => h.groveId === grove.id);
+      let groveAvailable = 0;
+      
+      for (const harvest of groveHarvests) {
+        if (harvest.revenueDistributed) {
+          groveAvailable += harvest.farmerShare || 0;
+        }
+      }
+      
+      if (groveAvailable > 0) {
+        groveBalances.push({
+          groveId: grove.id,
+          groveName: grove.groveName,
+          availableBalance: groveAvailable,
+        });
+      }
+    }
+
+    console.log('📊 Farmer balance calculated:', {
+      availableBalance,
+      pendingDistribution,
+      totalDistributed,
+      thisMonthDistribution,
+      groveBalances: groveBalances.length,
+    });
+
     return res.status(200).json({
       success: true,
       farmerAddress,
-      balance: {
-        available: '0.00',
-        pending: '0.00',
-        total: '0.00',
-      },
-      message: 'Revenue tracking coming soon',
+      availableBalance,
+      pendingDistribution,
+      totalDistributed,
+      totalWithdrawn,
+      thisMonthDistribution,
+      groveBalances,
     });
   } catch (error: any) {
     console.error('Error fetching farmer balance:', error);
