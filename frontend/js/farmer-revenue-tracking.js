@@ -69,26 +69,6 @@ class FarmerRevenueTracking {
             console.error('[Revenue Tracking] Error loading revenue data:', error);
             this.showError(`Error loading revenue data: ${error.message}`);
         }
-    };
-
-            if (response.success) {
-                // Handle different response structures
-                const groves = response.data?.groves || response.groves || [];
-                this.groveBalances = groves;
-                console.log('[Revenue Tracking] Grove balances:', this.groveBalances);
-
-                this.renderRevenueMetrics();
-                this.populateGroveSelector();
-
-                console.log('[Revenue Tracking] Data loaded successfully');
-            } else {
-                console.error('[Revenue Tracking] Failed response:', response);
-                this.showError('Failed to load revenue data');
-            }
-        } catch (error) {
-            console.error('[Revenue Tracking] Error loading revenue data:', error);
-            this.showError(`Error loading revenue data: ${error.message}`);
-        }
     }
 
     /**
