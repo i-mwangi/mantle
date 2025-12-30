@@ -321,7 +321,7 @@ class FarmerRevenueTracking {
         }
 
         // Get full available balance (full amount withdrawal)
-        const amount = grove.availableBalance / 100; // Convert to dollars
+        const amount = grove.availableBalance; // Already in dollars
 
         if (amount <= 0) {
             this.showNotification('No balance available for withdrawal', 'error');
