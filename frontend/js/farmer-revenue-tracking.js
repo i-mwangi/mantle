@@ -69,9 +69,7 @@ class FarmerRevenueTracking {
             console.error('[Revenue Tracking] Error loading revenue data:', error);
             this.showError(`Error loading revenue data: ${error.message}`);
         }
-    }
-            this.loadWithdrawalHistory(farmerAddress);
-            this.loadTransactionHistory(farmerAddress);
+    };
 
             if (response.success) {
                 // Handle different response structures
