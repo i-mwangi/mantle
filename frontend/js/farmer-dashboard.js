@@ -647,13 +647,26 @@ class FarmerDashboard {
             return;
         }
 
-        // Populate grove dropdown
+        // Populate grove dropdown - ONLY show tokenized groves
         const groveSelect = document.getElementById('harvestGrove');
         if (groveSelect && this.groves && this.groves.length > 0) {
-            console.log('Populating grove dropdown with', this.groves.length, 'groves');
+            // Filter to only tokenized groves
+            const tokenizedGroves = this.groves.filter(grove => grove.isTokenized && grove.tokenAddress);
+            
+            console.log('Populating grove dropdown with', tokenizedGroves.length, 'tokenized groves (out of', this.groves.length, 'total)');
 
-            groveSelect.innerHTML = '<option value="">Select a grove</option>' +
-                this.groves.map(grove =>
+            if (tokenizedGroves.length === 0) {
+                groveSelect.innerHTML = '<option value="">No tokenized groves available</option>';
+                groveSelect.disabled = true;
+                
+                // Show a helpful message
+                this.showNotification('You need to tokenize a grove before reporting harvests. Go to Grove Management to tokenize your groves.', 'info');
+                return;
+            }
+
+            groveSelect.disabled = false;
+            groveSelect.innerHTML = '<option value="">Select a tokenized grove</option>' +
+                tokenizedGroves.map(grove =>
                     `<option value="${grove.id}">${grove.groveName} - ${grove.location}</option>`
                 ).join('');
             
@@ -665,7 +678,7 @@ class FarmerDashboard {
             newGroveSelect.addEventListener('change', (e) => {
                 console.log('[Harvest] Grove selected:', e.target.value);
                 const selectedGroveId = parseInt(e.target.value);
-                const selectedGrove = this.groves.find(g => g.id === selectedGroveId);
+                const selectedGrove = tokenizedGroves.find(g => g.id === selectedGroveId);
                 const container = document.getElementById('varietyFieldContainer');
                 
                 console.log('[Harvest] Selected grove:', selectedGrove);
@@ -702,6 +715,7 @@ class FarmerDashboard {
             console.warn('No groves available or grove select not found');
             if (groveSelect) {
                 groveSelect.innerHTML = '<option value="">No groves registered yet</option>';
+                groveSelect.disabled = true;
             }
         }
 
