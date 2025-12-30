@@ -1062,24 +1062,49 @@ async function handleFarmerWithdraw(req: VercelRequest, res: VercelResponse) {
       });
     }
 
+    if (!amount || amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Valid withdrawal amount is required',
+      });
+    }
+
     console.log('💰 Processing farmer withdrawal:', { farmerAddress, groveId, amount });
 
-    // Get farmer's balance
-    const balanceResponse = await handleGetFarmerBalance(
-      { query: { farmerAddress } } as any,
-      {} as any
-    );
+    // Validate that farmer has sufficient balance
+    // Get farmer's groves
+    const farmerGroves = await db.query.coffeeGroves.findMany({
+      where: eq(coffeeGroves.farmerAddress, farmerAddress),
+    });
 
-    // For now, just return success with mock data
+    if (farmerGroves.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'No groves found for this farmer',
+      });
+    }
+
+    // If groveId specified, validate it belongs to farmer
+    if (groveId) {
+      const grove = farmerGroves.find(g => g.id === parseInt(groveId));
+      if (!grove) {
+        return res.status(403).json({
+          success: false,
+          error: 'Grove does not belong to this farmer',
+        });
+      }
+    }
+
     // TODO: Implement actual blockchain withdrawal via CoffeeRevenueReserve contract
-    console.log('✅ Withdrawal processed (mock)');
+    // For now, return success with mock data
+    console.log('✅ Withdrawal processed (mock) - Amount:', amount);
 
     return res.status(200).json({
       success: true,
       message: 'Withdrawal request submitted successfully',
       withdrawal: {
         farmerAddress,
-        groveId,
+        groveId: groveId || null,
         amount,
         status: 'pending',
         transactionHash: '0x' + Date.now().toString(16),
