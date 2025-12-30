@@ -3312,15 +3312,11 @@ class FarmerDashboard {
 
                 console.log('[Revenue] Converted values - Available: $' + availableBalance + ', Pending: $' + pendingBalance + ', This Month: $' + thisMonthDistribution);
 
-                document.getElementById('farmerAvailableBalance').textContent = `$${availableBalance.toFixed(2)}`;
-                document.getElementById('farmerPendingBalance').textContent = `$${pendingBalance.toFixed(2)}`;
-                document.getElementById('farmerTotalWithdrawn').textContent = `$${totalWithdrawn.toFixed(2)}`;
-                
-                // Update this month's distribution
-                const thisMonthEl = document.getElementById('farmerThisMonthDistribution');
-                if (thisMonthEl) {
-                    thisMonthEl.textContent = `$${thisMonthDistribution.toFixed(2)}`;
-                }
+                // Update the correct element IDs from app.html
+                document.getElementById('availableBalance').textContent = `$${availableBalance.toFixed(2)}`;
+                document.getElementById('pendingDistribution').textContent = `$${pendingBalance.toFixed(2)}`;
+                document.getElementById('totalWithdrawn').textContent = `$${totalWithdrawn.toFixed(2)}`;
+                document.getElementById('thisMonthDistributed').textContent = `$${thisMonthDistribution.toFixed(2)}`;
 
                 // Store for withdrawal (in dollars)
                 this.totalAvailableBalance = availableBalance;
