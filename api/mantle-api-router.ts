@@ -1325,9 +1325,12 @@ async function handleGetTokenHolders(req: VercelRequest, res: VercelResponse) {
     // Collect all addresses that received tokens
     const uniqueAddresses = new Set<string>();
     for (const event of events) {
-      const to = event.args?.to?.toLowerCase();
-      if (to && to !== zeroAddress) {
-        uniqueAddresses.add(to);
+      // Type guard: only EventLog has args property
+      if ('args' in event) {
+        const to = event.args?.to?.toLowerCase();
+        if (to && to !== zeroAddress) {
+          uniqueAddresses.add(to);
+        }
       }
     }
     
