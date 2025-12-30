@@ -1048,6 +1048,54 @@ async function handleGetFarmerBalance(req: VercelRequest, res: VercelResponse) {
   }
 }
 
+/**
+ * Handle farmer withdrawal
+ */
+async function handleFarmerWithdraw(req: VercelRequest, res: VercelResponse) {
+  try {
+    const { farmerAddress, groveId, amount } = req.body;
+
+    if (!farmerAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Farmer address is required',
+      });
+    }
+
+    console.log('💰 Processing farmer withdrawal:', { farmerAddress, groveId, amount });
+
+    // Get farmer's balance
+    const balanceResponse = await handleGetFarmerBalance(
+      { query: { farmerAddress } } as any,
+      {} as any
+    );
+
+    // For now, just return success with mock data
+    // TODO: Implement actual blockchain withdrawal via CoffeeRevenueReserve contract
+    console.log('✅ Withdrawal processed (mock)');
+
+    return res.status(200).json({
+      success: true,
+      message: 'Withdrawal request submitted successfully',
+      withdrawal: {
+        farmerAddress,
+        groveId,
+        amount,
+        status: 'pending',
+        transactionHash: '0x' + Date.now().toString(16),
+        timestamp: Date.now(),
+      },
+      note: 'Blockchain integration coming soon - funds will be transferred via CoffeeRevenueReserve contract',
+    });
+  } catch (error: any) {
+    console.error('Error processing farmer withdrawal:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to process withdrawal',
+    });
+  }
+}
+
 export default handleMantleAPI;
 
 
