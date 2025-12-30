@@ -981,9 +981,53 @@ async function handlePreviewDistribution(req: VercelRequest, res: VercelResponse
       });
     }
 
-    // TODO: Get actual investor count from token holders
-    // For now, return mock data
-    const investorCount = 0;
+    // Get actual investor count from blockchain
+    let investorCount = 0;
+    
+    if (grove.tokenAddress) {
+      try {
+        console.log('📊 Fetching token holders for grove:', grove.groveName);
+        
+        const { MantleContractService } = await import('../lib/api/mantle-contract-service.js');
+        const { GROVE_TOKEN_ABI } = await import('../lib/api/contract-abis.js');
+        
+        const contractService = new MantleContractService(
+          process.env.NETWORK === 'mantleSepolia' ? 'mantleSepolia' : 'localhost'
+        );
+        
+        const tokenContract = contractService.getContractByAddress(
+          grove.tokenAddress,
+          GROVE_TOKEN_ABI
+        );
+
+        // Get Transfer events to find all unique token holders
+        const filter = tokenContract.filters.Transfer();
+        const events = await tokenContract.queryFilter(filter);
+        
+        // Track unique holders (exclude zero address and issuer)
+        const holders = new Set<string>();
+        const issuerAddress = process.env.MANTLE_ISSUER_ADDRESS?.toLowerCase();
+        const zeroAddress = '0x0000000000000000000000000000000000000000';
+        
+        for (const event of events) {
+          const to = event.args?.to?.toLowerCase();
+          if (to && to !== zeroAddress && to !== issuerAddress) {
+            // Check if they still have tokens
+            const balance: bigint = await tokenContract.balanceOf(to);
+            if (balance > 0n) {
+              holders.add(to);
+            }
+          }
+        }
+        
+        investorCount = holders.size;
+        console.log('📊 Found', investorCount, 'unique token holders with non-zero balance');
+        
+      } catch (error: any) {
+        console.error('Error fetching token holders:', error.message);
+        // Continue with investorCount = 0 if blockchain query fails
+      }
+    }
 
     return res.status(200).json({
       success: true,
