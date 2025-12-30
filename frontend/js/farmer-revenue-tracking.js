@@ -103,8 +103,8 @@ class FarmerRevenueTracking {
     updateMetricCard(metricId, value) {
         const element = document.getElementById(metricId);
         if (element) {
-            // Convert from cents to dollars
-            const displayValue = (value / 100).toFixed(2);
+            // Values are already in dollars (NOT cents)
+            const displayValue = value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             element.textContent = `$${displayValue}`;
         }
     }
