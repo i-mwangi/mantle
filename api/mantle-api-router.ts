@@ -699,7 +699,7 @@ async function handleGetHarvestHistory(req: VercelRequest, res: VercelResponse) 
       investorShare: harvestRecords.investorShare,
       revenueDistributed: harvestRecords.revenueDistributed,
       transactionHash: harvestRecords.transactionHash,
-      distributedAt: harvestRecords.updatedAt,
+      createdAt: harvestRecords.createdAt,
     })
     .from(harvestRecords)
     .leftJoin(coffeeGroves, eq(harvestRecords.groveId, coffeeGroves.id))
