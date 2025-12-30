@@ -3257,9 +3257,18 @@ class FarmerDashboard {
                 document.getElementById('farmerAvailableBalance').textContent = `$${availableBalance.toFixed(2)}`;
                 document.getElementById('farmerPendingBalance').textContent = `$${pendingBalance.toFixed(2)}`;
                 document.getElementById('farmerTotalWithdrawn').textContent = `$${totalWithdrawn.toFixed(2)}`;
+                
+                // Update this month's distribution
+                const thisMonthEl = document.getElementById('farmerThisMonthDistribution');
+                if (thisMonthEl) {
+                    thisMonthEl.textContent = `$${thisMonthDistribution.toFixed(2)}`;
+                }
 
                 // Store for withdrawal (in dollars)
                 this.totalAvailableBalance = availableBalance;
+                
+                // Update grove withdrawal dropdown
+                this.updateGroveWithdrawalDropdown(balanceResponse.groveBalances || []);
             } else {
                 console.warn('[Revenue] No balance data from API:', balanceResponse);
                 // Fallback to local calculation if API fails
@@ -3270,6 +3279,24 @@ class FarmerDashboard {
             // Fallback to local calculation
             this.calculateRevenue();
         }
+    }
+
+    updateGroveWithdrawalDropdown(groveBalances) {
+        const groveSelect = document.getElementById('withdrawalGrove');
+        if (!groveSelect) return;
+
+        if (groveBalances.length === 0) {
+            groveSelect.innerHTML = '<option value="">No groves with available balance</option>';
+            groveSelect.disabled = true;
+            return;
+        }
+
+        groveSelect.disabled = false;
+        groveSelect.innerHTML = '<option value="">Select Grove</option>' +
+            groveBalances.map(grove => {
+                const balance = (grove.availableBalance / 100).toFixed(2);
+                return `<option value="${grove.groveId}" data-balance="${grove.availableBalance}">${grove.groveName} - $${balance}</option>`;
+            }).join('');
     }
 
     // Helper to safely update element text
