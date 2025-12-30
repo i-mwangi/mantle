@@ -1730,6 +1730,7 @@ class FarmerDashboard {
         // Tokenization calculation
         const totalTokensInput = modal.querySelector('#totalTokens');
         const tokenPriceInput = modal.querySelector('#tokenPrice');
+        const projectedReturnInput = modal.querySelector('#projectedReturn');
         const totalFundraisingSpan = modal.querySelector('#totalFundraising');
 
         const updateTokenCalc = () => {
