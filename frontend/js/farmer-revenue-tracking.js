@@ -42,12 +42,34 @@ class FarmerRevenueTracking {
             // Show loading state
             this.showLoadingState();
 
-            // Fetch all grove balances
+            // Fetch farmer balance (includes grove balances)
             console.log('[Revenue Tracking] Fetching grove balances...');
-            const response = await window.coffeeAPI.getAllFarmerGroveBalances(farmerAddress);
+            const response = await window.coffeeAPI.getFarmerBalance(farmerAddress);
             console.log('[Revenue Tracking] Response:', response);
 
             // Load withdrawal and transaction history in parallel
+            this.loadWithdrawalHistory(farmerAddress);
+            this.loadTransactionHistory(farmerAddress);
+
+            if (response.success) {
+                // Extract grove balances from response
+                const groveBalances = response.groveBalances || [];
+                this.groveBalances = groveBalances;
+                console.log('[Revenue Tracking] Grove balances:', this.groveBalances);
+
+                // Populate grove selector with groves that have balance
+                this.populateGroveSelector();
+
+                console.log('[Revenue Tracking] Data loaded successfully');
+            } else {
+                console.error('[Revenue Tracking] Failed response:', response);
+                this.showError('Failed to load revenue data');
+            }
+        } catch (error) {
+            console.error('[Revenue Tracking] Error loading revenue data:', error);
+            this.showError(`Error loading revenue data: ${error.message}`);
+        }
+    }
             this.loadWithdrawalHistory(farmerAddress);
             this.loadTransactionHistory(farmerAddress);
 
