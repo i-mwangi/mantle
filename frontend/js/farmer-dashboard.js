@@ -2956,8 +2956,8 @@ class FarmerDashboard {
                                             ${new Date(typeof harvest.harvestDate === 'number' ? harvest.harvestDate * 1000 : harvest.harvestDate).toLocaleDateString()}
                                         </span>
                                     </div>
-                                    <div class="harvest-status ${harvest.distributionStatus || 'pending'}">
-                                        ${harvest.distributionStatus === 'distributed' ? ' Distributed' : '⏳ Pending'}
+                                    <div class="harvest-status ${harvest.revenueDistributed ? 'distributed' : 'pending'}">
+                                        ${harvest.revenueDistributed ? '✅ Distributed' : '⏳ Pending'}
                                     </div>
                                 </div>
                                 <div class="harvest-metrics">
