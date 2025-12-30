@@ -2993,7 +2993,36 @@ class FarmerDashboard {
                                 </div>
                                 ` : `
                                 <div class="harvest-distributed-info">
-                                    <i class="fas fa-check-circle"></i> Revenue distributed successfully
+                                    <div class="distributed-header">
+                                        <i class="fas fa-check-circle"></i> Revenue distributed successfully
+                                    </div>
+                                    <div class="distributed-details">
+                                        ${harvest.distributedAt ? `
+                                        <div class="detail-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>Distributed: ${new Date(harvest.distributedAt).toLocaleString()}</span>
+                                        </div>
+                                        ` : ''}
+                                        ${harvest.transactionHash && harvest.transactionHash !== 'NOT_TOKENIZED' && !harvest.transactionHash.startsWith('0x') === false ? `
+                                        <div class="detail-item">
+                                            <i class="fas fa-link"></i>
+                                            <a href="https://explorer.sepolia.mantle.xyz/tx/${harvest.transactionHash}" 
+                                               target="_blank" 
+                                               rel="noopener noreferrer"
+                                               class="tx-link">
+                                                View Transaction
+                                            </a>
+                                        </div>
+                                        ` : ''}
+                                        <div class="detail-item">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span class="distribution-note">
+                                                ${harvest.transactionHash === 'NOT_TOKENIZED' 
+                                                    ? 'Grove not tokenized - You received 100% of revenue' 
+                                                    : 'Revenue split between you and investors based on token ownership'}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                                 `}
                             </div>
