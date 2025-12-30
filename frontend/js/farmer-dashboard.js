@@ -3300,25 +3300,25 @@ class FarmerDashboard {
 
             if (balanceResponse.success) {
                 console.log('[Revenue] Balance from API:', balanceResponse);
-                console.log('[Revenue] Available balance (cents):', balanceResponse.availableBalance);
-                console.log('[Revenue] Pending distribution (cents):', balanceResponse.pendingDistribution);
-                console.log('[Revenue] This month distribution (cents):', balanceResponse.thisMonthDistribution);
+                console.log('[Revenue] Available balance (raw):', balanceResponse.availableBalance);
+                console.log('[Revenue] Pending distribution (raw):', balanceResponse.pendingDistribution);
+                console.log('[Revenue] This month distribution (raw):', balanceResponse.thisMonthDistribution);
 
-                // Values are already in cents from backend, convert to dollars
-                const availableBalance = (balanceResponse.availableBalance || 0) / 100;
-                const pendingBalance = (balanceResponse.pendingDistribution || 0) / 100;
-                const totalWithdrawn = (balanceResponse.totalWithdrawn || 0) / 100;
-                const thisMonthDistribution = (balanceResponse.thisMonthDistribution || 0) / 100;
+                // Values are already in dollars from backend (NOT cents)
+                const availableBalance = balanceResponse.availableBalance || 0;
+                const pendingBalance = balanceResponse.pendingDistribution || 0;
+                const totalWithdrawn = balanceResponse.totalWithdrawn || 0;
+                const thisMonthDistribution = balanceResponse.thisMonthDistribution || 0;
 
-                console.log('[Revenue] Converted values - Available: $' + availableBalance + ', Pending: $' + pendingBalance + ', This Month: $' + thisMonthDistribution);
+                console.log('[Revenue] Final values - Available: $' + availableBalance + ', Pending: $' + pendingBalance + ', This Month: $' + thisMonthDistribution);
 
                 // Update the correct element IDs from app.html
-                document.getElementById('availableBalance').textContent = `$${availableBalance.toFixed(2)}`;
-                document.getElementById('pendingDistribution').textContent = `$${pendingBalance.toFixed(2)}`;
-                document.getElementById('totalWithdrawn').textContent = `$${totalWithdrawn.toFixed(2)}`;
-                document.getElementById('thisMonthDistributed').textContent = `$${thisMonthDistribution.toFixed(2)}`;
+                document.getElementById('availableBalance').textContent = `$${availableBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                document.getElementById('pendingDistribution').textContent = `$${pendingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                document.getElementById('totalWithdrawn').textContent = `$${totalWithdrawn.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                document.getElementById('thisMonthDistributed').textContent = `$${thisMonthDistribution.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-                // Store for withdrawal (in dollars)
+                // Store for withdrawal (already in dollars)
                 this.totalAvailableBalance = availableBalance;
                 
                 // Update grove withdrawal dropdown
