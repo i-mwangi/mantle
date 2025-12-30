@@ -156,7 +156,7 @@ class FarmerRevenueTracking {
      */
     displayGroveWithdrawalInfo(grove) {
         const maxWithdrawable = grove.availableBalance;
-        const maxWithdrawableDisplay = (maxWithdrawable / 100).toFixed(2);
+        const maxWithdrawableDisplay = maxWithdrawable.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
         // Update max withdrawable display
         const maxWithdrawableEl = document.getElementById('maxWithdrawableAmount');
