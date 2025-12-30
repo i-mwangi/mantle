@@ -690,6 +690,7 @@ async function handleGetHarvestHistory(req: VercelRequest, res: VercelResponse) 
       id: harvestRecords.id,
       groveId: harvestRecords.groveId,
       groveName: coffeeGroves.groveName,
+      tokenAddress: coffeeGroves.tokenAddress,
       yieldKg: harvestRecords.yieldKg,
       qualityGrade: harvestRecords.qualityGrade,
       harvestDate: harvestRecords.harvestDate,
