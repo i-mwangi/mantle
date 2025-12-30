@@ -1627,21 +1627,65 @@
 
 .harvest-distributed-info {
     margin-top: 1rem;
-    padding: 0.75rem;
+    padding: 1rem;
     background: rgba(76, 175, 80, 0.1);
     border: 1px solid rgba(76, 175, 80, 0.3);
     border-radius: 6px;
     color: #4CAF50;
-    text-align: center;
-    font-weight: 500;
+}
+
+.harvest-distributed-info .distributed-header {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    font-weight: 500;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
 }
 
-.harvest-distributed-info i {
+.harvest-distributed-info .distributed-header i {
     font-size: 1.2rem;
+}
+
+.harvest-distributed-info .distributed-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.harvest-distributed-info .detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.harvest-distributed-info .detail-item i {
+    color: #4CAF50;
+    font-size: 0.875rem;
+    width: 16px;
+}
+
+.harvest-distributed-info .tx-link {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.harvest-distributed-info .tx-link:hover {
+    color: #66BB6A;
+    text-decoration: underline;
+}
+
+.harvest-distributed-info .distribution-note {
+    font-style: italic;
+    opacity: 0.9;
+    line-height: 1.4;
 }
 
 /* Distribution Confirmation Modal */
