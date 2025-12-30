@@ -3348,7 +3348,8 @@ class FarmerDashboard {
         groveSelect.disabled = false;
         groveSelect.innerHTML = '<option value="">Select Grove</option>' +
             groveBalances.map(grove => {
-                const balance = (grove.availableBalance / 100).toFixed(2);
+                // Values are already in dollars (NOT cents)
+                const balance = grove.availableBalance.toFixed(2);
                 return `<option value="${grove.groveId}" data-balance="${grove.availableBalance}">${grove.groveName} - $${balance}</option>`;
             }).join('');
     }
