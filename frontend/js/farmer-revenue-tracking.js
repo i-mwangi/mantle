@@ -128,7 +128,7 @@ class FarmerRevenueTracking {
             grovesWithBalance.map(grove => `
                 <option value="${grove.groveId}">
                     ${grove.groveName || `Grove #${grove.groveId}`} - 
-                    Available: $${(grove.availableBalance / 100).toFixed(2)}
+                    Available: $${grove.availableBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </option>
             `).join('');
     }
