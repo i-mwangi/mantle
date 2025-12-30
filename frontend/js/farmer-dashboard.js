@@ -3442,8 +3442,9 @@ class FarmerDashboard {
             // Only include if within last 12 months
             if (monthsAgo >= 0 && monthsAgo < 12) {
                 const index = 11 - monthsAgo; // Reverse index (oldest to newest)
-                // Use farmerShare directly from API (already calculated as 30% of revenue)
-                const farmerEarnings = harvest.farmerShare || 0;
+                // Use farmerShare from API (already calculated as 30% of revenue)
+                // Convert from cents to dollars
+                const farmerEarnings = (harvest.farmerShare || 0) / 100;
                 monthlyData[index] += farmerEarnings;
                 console.log(`Adding harvest from ${harvestDate.toLocaleDateString()}: $${farmerEarnings} to index ${index}`);
             }
