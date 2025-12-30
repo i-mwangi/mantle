@@ -1288,17 +1288,13 @@ async function handleGetTokenHolders(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({
         success: true,
         holders: [],
+        totalSupply: '0',
+        investorCount: 0,
         message: 'Grove not tokenized',
       });
     }
 
-    // Query blockchain for token holders
-    // Note: This is a simplified implementation
-    // In production, you'd want to:
-    // 1. Index Transfer events to track all holders
-    // 2. Cache the results
-    // 3. Use a subgraph or indexer service
-    
+    // Query blockchain for token holders via Transfer events
     const { MantleContractService } = await import('../lib/api/mantle-contract-service.js');
     const { GROVE_TOKEN_ABI } = await import('../lib/api/contract-abis.js');
     
@@ -1314,40 +1310,51 @@ async function handleGetTokenHolders(req: VercelRequest, res: VercelResponse) {
     // Get total supply
     const totalSupply: bigint = await tokenContract.totalSupply();
     
-    // For now, return a simplified response
-    // TODO: Implement proper event indexing to track all token holders
+    // Get Transfer events to find all unique token holders
+    const filter = tokenContract.filters.Transfer();
+    const events = await tokenContract.queryFilter(filter);
+    
     const holders = [];
+    const holderBalances = new Map<string, bigint>();
+    const issuerAddress = process.env.MANTLE_ISSUER_ADDRESS?.toLowerCase();
+    const zeroAddress = '0x0000000000000000000000000000000000000000';
     
-    // Check issuer balance
-    const issuerAddress = process.env.MANTLE_ISSUER_ADDRESS;
-    const issuerBalance: bigint = await tokenContract.balanceOf(issuerAddress);
+    // Collect all addresses that received tokens
+    const uniqueAddresses = new Set<string>();
+    for (const event of events) {
+      const to = event.args?.to?.toLowerCase();
+      if (to && to !== zeroAddress) {
+        uniqueAddresses.add(to);
+      }
+    }
     
-    if (issuerBalance > 0n) {
-      holders.push({
-        address: issuerAddress,
-        balance: issuerBalance.toString(),
-        percentage: (Number(issuerBalance) / Number(totalSupply) * 100).toFixed(2),
-      });
+    // Check current balance for each address
+    for (const address of uniqueAddresses) {
+      const balance: bigint = await tokenContract.balanceOf(address);
+      if (balance > 0n) {
+        holderBalances.set(address, balance);
+        holders.push({
+          address: address,
+          balance: balance.toString(),
+          percentage: (Number(balance) / Number(totalSupply) * 100).toFixed(2),
+          isIssuer: address === issuerAddress,
+          isFarmer: address === grove.farmerAddress.toLowerCase(),
+        });
+      }
     }
+    
+    // Count investors (exclude issuer)
+    const investorCount = holders.filter(h => !h.isIssuer).length;
 
-    // Check farmer balance
-    const farmerBalance: bigint = await tokenContract.balanceOf(grove.farmerAddress);
-    if (farmerBalance > 0n) {
-      holders.push({
-        address: grove.farmerAddress,
-        balance: farmerBalance.toString(),
-        percentage: (Number(farmerBalance) / Number(totalSupply) * 100).toFixed(2),
-      });
-    }
-
-    console.log('📊 Found', holders.length, 'token holders');
+    console.log('📊 Found', holders.length, 'total holders,', investorCount, 'investors');
 
     return res.status(200).json({
       success: true,
       holders: holders,
       totalSupply: totalSupply.toString(),
       tokenAddress: grove.tokenAddress,
-      note: 'Simplified implementation - only shows issuer and farmer. Full holder tracking requires event indexing.',
+      investorCount: investorCount,
+      totalHolders: holders.length,
     });
   } catch (error: any) {
     console.error('Error getting token holders:', error);
