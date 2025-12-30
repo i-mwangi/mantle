@@ -1010,12 +1010,15 @@ async function handlePreviewDistribution(req: VercelRequest, res: VercelResponse
         const zeroAddress = '0x0000000000000000000000000000000000000000';
         
         for (const event of events) {
-          const to = event.args?.to?.toLowerCase();
-          if (to && to !== zeroAddress && to !== issuerAddress) {
-            // Check if they still have tokens
-            const balance: bigint = await tokenContract.balanceOf(to);
-            if (balance > 0n) {
-              holders.add(to);
+          // Type guard: only EventLog has args property
+          if ('args' in event) {
+            const to = event.args?.to?.toLowerCase();
+            if (to && to !== zeroAddress && to !== issuerAddress) {
+              // Check if they still have tokens
+              const balance: bigint = await tokenContract.balanceOf(to);
+              if (balance > 0n) {
+                holders.add(to);
+              }
             }
           }
         }
