@@ -3443,8 +3443,8 @@ class FarmerDashboard {
             if (monthsAgo >= 0 && monthsAgo < 12) {
                 const index = 11 - monthsAgo; // Reverse index (oldest to newest)
                 // Use farmerShare from API (already calculated as 30% of revenue)
-                // Convert from cents to dollars
-                const farmerEarnings = (harvest.farmerShare || 0) / 100;
+                // Values are already in dollars (NOT cents)
+                const farmerEarnings = harvest.farmerShare || 0;
                 monthlyData[index] += farmerEarnings;
                 console.log(`Adding harvest from ${harvestDate.toLocaleDateString()}: $${farmerEarnings} to index ${index}`);
             }
