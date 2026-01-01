@@ -1145,39 +1145,111 @@ async function handleFarmerWithdraw(req: VercelRequest, res: VercelResponse) {
 
     console.log('✅ Withdrawal record created:', withdrawalId);
 
-    // TODO: Implement blockchain transaction
-    // For now, mark as completed with mock transaction
-    const mockTxHash = '0x' + Date.now().toString(16) + Math.random().toString(16).substr(2, 40);
-    const explorerUrl = `https://explorer.sepolia.mantle.xyz/tx/${mockTxHash}`;
+    // Implement blockchain transaction
+    try {
+      console.log('🔗 Initiating blockchain withdrawal...');
+      
+      // Import ethers
+      const { ethers } = await import('ethers');
+      const { REVENUE_RESERVE_ABI } = await import('../lib/api/contract-abis.js');
+      
+      // Get contract address from environment
+      const revenueReserveAddress = process.env.MANTLE_REVENUE_RESERVE_ADDRESS;
+      if (!revenueReserveAddress) {
+        throw new Error('MANTLE_REVENUE_RESERVE_ADDRESS not configured in environment');
+      }
+      
+      // Create provider and signer
+      const rpcUrl = process.env.MANTLE_RPC_URL || 'https://rpc.sepolia.mantle.xyz';
+      const privateKey = process.env.PRIVATE_KEY;
+      
+      if (!privateKey) {
+        throw new Error('PRIVATE_KEY not configured in environment');
+      }
+      
+      const provider = new ethers.JsonRpcProvider(rpcUrl);
+      const signer = new ethers.Wallet(privateKey, provider);
+      
+      console.log('🔗 Connected to Mantle network:', rpcUrl);
+      console.log('🔗 Using signer address:', await signer.getAddress());
+      
+      // Create contract instance
+      const revenueReserveContract = new ethers.Contract(
+        revenueReserveAddress,
+        REVENUE_RESERVE_ABI,
+        signer
+      );
+      
+      // Convert amount to USDC units (6 decimals)
+      const amountInUSDC = ethers.parseUnits(amount.toString(), 6);
+      
+      console.log('🔗 Calling withdrawFarmerShare:', {
+        amount: amountInUSDC.toString(),
+        recipient: farmerAddress,
+      });
+      
+      // Call withdrawFarmerShare on contract
+      const tx = await revenueReserveContract.withdrawFarmerShare(
+        amountInUSDC,
+        farmerAddress
+      );
+      
+      console.log('🔗 Transaction sent:', tx.hash);
+      console.log('⏳ Waiting for confirmation...');
+      
+      // Wait for transaction confirmation
+      const receipt = await tx.wait();
+      
+      console.log('✅ Transaction confirmed in block:', receipt.blockNumber);
+      
+      // Update withdrawal record with real transaction hash
+      const explorerUrl = `https://explorer.sepolia.mantle.xyz/tx/${tx.hash}`;
+      
+      await db.update(farmerWithdrawals)
+        .set({
+          status: 'completed',
+          transactionHash: tx.hash,
+          blockExplorerUrl: explorerUrl,
+          completedAt: Date.now(),
+          updatedAt: Date.now(),
+        })
+        .where(eq(farmerWithdrawals.id, withdrawalId));
 
-    await db.update(farmerWithdrawals)
-      .set({
-        status: 'completed',
-        transactionHash: mockTxHash,
-        blockExplorerUrl: explorerUrl,
-        completedAt: Date.now(),
-        updatedAt: Date.now(),
-      })
-      .where(eq(farmerWithdrawals.id, withdrawalId));
+      console.log('✅ Withdrawal completed successfully');
 
-    console.log('✅ Withdrawal completed (mock blockchain tx)');
-
-    return res.status(200).json({
-      success: true,
-      message: 'Withdrawal processed successfully',
-      withdrawal: {
-        id: withdrawalId,
-        farmerAddress,
-        groveId: groveId || null,
-        amount,
-        status: 'completed',
-        transactionHash: mockTxHash,
-        blockExplorerUrl: explorerUrl,
-        requestedAt: withdrawal.requestedAt,
-        completedAt: Date.now(),
-      },
-      note: 'Mock implementation - Blockchain integration via CoffeeRevenueReserve.withdrawFarmerShare() coming soon',
-    });
+      return res.status(200).json({
+        success: true,
+        message: 'Withdrawal processed successfully',
+        withdrawal: {
+          id: withdrawalId,
+          farmerAddress,
+          groveId: groveId || null,
+          amount,
+          status: 'completed',
+          transactionHash: tx.hash,
+          blockExplorerUrl: explorerUrl,
+          requestedAt: withdrawal.requestedAt,
+          completedAt: Date.now(),
+        },
+      });
+    } catch (blockchainError: any) {
+      console.error('❌ Blockchain transaction failed:', blockchainError);
+      
+      // Update withdrawal record to failed status
+      await db.update(farmerWithdrawals)
+        .set({
+          status: 'failed',
+          errorMessage: blockchainError.message || 'Blockchain transaction failed',
+          updatedAt: Date.now(),
+        })
+        .where(eq(farmerWithdrawals.id, withdrawalId));
+      
+      return res.status(500).json({
+        success: false,
+        error: `Blockchain transaction failed: ${blockchainError.message}`,
+        withdrawalId,
+      });
+    }
   } catch (error: any) {
     console.error('Error processing farmer withdrawal:', error);
     return res.status(500).json({
