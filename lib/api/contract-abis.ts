@@ -87,6 +87,15 @@ export const GROVE_TOKEN_ABI = [
   'function totalSupply() view returns (uint256)',
   'function name() view returns (string)',
   'function symbol() view returns (string)',
+  'event Transfer(address indexed from, address indexed to, uint256 value)'
+];
+
+// CoffeeRevenueReserve ABI
+export const REVENUE_RESERVE_ABI = [
+  'function withdrawFarmerShare(uint256 _amount, address _recipient)',
+  'function getFarmerBalance(address _farmer) view returns (uint256)',
+  'function farmer() view returns (address)',
+  'event FarmerWithdrawal(address indexed farmer, uint256 amount, address recipient)'
 ];
 
 export default {
