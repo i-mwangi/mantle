@@ -151,14 +151,14 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleConfirmDistribution(req, res);
     }
 
+    // Farmer: Process withdrawal (check this BEFORE withdrawals/ to avoid conflicts)
+    if (url.includes('/api/farmer/withdraw') && method === 'POST') {
+      return await handleFarmerWithdraw(req, res);
+    }
+
     // Farmer: Get withdrawals
     if (url.includes('/api/farmer/withdrawals/') && method === 'GET') {
       return await handleGetFarmerWithdrawals(req, res);
-    }
-
-    // Farmer: Process withdrawal
-    if (url.includes('/api/farmer/withdraw') && method === 'POST') {
-      return await handleFarmerWithdraw(req, res);
     }
 
     // Farmer: Get transactions
