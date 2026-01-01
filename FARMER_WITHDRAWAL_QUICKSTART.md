@@ -77,6 +77,7 @@ https://explorer.sepolia.mantle.xyz/tx/0x...
 - **Setup Guide:** [docs/FARMER_WITHDRAWAL_SETUP.md](docs/FARMER_WITHDRAWAL_SETUP.md)
 - **Testing Guide:** [docs/WITHDRAWAL_TESTING_GUIDE.md](docs/WITHDRAWAL_TESTING_GUIDE.md)
 - **Implementation Details:** [docs/WITHDRAWAL_IMPLEMENTATION_SUMMARY.md](docs/WITHDRAWAL_IMPLEMENTATION_SUMMARY.md)
+- **MetaMask Setup for Farmers:** [docs/FARMER_METAMASK_SETUP.md](docs/FARMER_METAMASK_SETUP.md) ⭐
 
 ## 🆘 Troubleshooting
 
