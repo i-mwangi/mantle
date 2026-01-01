@@ -900,11 +900,30 @@ async function handleGetFarmerWithdrawals(req: VercelRequest, res: VercelRespons
       });
     }
 
-    // Return empty array for now
+    console.log('📊 Fetching withdrawals for farmer:', farmerAddress);
+
+    // Get withdrawals from database
+    const withdrawals = await db.select()
+      .from(farmerWithdrawals)
+      .where(eq(farmerWithdrawals.farmerAddress, farmerAddress))
+      .orderBy(farmerWithdrawals.requestedAt);
+
+    console.log('📊 Found', withdrawals.length, 'withdrawals');
+
     return res.status(200).json({
       success: true,
-      withdrawals: [],
-      message: 'Withdrawal tracking coming soon',
+      withdrawals: withdrawals.map(w => ({
+        id: w.id,
+        farmerAddress: w.farmerAddress,
+        groveId: w.groveId,
+        amount: w.amount,
+        status: w.status,
+        transactionHash: w.transactionHash,
+        blockExplorerUrl: w.blockExplorerUrl,
+        errorMessage: w.errorMessage,
+        requestedAt: w.requestedAt,
+        completedAt: w.completedAt,
+      })),
     });
   } catch (error: any) {
     console.error('Error fetching farmer withdrawals:', error);
