@@ -6,10 +6,6 @@ When you withdraw, the withdrawal history section shows "No withdrawal history y
 
 ```
 
-### Step 2: Check Database for Withdrawal Records
-
-```bash
-# Open SQLite database
 sqlite3 local-store/sqlite/coffee-platform.db
 
 # Check if withdrawals exist
