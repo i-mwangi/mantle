@@ -4,12 +4,6 @@
 When you withdraw, the withdrawal history section shows "No withdrawal history yet" even though withdrawals were made.
 
 
-```
-
-sqlite3 local-store/sqlite/coffee-platform.db
-
-# Check if withdrawals exist
-SELECT * FROM farmer_withdrawals;
 
 # Check for specific farmer
 SELECT * FROM farmer_withdrawals WHERE farmer_address = '0x81F0CC60cf0E0562B8545994a0a34E7Ed5Be45e9';
