@@ -5,11 +5,7 @@ When you withdraw, the withdrawal history section shows "No withdrawal history y
 
 
 
-
-
-**If not working:** Start the backend:
-```bash
-npm run dev
+git 
 ```
 
 ### Step 2: Check Database for Withdrawal Records
