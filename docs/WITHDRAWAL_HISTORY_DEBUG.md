@@ -6,8 +6,6 @@ When you withdraw, the withdrawal history section shows "No withdrawal history y
 
 
 
-### Step 1: Check if Backend is Running
-
 ```bash
 # Check if API is responding
 curl http://localhost:3001/health
