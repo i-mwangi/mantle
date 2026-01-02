@@ -5,7 +5,7 @@ When you withdraw, the withdrawal history section shows "No withdrawal history y
 
 ## What Should Happen
 
-After a withdrawal:
+
 1. Withdrawal record is saved to database (`farmerWithdrawals` table)
 2. Frontend calls `/api/farmer/withdrawals/:farmerAddress`
 3. Backend returns withdrawal records
