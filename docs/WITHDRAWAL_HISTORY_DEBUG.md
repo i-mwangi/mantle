@@ -3,8 +3,6 @@
 ## Problem
 When you withdraw, the withdrawal history section shows "No withdrawal history yet" even though withdrawals were made.
 
-## What Should Happen
-
 3. Backend returns withdrawal records
 4. Frontend displays them in the "Withdrawal History" section
 
