@@ -6,10 +6,6 @@ When you withdraw, the withdrawal history section shows "No withdrawal history y
 
 
 
-```bash
-# Check if API is responding
-curl http://localhost:3001/health
-```
 
 **Expected:** `{"success":true,"message":"Mantle API is running",...}`
 
