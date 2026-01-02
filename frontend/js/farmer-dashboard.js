@@ -3832,13 +3832,20 @@ class FarmerDashboard {
 
     async loadWithdrawalHistory(farmerAddress) {
         const container = document.getElementById('withdrawalHistoryList');
-        if (!container) return;
+        if (!container) {
+            console.log('[Withdrawal History] Container #withdrawalHistoryList not found');
+            return;
+        }
 
+        console.log('[Withdrawal History] Loading for farmer:', farmerAddress);
         container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
 
         try {
             const response = await window.coffeeAPI.getFarmerWithdrawalHistory(farmerAddress);
+            console.log('[Withdrawal History] API response:', response);
+            
             const withdrawals = response.success && response.withdrawals ? response.withdrawals : [];
+            console.log('[Withdrawal History] Found', withdrawals.length, 'withdrawals');
 
             if (withdrawals.length === 0) {
                 container.innerHTML = '<div class="empty-state"><p>No withdrawal history yet.</p></div>';
