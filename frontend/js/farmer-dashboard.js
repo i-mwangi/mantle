@@ -3848,7 +3848,8 @@ class FarmerDashboard {
             this.withdrawals = withdrawals;
 
             const items = withdrawals.map(w => {
-                const amount = ((w.amount || 0) / 100).toFixed(2);
+                // Values are already in dollars, not cents - don't divide by 100
+                const amount = (w.amount || 0).toFixed(2);
                 const date = new Date(w.requestedAt || w.completedAt || Date.now()).toLocaleDateString();
                 const status = w.status === 'completed' ? '✅ Completed' : '⏳ Pending';
                 const txLink = w.transactionHash ?
