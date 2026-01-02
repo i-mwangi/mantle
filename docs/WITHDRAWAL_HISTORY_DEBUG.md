@@ -7,8 +7,6 @@ When you withdraw, the withdrawal history section shows "No withdrawal history y
 
 
 
-**Expected:** `{"success":true,"message":"Mantle API is running",...}`
-
 **If not working:** Start the backend:
 ```bash
 npm run dev
