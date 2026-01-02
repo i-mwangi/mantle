@@ -3858,9 +3858,13 @@ class FarmerDashboard {
                 // Values are already in dollars, not cents - don't divide by 100
                 const amount = (w.amount || 0).toFixed(2);
                 const date = new Date(w.requestedAt || w.completedAt || Date.now()).toLocaleDateString();
-                const status = w.status === 'completed' ? '✅ Completed' : '⏳ Pending';
-                const txLink = w.transactionHash ?
-                    `<div class="detail"><span class="detail-label">Transaction</span><a href="${w.blockExplorerUrl || '#'}" target="_blank" class="detail-value mono-text">${w.transactionHash.substring(0, 15)}...</a></div>`
+                const status = w.status === 'completed' ? '✅ Completed' : 
+                              w.status === 'failed' ? '❌ Failed' : '⏳ Pending';
+                const txLink = w.blockExplorerUrl ?
+                    `<div class="detail"><span class="detail-label">Transaction</span><a href="${w.blockExplorerUrl}" target="_blank" class="detail-value mono-text">${w.transactionHash ? w.transactionHash.substring(0, 15) + '...' : 'View'}</a></div>`
+                    : '';
+                const errorMsg = w.errorMessage ? 
+                    `<div class="detail error-message"><span class="detail-label">Error</span><span class="detail-value">${w.errorMessage}</span></div>`
                     : '';
 
                 return `
