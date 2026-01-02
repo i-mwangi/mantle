@@ -4,8 +4,6 @@
 When you withdraw, the withdrawal history section shows "No withdrawal history yet" even though withdrawals were made.
 
 
-
-git 
 ```
 
 ### Step 2: Check Database for Withdrawal Records
