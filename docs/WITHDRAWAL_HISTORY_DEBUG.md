@@ -1,7 +1,7 @@
 # Withdrawal History Not Showing - Debug Guide
 
 ## Problem
-When you withdraw, the withdrawal history section shows "No withdrawal history yet" even though withdrawals were made.
+ though withdrawals were made.
 
 
 
