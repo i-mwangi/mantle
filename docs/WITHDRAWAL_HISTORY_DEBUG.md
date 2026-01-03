@@ -17,7 +17,7 @@ SELECT * FROM farmer_withdrawals WHERE farmer_address = '0x81F0CC60cf0E05
 
 **If no records:** Withdrawals aren't being saved. Check backend logs.
 
-### Step 3: Test API 
+### Step 3
 
 ```bash
 # Replace with your farmer address
