@@ -1,7 +1,7 @@
 # Withdrawal History Not Showing - Debug Guide
 
 ## Problem
- though withdrawals were made.
+ though withd
 
 
 
