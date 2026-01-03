@@ -13,7 +13,7 @@ SELECT * FROM farmer_withdrawals WHERE farmer_address = '0x81F0CC60cf0E05
 - `farmer_address` - farmer's wallet
 - `amount` - withdrawal amount (in dollars)
 - `status` - 'pending', 'completed', or 'failed'
-- `transaction_hash` - blockchain transaction hash
+- `transaction_hash` - blockchain transa
 - `requested_at` - timestamp
 
 **If no records:** Withdrawals aren't being saved. Check backend logs.
