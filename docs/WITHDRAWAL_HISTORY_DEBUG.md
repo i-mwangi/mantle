@@ -6,8 +6,7 @@
 
 
 # Check for specific farmer
-SELECT * FROM farmer_withdrawals WHERE farmer_address = '0x81F0CC60cf0E0562B8545994a0a34
-```
+SELECT * FROM farmer_withdrawals WHERE farmer_address = '0x81F0CC60cf0E0562B8545
 
 **Expected:** You should see withdrawal records with:
 - `id` - withdrawal ID
