@@ -260,12 +260,3 @@ API calls pattern (`frontend/js/api.js`):
 const response = await fetch(`${API_BASE_URL}/groves`, { headers: { 'x-account-id': address } });
 ```
 
-## Environment Variables
-
-Key variables (see `.env.example`):
-- `PRIVATE_KEY` - Deployer wallet for contracts
-- `MANTLE_RPC_URL` - Mantle Sepolia RPC endpoint
-- `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` - Production DB
-- `DISABLE_INVESTOR_KYC=true` - Uses in-memory mock DB (for testing without SQLite)
-
-
