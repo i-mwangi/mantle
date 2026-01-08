@@ -227,8 +227,5 @@ Single entry point handles all routes. Pattern:
 if (url.includes('/groves/tokenize') && method === 'POST') {
   return await handleTokenizeGrove(req, res);
 }
-```
-
-## Smart Contract Conventions
 
 
