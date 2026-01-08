@@ -248,5 +248,4 @@ ABIs live in `abi/` directory and `lib/api/contract-abis.ts`.
 
 ## Frontend Patterns
 
-No framework - vanilla JS with ES modules. Entry points are HTML files in `frontend/`.
 
