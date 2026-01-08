@@ -269,19 +269,3 @@ Key variables (see `.env.example`):
 - `DISABLE_INVESTOR_KYC=true` - Uses in-memory mock DB (for testing without SQLite)
 - Contract addresses: `MANTLE_USDC_ADDRESS`, `MANTLE_ISSUER_ADDRESS`, etc.
 
-## Testing
-
-```bash
-pnpm test              # Vitest unit tests
-pnpm test:mantle       # Hardhat smart contract tests
-pnpm test:e2e          # End-to-end integration tests
-```
-
-
-
-
-
-
-
-
-
