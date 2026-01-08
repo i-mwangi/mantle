@@ -291,5 +291,4 @@ Blockchain events are processed via firehose → LMDB store → indexer → data
 2. Indexer (`events/issuer.indexer.ts`) reads LMDB, writes to SQLite
 3. Stores defined in `lib/stores.ts`: `issuerFireStore`, `lenderFireStore`, etc.
 
-## File Import Conventions
 
