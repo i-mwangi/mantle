@@ -221,11 +221,6 @@ All authenticated requests include:
 headers: { 'x-account-id': walletAddress }
 ```
 
-### API Router (`api/mantle-api-router.ts`)
-Single entry point handles all routes. Pattern:
-```typescript
-if (url.includes('/groves/tokenize') && method === 'POST') {
-  return await handleTokenizeGrove(req, res);
-}
+
 
 
