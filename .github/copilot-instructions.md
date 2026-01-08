@@ -215,11 +215,6 @@ await api.withdrawFarmerShare(groveId, amount, farmerAddress);
 await api.depositLiquidity(assetAddress, amount);
 ```
 
-### Request Headers
-All authenticated requests include:
-```javascript
-headers: { 'x-account-id': walletAddress }
-```
 
 
 
