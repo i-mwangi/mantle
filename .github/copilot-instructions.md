@@ -284,7 +284,6 @@ describe("CoffeeTreeIssuer", function () {
 });
 ```
 
-## Event Indexing Pattern
 
 
 
