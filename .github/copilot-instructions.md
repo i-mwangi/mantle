@@ -255,8 +255,4 @@ Wallet integration via `frontend/wallet/`:
 - `metamask-connector.js` - Low-level MetaMask provider interaction
 - Global `window.walletManager` available after DOMContentLoaded
 
-API calls pattern (`frontend/js/api.js`):
-```javascript
-const response = await fetch(`${API_BASE_URL}/groves`, { headers: { 'x-account-id': address } });
-```
 
