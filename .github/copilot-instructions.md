@@ -267,5 +267,5 @@ Key variables (see `.env.example`):
 - `MANTLE_RPC_URL` - Mantle Sepolia RPC endpoint
 - `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` - Production DB
 - `DISABLE_INVESTOR_KYC=true` - Uses in-memory mock DB (for testing without SQLite)
-- Contract addresses: `MANTLE_USDC_ADDRESS`, `MANTLE_ISSUER_ADDRESS`, etc.
+
 
