@@ -204,8 +204,6 @@ await issuerContract.purchaseTreeTokens(groveName, amount);
 // 3. USDC goes to CoffeeRevenueReserve, tokens transferred to buyer
 ```
 
-## API Integration Patterns
-
 
 
 
