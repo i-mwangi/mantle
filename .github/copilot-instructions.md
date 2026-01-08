@@ -206,9 +206,7 @@ await issuerContract.purchaseTreeTokens(groveName, amount);
 
 ## API Integration Patterns
 
-### Frontend API Client (`frontend/js/api.js`)
-`CoffeeTreeAPI` class wraps all endpoints:
-```javascript
+
 
 
 
