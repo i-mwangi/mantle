@@ -277,12 +277,7 @@ pnpm test:mantle       # Hardhat smart contract tests
 pnpm test:e2e          # End-to-end integration tests
 ```
 
-Hardhat tests in `test/mantle/` use Mocha/Chai:
-```javascript
-describe("CoffeeTreeIssuer", function () {
-  it("Should register a coffee grove", async function () { ... });
-});
-```
+
 
 
 
