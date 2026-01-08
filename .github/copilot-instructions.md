@@ -209,11 +209,6 @@ await issuerContract.purchaseTreeTokens(groveName, amount);
 ### Frontend API Client (`frontend/js/api.js`)
 `CoffeeTreeAPI` class wraps all endpoints:
 ```javascript
-const api = new CoffeeTreeAPI(baseUrl);
-await api.claimEarnings(distributionId, holderAddress);
-await api.withdrawFarmerShare(groveId, amount, farmerAddress);
-await api.depositLiquidity(assetAddress, amount);
-```
 
 
 
