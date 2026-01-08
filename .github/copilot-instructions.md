@@ -231,11 +231,4 @@ if (url.includes('/groves/tokenize') && method === 'POST') {
 
 ## Smart Contract Conventions
 
-Contracts in `contracts/mantle/` use custom errors (not `require` strings):
-```solidity
-error UnverifiedFarmer(address farmer);
-error GroveNotFound(string groveName);
-if (grove.farmer == address(0)) revert GroveNotFound(groveName);
-```
-
 
