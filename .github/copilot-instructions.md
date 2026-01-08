@@ -198,11 +198,7 @@ getMantlePriceOracleService()   // Price feeds
 ### Transaction Flow Example (Token Purchase)
 ```typescript
 // 1. Approve USDC spending
-await usdcContract.approve(issuerAddress, totalCost);
-// 2. Purchase tokens
-await issuerContract.purchaseTreeTokens(groveName, amount);
-// 3. USDC goes to CoffeeRevenueReserve, tokens transferred to buyer
-```
+
 
 
 
