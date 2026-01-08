@@ -295,4 +295,4 @@ Blockchain events are processed via firehose → LMDB store → indexer → data
 
 - Use `.js` extension in imports (TypeScript compiles to ESM)
 - Absolute paths from project root in backend: `'../db/index.js'`
-- Type imports: `import type { ... } from '@vercel/node'`
+
