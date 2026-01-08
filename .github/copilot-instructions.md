@@ -244,8 +244,5 @@ Core contracts:
 - `FarmerVerification.sol` - KYC/verification state
 - `PriceOracle.sol` - Coffee price feeds
 
-ABIs live in `abi/` directory and `lib/api/contract-abis.ts`.
-
-## Frontend Patterns
 
 
