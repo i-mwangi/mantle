@@ -293,6 +293,6 @@ Blockchain events are processed via firehose → LMDB store → indexer → data
 
 ## File Import Conventions
 
-- Use `.js` extension in imports (TypeScript compiles to ESM)
+- Use `.js` extension in imports 
 
 
