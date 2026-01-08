@@ -238,11 +238,4 @@ error GroveNotFound(string groveName);
 if (grove.farmer == address(0)) revert GroveNotFound(groveName);
 ```
 
-Core contracts:
-- `CoffeeTreeIssuerSimple.sol` - Grove registration, tokenization, harvest reporting
-- `CoffeeLendingPool.sol` - Collateralized lending with grove tokens
-- `FarmerVerification.sol` - KYC/verification state
-- `PriceOracle.sol` - Coffee price feeds
-
-
 
