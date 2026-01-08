@@ -250,9 +250,3 @@ ABIs live in `abi/` directory and `lib/api/contract-abis.ts`.
 
 No framework - vanilla JS with ES modules. Entry points are HTML files in `frontend/`.
 
-Wallet integration via `frontend/wallet/`:
-- `manager.js` - WalletManager singleton, handles MetaMask connection
-- `metamask-connector.js` - Low-level MetaMask provider interaction
-- Global `window.walletManager` available after DOMContentLoaded
-
-
