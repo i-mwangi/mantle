@@ -286,7 +286,6 @@ describe("CoffeeTreeIssuer", function () {
 
 ## Event Indexing Pattern
 
-Blockchain events are processed via firehose → LMDB store → indexer → database:
 
 
 
