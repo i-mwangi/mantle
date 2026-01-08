@@ -288,7 +288,7 @@ describe("CoffeeTreeIssuer", function () {
 
 Blockchain events are processed via firehose → LMDB store → indexer → database:
 1. Firehose (`events/issuer.firehose.ts`) polls events, writes to LMDB
-2. Indexer (`events/issuer.indexer.ts`) reads LMDB, writes to SQLite
+
 
 
 
