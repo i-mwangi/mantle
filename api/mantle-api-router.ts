@@ -994,7 +994,6 @@ async function handleGetFarmerBalance(req: VercelRequest, res: VercelResponse) {
     let totalDistributed = 0;
     let pendingDistribution = 0;
     let thisMonthDistribution = 0;
-    const totalWithdrawn = 0; // TODO: Track withdrawals in separate table
 
     const now = Date.now();
     const thisMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
@@ -1018,20 +1017,36 @@ async function handleGetFarmerBalance(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // Calculate total withdrawn from completed withdrawals
+    const withdrawals = await db.select()
+      .from(farmerWithdrawals)
+      .where(eq(farmerWithdrawals.farmerAddress, farmerAddress));
+    
+    const totalWithdrawn = withdrawals
+      .filter(w => w.status === 'completed')
+      .reduce((sum, w) => sum + (w.amount || 0), 0);
+
     // Available balance = total distributed - total withdrawn
     const availableBalance = totalDistributed - totalWithdrawn;
 
-    // Calculate per-grove balances
+    // Calculate per-grove balances (with withdrawals subtracted)
     const groveBalances = [];
     for (const grove of farmerGroves) {
       const groveHarvests = harvests.filter(h => h.groveId === grove.id);
-      let groveAvailable = 0;
+      let groveDistributed = 0;
       
       for (const harvest of groveHarvests) {
         if (harvest.revenueDistributed) {
-          groveAvailable += harvest.farmerShare || 0;
+          groveDistributed += harvest.farmerShare || 0;
         }
       }
+      
+      // Subtract withdrawals for this specific grove
+      const groveWithdrawals = withdrawals
+        .filter(w => w.status === 'completed' && w.groveId === grove.id)
+        .reduce((sum, w) => sum + (w.amount || 0), 0);
+      
+      const groveAvailable = groveDistributed - groveWithdrawals;
       
       if (groveAvailable > 0) {
         groveBalances.push({
