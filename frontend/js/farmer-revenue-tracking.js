@@ -57,6 +57,12 @@ class FarmerRevenueTracking {
                 this.groveBalances = groveBalances;
                 console.log('[Revenue Tracking] Grove balances:', this.groveBalances);
 
+                // Update metrics from API response
+                this.updateMetricCard('thisMonthDistributed', response.thisMonthDistribution || 0);
+                this.updateMetricCard('availableBalance', response.availableBalance || 0);
+                this.updateMetricCard('pendingDistribution', response.pendingDistribution || 0);
+                this.updateMetricCard('totalWithdrawn', response.totalWithdrawn || 0);
+
                 // Populate grove selector with groves that have balance
                 this.populateGroveSelector();
 
