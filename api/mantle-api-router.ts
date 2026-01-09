@@ -1624,18 +1624,37 @@ async function handleGetFarmerTransactions(req: VercelRequest, res: VercelRespon
 
     console.log('📊 Getting transactions for farmer:', farmerAddress);
 
-    // TODO: Implement actual transaction history from blockchain
-    // For now, return empty array
+    // Get withdrawals from database to show as transactions
+    const withdrawals = await db
+      .select()
+      .from(farmerWithdrawals)
+      .where(eq(farmerWithdrawals.farmerAddress, farmerAddress as string))
+      .orderBy(desc(farmerWithdrawals.createdAt));
+
+    // Convert withdrawals to transaction format
+    const transactions = withdrawals.map((w: any) => ({
+      id: w.id,
+      type: 'withdrawal',
+      amount: -w.amount, // Negative because it's money going out
+      status: w.status,
+      date: w.createdAt,
+      description: `Withdrawal from grove`,
+      transactionHash: w.transactionHash,
+      groveId: w.groveId
+    }));
+
+    console.log(`📊 Found ${transactions.length} transactions (withdrawals)`);
+
     return res.status(200).json({
       success: true,
-      transactions: [],
-      message: 'Transaction history coming soon'
+      transactions: transactions,
     });
   } catch (error: any) {
     console.error('Error getting farmer transactions:', error);
     return res.status(500).json({
       success: false,
       error: error.message || 'Failed to get transactions',
+      transactions: [] // Return empty array on error
     });
   }
 }
