@@ -3360,17 +3360,7 @@ class InvestorPortal {
     async loadGroveHistory(groveId) {
         try {
             console.log(`[${new Date().toISOString()}] Loading grove history for grove ${groveId}`);
-            const response = await window.coffeeAPI.request(`/api/groves/${groveId}/history`);
-            
-            // Check if response is actually JSON
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                const text = await response.text();
-                console.error('Non-JSON response received:', text.substring(0, 200));
-                throw new Error('Unable to load data. The server returned an unexpected response. Please try again.');
-            }
-            
-            const result = await response.json();
+            const result = await window.coffeeAPI.request(`/api/groves/${groveId}/history`);
             
             // Debug: Log the actual response structure
             console.log(`[${new Date().toISOString()}] API Response:`, result);
