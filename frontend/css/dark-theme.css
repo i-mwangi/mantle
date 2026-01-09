@@ -1235,6 +1235,15 @@ body {
     font-weight: 700;
 }
 
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid #333;
+    background: #2d2d2d;
+}
+
 .modal-close {
     background: none;
     border: none;
