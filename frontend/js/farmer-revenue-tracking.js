@@ -342,7 +342,7 @@ class FarmerRevenueTracking {
             if (response.success) {
                 // Show success with transaction details
                 const message = response.data?.blockExplorerUrl
-                    ? `Withdrawal successful! <a href="${response.data.blockExplorerUrl}" target="_blank">View on HashScan</a>`
+                    ? `Withdrawal successful! <a href="${response.data.blockExplorerUrl}" target="_blank">View on Mantle Explorer</a>`
                     : 'Withdrawal successful!';
                 this.showNotification(message, 'success');
 
@@ -479,7 +479,7 @@ class FarmerRevenueTracking {
                     <div class="withdrawal-amount">$${w.amount.toFixed(2)}</div>
                     ${w.blockExplorerUrl ? `
                         <a href="${w.blockExplorerUrl}" target="_blank" class="blockchain-link">
-                            View on HashScan 🔗
+                            View on Mantle Explorer 🔗
                         </a>
                     ` : ''}
                 </div>
