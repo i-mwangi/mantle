@@ -1139,9 +1139,18 @@ async function handleFarmerWithdraw(req: VercelRequest, res: VercelResponse) {
     
     const totalWithdrawn = previousWithdrawals
       .filter(w => w.status === 'completed')
+      .filter(w => !groveId || w.groveId === parseInt(groveId)) // Only count withdrawals for this grove
       .reduce((sum, w) => sum + (w.amount || 0), 0);
     
     const availableBalance = totalAvailable - totalWithdrawn;
+
+    console.log('💰 Balance calculation:', {
+      groveIds,
+      totalAvailable,
+      totalWithdrawn,
+      availableBalance,
+      requestedAmount: amount
+    });
 
     if (amount > availableBalance) {
       return res.status(400).json({
