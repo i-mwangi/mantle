@@ -3503,7 +3503,7 @@ class InvestorPortal {
     async loadFundingHistory(groveId) {
         try {
             console.log(`[FundingHistory] Loading funding history for grove ${groveId}`);
-            const response = await fetch(`/api/funding/grove/${groveId}/history`);
+            const response = await window.coffeeAPI.request(`/api/funding/grove/${groveId}/history`);
             
             if (!response.ok) {
                 throw new Error('Failed to load funding history');
