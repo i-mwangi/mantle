@@ -345,20 +345,15 @@ async function submitFundingRequest(event) {
     }
     
     try {
-        const response = await fetch('/api/funding/request', {
+        // Use the API class to make the request
+        const data = await window.coffeeAPI.request('/api/funding/request', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'x-account-id': farmerAddress
             },
-            body: JSON.stringify(requestData)
+            body: requestData
         });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.error || 'Failed to create request');
-        }
         
         showNotification('Funding request submitted successfully!', 'success');
         
@@ -382,17 +377,14 @@ async function submitFundingRequest(event) {
 async function viewRequestDetails(requestId) {
     try {
         const farmerAddress = window.walletManager?.getAccountId() || window.accountId;
-        const response = await fetch(`/api/funding/request/${requestId}`, {
+        
+        // Use the API class to make the request
+        const data = await window.coffeeAPI.request(`/api/funding/request/${requestId}`, {
+            method: 'GET',
             headers: {
                 'x-account-id': farmerAddress
             }
         });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.error || 'Failed to load request');
-        }
         
         fundingState.selectedRequest = data.request;
         renderRequestDetailsModal();
