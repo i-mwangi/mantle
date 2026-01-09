@@ -2109,6 +2109,21 @@ class FarmerDashboard {
                     console.warn('Database update failed, but tokenization succeeded on blockchain');
                 }
                 
+                // Automatically add token to MetaMask FIRST (before any UI updates)
+                if (window.tokenManager) {
+                    console.log('🎉 Auto-adding token to MetaMask...');
+                    try {
+                        await window.tokenManager.autoAddTokenAfterTokenization({
+                            tokenAddress: tokenAddress,
+                            groveName: grove.groveName
+                        });
+                    } catch (error) {
+                        console.error('Error auto-adding token:', error);
+                    }
+                } else {
+                    console.warn('⚠️ Token manager not available');
+                }
+                
                 // Show success message
                 const tokenAddressShort = tokenAddress.slice(0, 10) + '...' + tokenAddress.slice(-8);
                 const explorerUrl = `https://sepolia.mantlescan.xyz/address/${tokenAddress}`;
@@ -2126,17 +2141,6 @@ class FarmerDashboard {
                     type: 'success',
                     duration: 10000
                 });
-                
-                // Automatically add token to MetaMask
-                if (window.tokenManager) {
-                    console.log('🎉 Auto-adding token to MetaMask...');
-                    await window.tokenManager.autoAddTokenAfterTokenization({
-                        tokenAddress: tokenAddress,
-                        groveName: grove.groveName
-                    });
-                } else {
-                    console.warn('Token manager not available');
-                }
                 
                 // Refresh the groves list
                 await this.loadGroves();
