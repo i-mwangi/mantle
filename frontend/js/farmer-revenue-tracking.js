@@ -633,7 +633,7 @@ class FarmerRevenueTracking {
                         </div>
                         ${t.blockExplorerUrl ? `
                             <a href="${t.blockExplorerUrl}" target="_blank" class="blockchain-link">
-                                View on HashScan 🔗
+                                View on Mantle Explorer 🔗
                             </a>
                         ` : ''}
                     </div>
