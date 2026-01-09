@@ -176,6 +176,26 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetFarmerBalance(req, res);
     }
 
+    // Funding: Get farmer's funding requests
+    if (url.includes('/api/funding/requests/') && method === 'GET') {
+      return await handleGetFundingRequests(req, res);
+    }
+
+    // Funding: Get funding pool for a grove
+    if (url.includes('/api/funding/pool/') && method === 'GET') {
+      return await handleGetFundingPool(req, res);
+    }
+
+    // Funding: Create new funding request
+    if (url.includes('/api/funding/request') && method === 'POST') {
+      return await handleCreateFundingRequest(req, res);
+    }
+
+    // Funding: Get single request details
+    if (url.includes('/api/funding/request/') && method === 'GET') {
+      return await handleGetFundingRequestDetails(req, res);
+    }
+
     // 404
     return res.status(404).json({
       success: false,
