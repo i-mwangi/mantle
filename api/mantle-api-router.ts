@@ -1943,3 +1943,200 @@ async function handleGetFundingRequestDetails(req: VercelRequest, res: VercelRes
     });
   }
 }
+
+/**
+ * Get available groves for investment
+ */
+async function handleGetAvailableGroves(req: VercelRequest, res: VercelResponse) {
+  try {
+    console.log('📊 Getting available groves for investment');
+
+    // Query tokenized groves from database
+    const tokenizedGroves = await db.query.coffeeGroves.findMany({
+      where: eq(coffeeGroves.isTokenized, true),
+      orderBy: (groves, { desc }) => [desc(groves.tokenizedAt)],
+    });
+
+    console.log(`📊 Found ${tokenizedGroves.length} tokenized groves`);
+
+    // Transform groves to match frontend expected format
+    const groves = tokenizedGroves
+      .filter(grove => grove.tokenAddress) // Only include groves with token addresses
+      .map(grove => {
+        const totalYield = (grove.treeCount || 0) * (grove.expectedYieldPerTree || 0);
+        const totalTokens = grove.totalTokensIssued || 0;
+        const tokensSold = grove.tokensSold || 0;
+        const tokensAvailable = totalTokens - tokensSold;
+        
+        // Calculate price per token (example: $10 per token)
+        const pricePerToken = 10.00;
+        
+        // Calculate projected annual return (example: 8-12% based on health score)
+        const healthScore = grove.currentHealthScore || 70;
+        const projectedAnnualReturn = Math.min(12, Math.max(8, 8 + (healthScore - 70) / 10));
+
+        return {
+          id: grove.id,
+          groveName: grove.groveName,
+          location: grove.location,
+          latitude: grove.coordinatesLat,
+          longitude: grove.coordinatesLng,
+          treeCount: grove.treeCount,
+          coffeeVariety: grove.coffeeVariety,
+          expectedYieldPerTree: grove.expectedYieldPerTree || 0,
+          totalYield: totalYield,
+          healthScore: grove.currentHealthScore || 0,
+          verificationStatus: grove.verificationStatus || 'pending',
+          tokenAddress: grove.tokenAddress,
+          tokenSymbol: grove.tokenSymbol,
+          totalTokens: totalTokens,
+          tokensSold: tokensSold,
+          tokensAvailable: tokensAvailable,
+          pricePerToken: pricePerToken,
+          projectedAnnualReturn: projectedAnnualReturn.toFixed(1),
+          farmerAddress: grove.farmerAddress,
+          createdAt: grove.createdAt,
+          tokenizedAt: grove.tokenizedAt,
+        };
+      });
+
+    return res.status(200).json({
+      success: true,
+      groves: groves,
+      count: groves.length,
+    });
+  } catch (error: any) {
+    console.error('Error getting available groves:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get available groves',
+      groves: [],
+    });
+  }
+}
+
+/**
+ * Get investor portfolio
+ */
+async function handleGetInvestorPortfolio(req: VercelRequest, res: VercelResponse) {
+  try {
+    const investorAddress = req.query.investorAddress as string;
+
+    if (!investorAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Investor address is required',
+      });
+    }
+
+    console.log('📊 Getting portfolio for investor:', investorAddress);
+
+    // Get all tokenized groves
+    const tokenizedGroves = await db.query.coffeeGroves.findMany({
+      where: eq(coffeeGroves.isTokenized, true),
+    });
+
+    console.log(`📊 Checking ${tokenizedGroves.length} tokenized groves for holdings`);
+
+    // Query blockchain for investor's token balances
+    const { MantleContractService } = await import('../lib/api/mantle-contract-service.js');
+    const { GROVE_TOKEN_ABI } = await import('../lib/api/contract-abis.js');
+    
+    const contractService = new MantleContractService(
+      process.env.MANTLE_NETWORK === 'mantleSepolia' ? 'mantleSepolia' : 'localhost'
+    );
+
+    const holdings = [];
+    let totalInvestment = 0;
+    let totalCurrentValue = 0;
+
+    for (const grove of tokenizedGroves) {
+      if (!grove.tokenAddress) continue;
+
+      try {
+        const tokenContract = contractService.getContractByAddress(
+          grove.tokenAddress,
+          GROVE_TOKEN_ABI
+        );
+
+        // Get investor's balance
+        const balance: bigint = await tokenContract.balanceOf(investorAddress);
+        
+        if (balance > 0n) {
+          const balanceNumber = Number(balance);
+          const pricePerToken = 10.00; // Same as in available groves
+          const investmentValue = balanceNumber * pricePerToken;
+          
+          // Calculate earnings from revenue distributions
+          const distributions = await db.select()
+            .from(revenueDistributions)
+            .where(eq(revenueDistributions.holderAddress, investorAddress.toLowerCase()));
+          
+          const earnings = distributions
+            .filter(d => d.paymentStatus === 'completed')
+            .reduce((sum, d) => sum + (d.revenueShare || 0), 0);
+
+          const totalValue = investmentValue + earnings;
+
+          holdings.push({
+            groveId: grove.id,
+            groveName: grove.groveName,
+            location: grove.location,
+            tokenAddress: grove.tokenAddress,
+            tokenSymbol: grove.tokenSymbol,
+            tokenBalance: balanceNumber,
+            investmentValue: investmentValue,
+            currentValue: totalValue,
+            earnings: earnings,
+            healthScore: grove.currentHealthScore || 0,
+            coffeeVariety: grove.coffeeVariety,
+          });
+
+          totalInvestment += investmentValue;
+          totalCurrentValue += totalValue;
+        }
+      } catch (error: any) {
+        console.error(`Error checking balance for grove ${grove.groveName}:`, error.message);
+        // Continue checking other groves
+      }
+    }
+
+    const totalEarnings = totalCurrentValue - totalInvestment;
+    const returnPercentage = totalInvestment > 0 
+      ? ((totalEarnings / totalInvestment) * 100).toFixed(2)
+      : '0.00';
+
+    console.log(`📊 Found ${holdings.length} holdings for investor`);
+
+    return res.status(200).json({
+      success: true,
+      portfolio: {
+        investorAddress: investorAddress,
+        holdings: holdings,
+        summary: {
+          totalInvestment: totalInvestment,
+          totalCurrentValue: totalCurrentValue,
+          totalEarnings: totalEarnings,
+          returnPercentage: returnPercentage,
+          numberOfGroves: holdings.length,
+        },
+      },
+    });
+  } catch (error: any) {
+    console.error('Error getting investor portfolio:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get investor portfolio',
+      portfolio: {
+        holdings: [],
+        summary: {
+          totalInvestment: 0,
+          totalCurrentValue: 0,
+          totalEarnings: 0,
+          returnPercentage: '0.00',
+          numberOfGroves: 0,
+        },
+      },
+    });
+  }
+}
