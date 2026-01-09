@@ -1178,12 +1178,55 @@ body {
     border: 1px solid #444;
 }
 
+.modal-body {
+    background: #2d2d2d;
+    padding: 1.5rem 2rem;
+}
+
+.grove-details-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    background: #2d2d2d;
+}
+
+.grove-details-grid .detail-section {
+    background: #252525;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.detail-row .label {
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.detail-row .value {
+    color: #fff;
+    font-weight: 600;
+}
+
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem 2rem;
     border-bottom: 1px solid #333;
+    background: #2d2d2d;
 }
 
 .modal-header h4 {
