@@ -196,6 +196,16 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetFundingRequestDetails(req, res);
     }
 
+    // Investment: Get available groves for investment
+    if (url.includes('/api/investment/available-groves') && method === 'GET') {
+      return await handleGetAvailableGroves(req, res);
+    }
+
+    // Investment: Get investor portfolio
+    if (url.includes('/api/investment/portfolio') && method === 'GET') {
+      return await handleGetInvestorPortfolio(req, res);
+    }
+
     // 404
     return res.status(404).json({
       success: false,
