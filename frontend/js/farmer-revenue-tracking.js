@@ -352,6 +352,19 @@ class FarmerRevenueTracking {
                     : 'Withdrawal successful!';
                 this.showNotification(message, 'success');
 
+                // Automatically add USDC token to MetaMask after first withdrawal
+                if (window.tokenManager) {
+                    console.log('💰 Auto-adding USDC token to MetaMask...');
+                    // Check if this is the first withdrawal (optional - can always prompt)
+                    setTimeout(() => {
+                        window.tokenManager.addUSDCToken().then(added => {
+                            if (added) {
+                                console.log('✅ USDC token added to MetaMask');
+                            }
+                        });
+                    }, 2000); // Wait 2 seconds after withdrawal success
+                }
+
                 // Reload revenue data
                 await this.loadRevenueData(farmerAddress);
 
