@@ -1755,3 +1755,162 @@ async function handleGetTokenHolders(req: VercelRequest, res: VercelResponse) {
     });
   }
 }
+
+
+/**
+ * Get farmer's funding requests
+ */
+async function handleGetFundingRequests(req: VercelRequest, res: VercelResponse) {
+  try {
+    const url = req.url || '';
+    const farmerAddress = url.split('/api/funding/requests/')[1]?.split('?')[0];
+
+    if (!farmerAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Farmer address is required',
+      });
+    }
+
+    console.log('📊 Getting funding requests for farmer:', farmerAddress);
+
+    // For now, return empty array (MVP - no funding requests yet)
+    // TODO: Implement database table and queries for funding requests
+    return res.status(200).json({
+      success: true,
+      requests: [],
+      message: 'Funding requests feature coming soon',
+    });
+  } catch (error: any) {
+    console.error('Error getting funding requests:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get funding requests',
+    });
+  }
+}
+
+/**
+ * Get funding pool for a grove
+ */
+async function handleGetFundingPool(req: VercelRequest, res: VercelResponse) {
+  try {
+    const url = req.url || '';
+    const groveId = url.split('/api/funding/pool/')[1]?.split('?')[0];
+
+    if (!groveId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Grove ID is required',
+      });
+    }
+
+    console.log('📊 Getting funding pool for grove:', groveId);
+
+    // For now, return empty funding pool (MVP)
+    // TODO: Implement funding pool tracking based on token sales
+    return res.status(200).json({
+      success: true,
+      funds: {
+        totalInvestment: 0,
+        platformFeesCollected: 0,
+        upfront: {
+          allocated: 0,
+          disbursed: 0,
+          available: 0,
+        },
+        maintenance: {
+          allocated: 0,
+          disbursed: 0,
+          available: 0,
+        },
+        harvest: {
+          allocated: 0,
+          disbursed: 0,
+          available: 0,
+        },
+      },
+      message: 'Funding pool feature coming soon',
+    });
+  } catch (error: any) {
+    console.error('Error getting funding pool:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get funding pool',
+    });
+  }
+}
+
+/**
+ * Create new funding request
+ */
+async function handleCreateFundingRequest(req: VercelRequest, res: VercelResponse) {
+  try {
+    const { groveId, farmerAddress, milestoneType, amount, purpose } = req.body;
+
+    if (!groveId || !farmerAddress || !milestoneType || !amount || !purpose) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields',
+      });
+    }
+
+    console.log('📊 Creating funding request:', { groveId, farmerAddress, milestoneType, amount });
+
+    // For now, return success but don't actually create (MVP)
+    // TODO: Implement database table and creation logic
+    return res.status(200).json({
+      success: true,
+      request: {
+        id: Date.now(),
+        groveId,
+        farmerAddress,
+        milestoneType,
+        amountRequested: amount,
+        purpose,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+      },
+      message: 'Funding request created (MVP - not persisted yet)',
+    });
+  } catch (error: any) {
+    console.error('Error creating funding request:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to create funding request',
+    });
+  }
+}
+
+/**
+ * Get funding request details
+ */
+async function handleGetFundingRequestDetails(req: VercelRequest, res: VercelResponse) {
+  try {
+    const url = req.url || '';
+    const requestId = url.split('/api/funding/request/')[1]?.split('?')[0];
+
+    if (!requestId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Request ID is required',
+      });
+    }
+
+    console.log('📊 Getting funding request details:', requestId);
+
+    // For now, return not found (MVP)
+    // TODO: Implement database query
+    return res.status(404).json({
+      success: false,
+      error: 'Request not found',
+      message: 'Funding requests feature coming soon',
+    });
+  } catch (error: any) {
+    console.error('Error getting funding request details:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get funding request details',
+    });
+  }
+}
