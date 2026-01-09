@@ -2127,6 +2127,17 @@ class FarmerDashboard {
                     duration: 10000
                 });
                 
+                // Automatically add token to MetaMask
+                if (window.tokenManager) {
+                    console.log('🎉 Auto-adding token to MetaMask...');
+                    await window.tokenManager.autoAddTokenAfterTokenization({
+                        tokenAddress: tokenAddress,
+                        groveName: grove.groveName
+                    });
+                } else {
+                    console.warn('Token manager not available');
+                }
+                
                 // Refresh the groves list
                 await this.loadGroves();
                 modal.remove();
