@@ -3360,7 +3360,7 @@ class InvestorPortal {
     async loadGroveHistory(groveId) {
         try {
             console.log(`[${new Date().toISOString()}] Loading grove history for grove ${groveId}`);
-            const response = await fetch(`/api/groves/${groveId}/history`);
+            const response = await window.coffeeAPI.request(`/api/groves/${groveId}/history`);
             
             // Check if response is actually JSON
             const contentType = response.headers.get('content-type');
