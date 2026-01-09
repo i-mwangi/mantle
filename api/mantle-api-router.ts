@@ -11,7 +11,7 @@ import { getMantleFarmerService } from '../lib/api/mantle-farmer-service.js';
 import { getMantlePriceOracleService } from '../lib/api/mantle-price-oracle-service.js';
 import { db } from '../db/index.js';
 import { coffeeGroves, farmers, harvestRecords, farmerWithdrawals } from '../db/schema/index.js';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 
 /**
  * Main API handler
@@ -902,28 +902,30 @@ async function handleGetFarmerWithdrawals(req: VercelRequest, res: VercelRespons
 
     console.log('📊 Fetching withdrawals for farmer:', farmerAddress);
 
-    // Get withdrawals from database
-    const withdrawals = await db.select()
-      .from(farmerWithdrawals)
-      .where(eq(farmerWithdrawals.farmerAddress, farmerAddress))
-      .orderBy(farmerWithdrawals.requestedAt);
+    // Get withdrawals with grove names
+    const withdrawals = await db.select({
+      id: farmerWithdrawals.id,
+      farmerAddress: farmerWithdrawals.farmerAddress,
+      groveId: farmerWithdrawals.groveId,
+      groveName: coffeeGroves.groveName,
+      amount: farmerWithdrawals.amount,
+      status: farmerWithdrawals.status,
+      transactionHash: farmerWithdrawals.transactionHash,
+      blockExplorerUrl: farmerWithdrawals.blockExplorerUrl,
+      errorMessage: farmerWithdrawals.errorMessage,
+      requestedAt: farmerWithdrawals.requestedAt,
+      completedAt: farmerWithdrawals.completedAt,
+    })
+    .from(farmerWithdrawals)
+    .leftJoin(coffeeGroves, eq(farmerWithdrawals.groveId, coffeeGroves.id))
+    .where(eq(farmerWithdrawals.farmerAddress, farmerAddress))
+    .orderBy(desc(farmerWithdrawals.requestedAt));
 
     console.log('📊 Found', withdrawals.length, 'withdrawals');
 
     return res.status(200).json({
       success: true,
-      withdrawals: withdrawals.map(w => ({
-        id: w.id,
-        farmerAddress: w.farmerAddress,
-        groveId: w.groveId,
-        amount: w.amount,
-        status: w.status,
-        transactionHash: w.transactionHash,
-        blockExplorerUrl: w.blockExplorerUrl,
-        errorMessage: w.errorMessage,
-        requestedAt: w.requestedAt,
-        completedAt: w.completedAt,
-      })),
+      withdrawals: withdrawals,
     });
   } catch (error: any) {
     console.error('Error fetching farmer withdrawals:', error);

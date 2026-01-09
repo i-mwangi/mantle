@@ -3871,7 +3871,7 @@ class FarmerDashboard {
                     <div class="withdrawal-item">
                         <div class="withdrawal-header">
                             <div class="withdrawal-info">
-                                <h5>${w.groveName || 'Grove'}</h5>
+                                <h5>${w.groveName || `Grove #${w.groveId || 'Unknown'}`}</h5>
                                 <span class="withdrawal-date"><i class="fas fa-calendar"></i> ${date}</span>
                             </div>
                             <div class="withdrawal-status ${w.status}">${status}</div>
