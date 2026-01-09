@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add IOTA Token to MetaMask</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: #2a2a2a;
+            border: 2px solid #D4A373;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        h1 {
+            color: #D4A373;
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+        }
+        .token-info {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid #444;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .label {
+            color: #999;
+            font-weight: 600;
+        }
+        .value {
+            color: #D4A373;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        button {
+            background: #D4A373;
+            color: #1a1a1a;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #E5B584;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(212, 163, 115, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+        }
+        .error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            color: #f44336;
+        }
+        .info {
+            background: rgba(33, 150, 243, 0.2);
+            border: 1px solid #2196F3;
+            color: #2196F3;
+        }
+        .hidden {
+            display: none;
+        }
+        .instructions {
+            background: #1a1a1a;
+            border-left: 3px solid #D4A373;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🪙 Add IOTA Token</h1>
+        <p style="color: #999; margin-top: 0;">Add your grove token to MetaMask</p>
+        
+        <div class="token-info">
+            <div class="info-row">
+                <span class="label">Token Name:</span>
+                <span class="value">TREE-iota</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Symbol:</span>
+                <span class="value">TREE-iota</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Decimals:</span>
+                <span class="value">18</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Address:</span>
+                <span class="value">0xd10F95C9FF79F1AadDF0B94B2C6F06eD506e1dCC</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Network:</span>
+                <span class="value">Mantle Sepolia</span>
+            </div>
+        </div>
+
+        <button onclick="addToken()" id="addBtn">
+            🦊 Add to MetaMask
+        </button>
+
+        <button onclick="copyAddress()" style="background: #444; color: #fff;">
+            📋 Copy Token Address
+        </button>
+
+        <div id="status" class="status hidden"></div>
+
+        <div class="instructions">
+            <strong>If automatic addition doesn't work:</strong>
+            <ol>
+                <li>Open MetaMask</li>
+                <li>Click "Import tokens"</li>
+                <li>Paste address: <code>0xd10F95C9FF79F1AadDF0B94B2C6F06eD506e1dCC</code></li>
+                <li>Click "Add Custom Token"</li>
+                <li>Click "Import Tokens"</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const TOKEN_ADDRESS = '0xd10F95C9FF79F1AadDF0B94B2C6F06eD506e1dCC';
+        const TOKEN_SYMBOL = 'TREE-iota';
+        const TOKEN_DECIMALS = 18;
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.classList.remove('hidden');
+        }
+
+        async function addToken() {
+            const btn = document.getElementById('addBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Adding token...';
+
+            try {
+                // Check if MetaMask is installed
+                if (typeof window.ethereum === 'undefined') {
+                    throw new Error('MetaMask is not installed. Please install MetaMask extension.');
+                }
+
+                // Check if connected
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                if (accounts.length === 0) {
+                    throw new Error('Please connect your MetaMask wallet first.');
+                }
+
+                // Check network
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                if (chainId !== '0x138b') {
+                    throw new Error('Please switch to Mantle Sepolia network in MetaMask.');
+                }
+
+                console.log('Adding token to MetaMask...');
+                console.log('Address:', TOKEN_ADDRESS);
+                console.log('Symbol:', TOKEN_SYMBOL);
+                console.log('Decimals:', TOKEN_DECIMALS);
+
+                // Request to add token
+                const wasAdded = await window.ethereum.request({
+                    method: 'wallet_watchAsset',
+                    params: {
+                        type: 'ERC20',
+                        options: {
+                            address: TOKEN_ADDRESS,
+                            symbol: TOKEN_SYMBOL,
+                            decimals: TOKEN_DECIMALS,
+                        },
+                    },
+                });
+
+                if (wasAdded) {
+                    showStatus('✅ Token added successfully! Check your MetaMask wallet.', 'success');
+                    btn.textContent = '✅ Token Added!';
+                    btn.style.background = '#4CAF50';
+                } else {
+                    showStatus('❌ You declined to add the token. Click the button to try again.', 'error');
+                    btn.disabled = false;
+                    btn.textContent = '🦊 Add to MetaMask';
+                }
+            } catch (error) {
+                console.error('Error adding token:', error);
+                showStatus(`❌ Error: ${error.message}`, 'error');
+                btn.disabled = false;
+                btn.textContent = '🦊 Add to MetaMask';
+            }
+        }
+
+        function copyAddress() {
+            navigator.clipboard.writeText(TOKEN_ADDRESS)
+                .then(() => {
+                    showStatus('✅ Token address copied to clipboard!', 'success');
+                })
+                .catch(() => {
+                    showStatus('❌ Failed to copy. Please copy manually.', 'error');
+                });
+        }
+
+        // Auto-check MetaMask on load
+        window.addEventListener('load', async () => {
+            if (typeof window.ethereum === 'undefined') {
+                showStatus('⚠️ MetaMask not detected. Please install MetaMask.', 'error');
+                return;
+            }
+
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                if (accounts.length === 0) {
+                    showStatus('⚠️ Please connect your MetaMask wallet.', 'info');
+                    return;
+                }
+
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                if (chainId !== '0x138b') {
+                    showStatus('⚠️ Please switch to Mantle Sepolia network.', 'error');
+                    return;
+                }
+
+                showStatus('✅ Ready to add token. Click the button above.', 'success');
+            } catch (error) {
+                console.error('Error checking MetaMask:', error);
+            }
+        });
+    </script>
+</body>
+</html>

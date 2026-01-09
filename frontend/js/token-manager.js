@@ -71,8 +71,9 @@ class TokenManager {
      * @param {number} decimals - Token decimals (default 18)
      */
     async addGroveToken(tokenAddress, groveName, decimals = 18) {
-        // Create a symbol from grove name (max 11 characters for MetaMask)
-        const symbol = groveName.toUpperCase().substring(0, 11);
+        // Create a symbol from grove name matching the contract format: TREE-{groveName}
+        // Max 11 characters for MetaMask
+        const symbol = `TREE-${groveName}`.substring(0, 11);
         
         return await this.addTokenToMetaMask(
             tokenAddress,
@@ -138,10 +139,11 @@ class TokenManager {
             }
         } else {
             // Show manual add option
+            const symbol = `TREE-${grove.groveName}`.substring(0, 11);
             this.showAddTokenNotification(
                 grove.tokenAddress,
                 grove.groveName,
-                grove.groveName.toUpperCase()
+                symbol
             );
         }
 

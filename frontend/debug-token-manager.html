@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Token Manager</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #1a1a1a;
+            color: #0f0;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .status { margin: 10px 0; padding: 10px; background: #2a2a2a; border-left: 3px solid #0f0; }
+        .error { border-left-color: #f00; color: #f00; }
+        .success { border-left-color: #0f0; color: #0f0; }
+        .info { border-left-color: #0ff; color: #0ff; }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #0ff; }
+        h1 { color: #0ff; }
+        pre { background: #000; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Token Manager Debug Console</h1>
+    
+    <div id="output"></div>
+    
+    <h2>Quick Actions:</h2>
+    <button onclick="checkTokenManager()">1. Check Token Manager</button>
+    <button onclick="checkMetaMask()">2. Check MetaMask</button>
+    <button onclick="testAddToken()">3. Test Add Token (Your Grove)</button>
+    <button onclick="manualAdd()">4. Manual Add Token</button>
+
+    <script src="/js/token-manager.js"></script>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            output.appendChild(div);
+            console.log(message);
+        }
+
+        function checkTokenManager() {
+            log('Checking token manager...', 'info');
+            
+            if (typeof window.tokenManager === 'undefined') {
+                log('❌ ERROR: window.tokenManager is undefined!', 'error');
+                log('Token manager script may not be loaded', 'error');
+                return false;
+            }
+            
+            log('✅ window.tokenManager exists', 'success');
+            log('Available methods:', 'info');
+            
+            const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(window.tokenManager));
+            methods.forEach(method => {
+                if (method !== 'constructor') {
+                    log(`  - ${method}()`, 'info');
+                }
+            });
+            
+            return true;
+        }
+
+        function checkMetaMask() {
+            log('Checking MetaMask...', 'info');
+            
+            if (typeof window.ethereum === 'undefined') {
+                log('❌ ERROR: MetaMask not installed!', 'error');
+                return false;
+            }
+            
+            log('✅ MetaMask detected', 'success');
+            
+            window.ethereum.request({ method: 'eth_accounts' })
+                .then(accounts => {
+                    if (accounts.length > 0) {
+                        log(`✅ Connected: ${accounts[0]}`, 'success');
+                    } else {
+                        log('⚠️ MetaMask not connected', 'error');
+                    }
+                })
+                .catch(err => log(`❌ Error: ${err.message}`, 'error'));
+            
+            window.ethereum.request({ method: 'eth_chainId' })
+                .then(chainId => {
+                    const chainName = chainId === '0x138b' ? 'Mantle Sepolia ✅' : 
+                                     chainId === '0x1388' ? 'Mantle Mainnet' : 
+                                     `Unknown (${chainId}) ❌`;
+                    log(`Network: ${chainName}`, chainId === '0x138b' ? 'success' : 'error');
+                })
+                .catch(err => log(`❌ Error: ${err.message}`, 'error'));
+            
+            return true;
+        }
+
+        async function testAddToken() {
+            log('Testing token addition for your grove...', 'info');
+            
+            // Your actual token from the logs
+            const tokenAddress = '0xd10F95C9FF79F1AadDF0B94B2C6F06eD506e1dCC';
+            const groveName = 'iota';
+            
+            log(`Token Address: ${tokenAddress}`, 'info');
+            log(`Grove Name: ${groveName}`, 'info');
+            log(`Token Symbol: TREE-${groveName}`, 'info');
+            
+            if (!window.tokenManager) {
+                log('❌ Token manager not available!', 'error');
+                return;
+            }
+            
+            try {
+                log('Calling tokenManager.addGroveToken()...', 'info');
+                const result = await window.tokenManager.addGroveToken(tokenAddress, groveName);
+                
+                if (result) {
+                    log('✅ SUCCESS! Token added to MetaMask!', 'success');
+                    log('Check your MetaMask wallet - TREE-iota token should be visible', 'success');
+                } else {
+                    log('⚠️ User declined or error occurred', 'error');
+                    log('Check MetaMask for any prompts', 'info');
+                }
+            } catch (error) {
+                log(`❌ ERROR: ${error.message}`, 'error');
+                log(`Stack: ${error.stack}`, 'error');
+            }
+        }
+
+        async function manualAdd() {
+            log('Manual token addition instructions:', 'info');
+            log('', 'info');
+            log('1. Open MetaMask', 'info');
+            log('2. Click "Import tokens" at the bottom', 'info');
+            log('3. Paste this address:', 'info');
+            log('   0xd10F95C9FF79F1AadDF0B94B2C6F06eD506e1dCC', 'success');
+            log('4. Symbol should auto-fill as "IOTA"', 'info');
+            log('5. Decimals should be 18', 'info');
+            log('6. Click "Add Custom Token"', 'info');
+            log('7. Click "Import Tokens"', 'info');
+            log('', 'info');
+            log('Your token balance should appear!', 'success');
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText('0xd10F95C9FF79F1AadDF0B94B2C6F06eD506e1dCC')
+                .then(() => log('✅ Token address copied to clipboard!', 'success'))
+                .catch(() => log('⚠️ Could not copy to clipboard', 'error'));
+        }
+
+        // Auto-run checks on load
+        window.addEventListener('load', () => {
+            log('=== Token Manager Debug Console ===', 'info');
+            log('', 'info');
+            setTimeout(() => {
+                checkTokenManager();
+                setTimeout(() => checkMetaMask(), 500);
+            }, 500);
+        });
+    </script>
+</body>
+</html>
