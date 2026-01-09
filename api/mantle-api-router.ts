@@ -10,7 +10,7 @@ import { getMantleLendingService } from '../lib/api/mantle-lending-service.js';
 import { getMantleFarmerService } from '../lib/api/mantle-farmer-service.js';
 import { getMantlePriceOracleService } from '../lib/api/mantle-price-oracle-service.js';
 import { db } from '../db/index.js';
-import { coffeeGroves, farmers, harvestRecords, farmerWithdrawals, revenueDistributions } from '../db/schema/index.js';
+import { coffeeGroves, farmers, harvestRecords, farmerWithdrawals, revenueDistributions, investorProfiles } from '../db/schema/index.js';
 import { eq, desc } from 'drizzle-orm';
 
 /**
@@ -204,6 +204,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
     // Investment: Get investor portfolio
     if (url.includes('/api/investment/portfolio') && method === 'GET') {
       return await handleGetInvestorPortfolio(req, res);
+    }
+
+    // Investment: Purchase tokens
+    if (url.includes('/api/investment/purchase-tokens') && method === 'POST') {
+      return await handlePurchaseTokens(req, res);
     }
 
     // 404
@@ -2137,6 +2142,191 @@ async function handleGetInvestorPortfolio(req: VercelRequest, res: VercelRespons
           numberOfGroves: 0,
         },
       },
+    });
+  }
+}
+
+/**
+ * Purchase grove tokens
+ */
+async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
+  try {
+    const { groveId, tokenAmount, investorAddress, termsAccepted, termsVersion } = req.body;
+
+    if (!groveId || !tokenAmount || !investorAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: groveId, tokenAmount, investorAddress',
+      });
+    }
+
+    console.log('💰 Processing token purchase:', { groveId, tokenAmount, investorAddress });
+
+    // Get grove from database
+    const grove = await db.query.coffeeGroves.findFirst({
+      where: eq(coffeeGroves.id, parseInt(groveId)),
+    });
+
+    if (!grove) {
+      return res.status(404).json({
+        success: false,
+        error: 'Grove not found',
+      });
+    }
+
+    if (!grove.isTokenized || !grove.tokenAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Grove is not tokenized',
+      });
+    }
+
+    // Check if enough tokens are available
+    const totalTokens = grove.totalTokensIssued || 0;
+    const tokensSold = grove.tokensSold || 0;
+    const tokensAvailable = totalTokens - tokensSold;
+
+    if (tokenAmount > tokensAvailable) {
+      return res.status(400).json({
+        success: false,
+        error: `Insufficient tokens available. Available: ${tokensAvailable}, Requested: ${tokenAmount}`,
+      });
+    }
+
+    // Calculate purchase price (example: $10 per token)
+    const pricePerToken = 10.00;
+    const totalPrice = tokenAmount * pricePerToken;
+
+    console.log('💰 Purchase details:', {
+      tokenAmount,
+      pricePerToken,
+      totalPrice,
+      tokensAvailable,
+    });
+
+    // Interact with blockchain to transfer tokens
+    try {
+      const { ethers } = await import('ethers');
+      const { ISSUER_ABI } = await import('../lib/api/contract-abis.js');
+      
+      // Get contract addresses from environment
+      const issuerAddress = process.env.MANTLE_ISSUER_ADDRESS;
+      if (!issuerAddress) {
+        throw new Error('MANTLE_ISSUER_ADDRESS not configured in environment');
+      }
+      
+      // Create provider and signer
+      const rpcUrl = process.env.MANTLE_RPC_URL || 'https://rpc.sepolia.mantle.xyz';
+      const privateKey = process.env.PRIVATE_KEY;
+      
+      if (!privateKey) {
+        throw new Error('PRIVATE_KEY not configured in environment');
+      }
+      
+      const provider = new ethers.JsonRpcProvider(rpcUrl);
+      const signer = new ethers.Wallet(privateKey, provider);
+      
+      console.log('🔗 Connected to Mantle network:', rpcUrl);
+      
+      // Create issuer contract instance
+      const issuerContract = new ethers.Contract(
+        issuerAddress,
+        ISSUER_ABI,
+        signer
+      );
+      
+      console.log('🔗 Calling sellTokens on issuer contract:', {
+        tokenAddress: grove.tokenAddress,
+        buyer: investorAddress,
+        amount: tokenAmount,
+      });
+      
+      // Call sellTokens on issuer contract
+      // This transfers tokens from issuer to investor
+      const tx = await issuerContract.sellTokens(
+        grove.tokenAddress,
+        investorAddress,
+        tokenAmount
+      );
+      
+      console.log('🔗 Transaction sent:', tx.hash);
+      console.log('⏳ Waiting for confirmation...');
+      
+      // Wait for transaction confirmation
+      const receipt = await tx.wait();
+      
+      console.log('✅ Transaction confirmed in block:', receipt.blockNumber);
+      
+      // Update database: increment tokensSold
+      await db.update(coffeeGroves)
+        .set({
+          tokensSold: tokensSold + tokenAmount,
+          updatedAt: Date.now(),
+        })
+        .where(eq(coffeeGroves.id, grove.id));
+
+      console.log('✅ Database updated: tokensSold incremented');
+
+      // Record terms acceptance if first purchase
+      if (termsAccepted && termsVersion) {
+        // Check if investor profile exists
+        const existingProfile = await db.query.investorProfiles.findFirst({
+          where: eq(investorProfiles.investorAddress, investorAddress),
+        });
+
+        if (existingProfile) {
+          // Update existing profile
+          await db.update(investorProfiles)
+            .set({
+              termsAcceptedAt: Date.now(),
+              termsVersion: termsVersion,
+              updatedAt: Date.now(),
+            })
+            .where(eq(investorProfiles.investorAddress, investorAddress));
+        } else {
+          // Create new profile
+          await db.insert(investorProfiles).values({
+            investorAddress: investorAddress,
+            termsAcceptedAt: Date.now(),
+            termsVersion: termsVersion,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          });
+        }
+        console.log('✅ Terms acceptance recorded');
+      }
+
+      const explorerUrl = `https://explorer.sepolia.mantle.xyz/tx/${tx.hash}`;
+
+      return res.status(200).json({
+        success: true,
+        message: 'Tokens purchased successfully',
+        data: {
+          holdingId: `${grove.id}-${investorAddress}`,
+          groveId: grove.id,
+          groveName: grove.groveName,
+          tokenAmount: tokenAmount,
+          totalPrice: totalPrice,
+          pricePerToken: pricePerToken,
+          investorAddress: investorAddress,
+          transactionHash: tx.hash,
+          blockExplorerUrl: explorerUrl,
+        },
+        transactionHash: tx.hash,
+      });
+    } catch (blockchainError: any) {
+      console.error('❌ Blockchain transaction failed:', blockchainError);
+      
+      return res.status(500).json({
+        success: false,
+        error: `Blockchain transaction failed: ${blockchainError.message}`,
+      });
+    }
+  } catch (error: any) {
+    console.error('Error processing token purchase:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to process token purchase',
     });
   }
 }
