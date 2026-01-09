@@ -1331,7 +1331,7 @@ async function handlePreviewDistribution(req: VercelRequest, res: VercelResponse
         const { GROVE_TOKEN_ABI } = await import('../lib/api/contract-abis.js');
         
         const contractService = new MantleContractService(
-          process.env.NETWORK === 'mantleSepolia' ? 'mantleSepolia' : 'localhost'
+          process.env.MANTLE_NETWORK === 'mantleSepolia' ? 'mantleSepolia' : 'localhost'
         );
         
         const tokenContract = contractService.getContractByAddress(
@@ -1475,7 +1475,7 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
     const { GROVE_TOKEN_ABI, ISSUER_ABI } = await import('../lib/api/contract-abis.js');
     
     const contractService = new MantleContractService(
-      process.env.NETWORK === 'mantleSepolia' ? 'mantleSepolia' : 'localhost'
+      process.env.MANTLE_NETWORK === 'mantleSepolia' ? 'mantleSepolia' : 'localhost'
     );
     
     const tokenContract = contractService.getContractByAddress(
@@ -1641,7 +1641,7 @@ async function handleGetTokenHolders(req: VercelRequest, res: VercelResponse) {
     const { GROVE_TOKEN_ABI } = await import('../lib/api/contract-abis.js');
     
     const contractService = new MantleContractService(
-      process.env.NETWORK === 'mantleSepolia' ? 'mantleSepolia' : 'localhost'
+      process.env.MANTLE_NETWORK === 'mantleSepolia' ? 'mantleSepolia' : 'localhost'
     );
     
     const tokenContract = contractService.getContractByAddress(
