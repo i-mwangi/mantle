@@ -35,17 +35,14 @@ async function loadFarmerRequests() {
             return;
         }
 
-        const response = await fetch(`/api/funding/requests/${farmerAddress}`, {
+        // Use the API class to make the request (handles base URL correctly)
+        const data = await window.coffeeAPI.request(`/api/funding/requests/${farmerAddress}`, {
+            method: 'GET',
             headers: {
                 'x-account-id': farmerAddress
             }
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to load requests');
-        }
-
-        const data = await response.json();
         fundingState.requests = data.requests || [];
         
         console.log(`[Funding] Loaded ${fundingState.requests.length} requests`);
@@ -65,13 +62,11 @@ async function loadFarmerRequests() {
  */
 async function loadFundingPool(groveId) {
     try {
-        const response = await fetch(`/api/funding/pool/${groveId}`);
-        
-        if (!response.ok) {
-            throw new Error('Failed to load funding pool');
-        }
+        // Use the API class to make the request
+        const data = await window.coffeeAPI.request(`/api/funding/pool/${groveId}`, {
+            method: 'GET'
+        });
 
-        const data = await response.json();
         fundingState.fundingPool = data.funds;
         
         // Render funding overview
