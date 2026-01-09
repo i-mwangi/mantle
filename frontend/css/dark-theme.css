@@ -1197,6 +1197,41 @@ body {
     border: 1px solid #333;
 }
 
+.harvest-history-section,
+.funding-history-section {
+    background: #252525 !important;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.harvest-history-container,
+.funding-history-container {
+    background: #1e1e1e;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px dashed #444;
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+}
+
+.info-box {
+    background: rgba(66, 165, 245, 0.1);
+    border: 1px solid rgba(66, 165, 245, 0.3);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-top: 1rem;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+.info-box strong {
+    color: #42A5F5;
+}
+
 .detail-list {
     display: flex;
     flex-direction: column;
