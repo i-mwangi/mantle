@@ -622,10 +622,21 @@ class FarmerRevenueTracking {
         const pendingTransactions = transactions.filter(t =>
             t.status === 'pending' || t.status === 'unclaimed'
         ).length;
+        
+        // Calculate total revenue (sum of positive amounts only - revenue coming in)
+        const totalRevenue = transactions
+            .filter(t => t.amount > 0) // Only positive amounts (revenue)
+            .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 
         document.getElementById('farmerTotalTransactions').textContent = totalTransactions;
         document.getElementById('farmerCompletedTransactions').textContent = completedTransactions;
         document.getElementById('farmerPendingTransactions').textContent = pendingTransactions;
+        
+        // Update total revenue
+        const revenueElement = document.getElementById('farmerTotalRevenue');
+        if (revenueElement) {
+            revenueElement.textContent = `$${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
 
         // Display transactions
         console.log('[Transaction History] Generating HTML for', transactions.length, 'transactions');
