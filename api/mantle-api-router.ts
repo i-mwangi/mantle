@@ -2228,34 +2228,22 @@ async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
 
       console.log('✅ Database updated: tokensSold incremented');
 
-      // Record terms acceptance if first purchase
-      if (termsAccepted && termsVersion) {
-        // Check if investor profile exists
-        const existingProfile = await db.query.investorProfiles.findFirst({
-          where: eq(investorProfiles.investorAddress, investorAddress),
-        });
-
-        if (existingProfile) {
-          // Update existing profile
-          await db.update(investorProfiles)
-            .set({
-              termsAcceptedAt: Date.now(),
-              termsVersion: termsVersion,
-              updatedAt: Date.now(),
-            })
-            .where(eq(investorProfiles.investorAddress, investorAddress));
-        } else {
-          // Create new profile
-          await db.insert(investorProfiles).values({
-            investorAddress: investorAddress,
-            termsAcceptedAt: Date.now(),
-            termsVersion: termsVersion,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-          });
-        }
-        console.log('✅ Terms acceptance recorded');
-      }
+      // TODO: Record terms acceptance (requires investor_profiles table migration)
+      // if (termsAccepted && termsVersion) {
+      //   const existingProfile = await db.query.investorProfiles.findFirst({
+      //     where: eq(investorProfiles.investorAddress, investorAddress),
+      //   });
+      //   if (existingProfile) {
+      //     await db.update(investorProfiles)
+      //       .set({ termsAcceptedAt: Date.now(), termsVersion, updatedAt: Date.now() })
+      //       .where(eq(investorProfiles.investorAddress, investorAddress));
+      //   } else {
+      //     await db.insert(investorProfiles).values({
+      //       investorAddress, termsAcceptedAt: Date.now(), termsVersion,
+      //       createdAt: Date.now(), updatedAt: Date.now(),
+      //     });
+      //   }
+      // }
 
       const explorerUrl = `https://explorer.sepolia.mantle.xyz/tx/${txHash}`;
 
