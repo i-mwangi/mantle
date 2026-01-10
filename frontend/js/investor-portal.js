@@ -908,7 +908,7 @@ class InvestorPortal {
             modal.innerHTML = `
                 <div class="modal-content" style="max-width: 600px;">
                     <div class="modal-header">
-                        <h3>⚖️ Terms and Conditions</h3>
+                        <h3> Terms and Conditions</h3>
                     </div>
                     <div class="modal-body">
                         <p style="margin-bottom: 1rem;">
