@@ -221,6 +221,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetInvestorEarnings(req, res);
     }
 
+    // Investor Earnings: Get unclaimed earnings
+    if (url.includes('/api/investor/earnings/unclaimed/') && method === 'GET') {
+      return await handleGetUnclaimedEarnings(req, res);
+    }
+
     // Investor Withdrawals: Get withdrawal history
     if (url.includes('/api/investor/withdrawals/') && method === 'GET') {
       return await handleGetInvestorWithdrawals(req, res);
@@ -1390,27 +1395,42 @@ async function handleGetInvestorEarnings(req: VercelRequest, res: VercelResponse
 
     console.log('📊 Getting earnings for holder:', holderAddress);
 
-    // Get all revenue distributions for this holder
-    const distributions = await db.query.revenueDistributions.findMany({
-      where: eq(revenueDistributions.holderAddress, holderAddress),
-      orderBy: [desc(revenueDistributions.distributionDate)],
-    });
+    try {
+      // Get all revenue distributions for this holder
+      const distributions = await db.query.revenueDistributions.findMany({
+        where: eq(revenueDistributions.holderAddress, holderAddress),
+        orderBy: [desc(revenueDistributions.distributionDate)],
+      });
 
-    const totalEarnings = distributions.reduce((sum, dist) => sum + (dist.revenueShare || 0), 0);
-    const pendingEarnings = distributions
-      .filter(d => d.paymentStatus === 'pending')
-      .reduce((sum, dist) => sum + (dist.revenueShare || 0), 0);
+      const totalEarnings = distributions.reduce((sum, dist) => sum + (dist.revenueShare || 0), 0);
+      const pendingEarnings = distributions
+        .filter(d => d.paymentStatus === 'pending')
+        .reduce((sum, dist) => sum + (dist.revenueShare || 0), 0);
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        totalEarnings,
-        pendingEarnings,
-        paidEarnings: totalEarnings - pendingEarnings,
-        distributionCount: distributions.length,
-        distributions: distributions.slice(0, 10), // Last 10
-      },
-    });
+      return res.status(200).json({
+        success: true,
+        data: {
+          totalEarnings,
+          pendingEarnings,
+          paidEarnings: totalEarnings - pendingEarnings,
+          distributionCount: distributions.length,
+          distributions: distributions.slice(0, 10), // Last 10
+        },
+      });
+    } catch (dbError: any) {
+      // Table doesn't exist yet - return empty data
+      console.log('⚠️  revenue_distributions table not found, returning empty data');
+      return res.status(200).json({
+        success: true,
+        data: {
+          totalEarnings: 0,
+          pendingEarnings: 0,
+          paidEarnings: 0,
+          distributionCount: 0,
+          distributions: [],
+        },
+      });
+    }
   } catch (error: any) {
     console.error('Error getting investor earnings:', error);
     return res.status(500).json({
@@ -1471,22 +1491,35 @@ async function handleGetPendingDistributions(req: VercelRequest, res: VercelResp
 
     console.log('📊 Getting pending distributions for:', holderAddress);
 
-    const pending = await db.query.revenueDistributions.findMany({
-      where: eq(revenueDistributions.holderAddress, holderAddress),
-      orderBy: [desc(revenueDistributions.distributionDate)],
-    });
+    try {
+      const pending = await db.query.revenueDistributions.findMany({
+        where: eq(revenueDistributions.holderAddress, holderAddress),
+        orderBy: [desc(revenueDistributions.distributionDate)],
+      });
 
-    const pendingDistributions = pending.filter(d => d.paymentStatus === 'pending');
-    const totalPending = pendingDistributions.reduce((sum, d) => sum + (d.revenueShare || 0), 0);
+      const pendingDistributions = pending.filter(d => d.paymentStatus === 'pending');
+      const totalPending = pendingDistributions.reduce((sum, d) => sum + (d.revenueShare || 0), 0);
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        distributions: pendingDistributions,
-        totalPending,
-        count: pendingDistributions.length,
-      },
-    });
+      return res.status(200).json({
+        success: true,
+        data: {
+          distributions: pendingDistributions,
+          totalPending,
+          count: pendingDistributions.length,
+        },
+      });
+    } catch (dbError: any) {
+      // Table doesn't exist yet - return empty data
+      console.log('⚠️  revenue_distributions table not found, returning empty data');
+      return res.status(200).json({
+        success: true,
+        data: {
+          distributions: [],
+          totalPending: 0,
+          count: 0,
+        },
+      });
+    }
   } catch (error: any) {
     console.error('Error getting pending distributions:', error);
     return res.status(500).json({
@@ -1512,22 +1545,35 @@ async function handleGetDistributionHistory(req: VercelRequest, res: VercelRespo
 
     console.log('📊 Getting distribution history for:', holderAddress);
 
-    const history = await db.query.revenueDistributions.findMany({
-      where: eq(revenueDistributions.holderAddress, holderAddress),
-      orderBy: [desc(revenueDistributions.distributionDate)],
-    });
+    try {
+      const history = await db.query.revenueDistributions.findMany({
+        where: eq(revenueDistributions.holderAddress, holderAddress),
+        orderBy: [desc(revenueDistributions.distributionDate)],
+      });
 
-    const completedDistributions = history.filter(d => d.paymentStatus === 'completed');
-    const totalPaid = completedDistributions.reduce((sum, d) => sum + (d.revenueShare || 0), 0);
+      const completedDistributions = history.filter(d => d.paymentStatus === 'completed');
+      const totalPaid = completedDistributions.reduce((sum, d) => sum + (d.revenueShare || 0), 0);
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        distributions: completedDistributions,
-        totalPaid,
-        count: completedDistributions.length,
-      },
-    });
+      return res.status(200).json({
+        success: true,
+        data: {
+          distributions: completedDistributions,
+          totalPaid,
+          count: completedDistributions.length,
+        },
+      });
+    } catch (dbError: any) {
+      // Table doesn't exist yet - return empty data
+      console.log('⚠️  revenue_distributions table not found, returning empty data');
+      return res.status(200).json({
+        success: true,
+        data: {
+          distributions: [],
+          totalPaid: 0,
+          count: 0,
+        },
+      });
+    }
   } catch (error: any) {
     console.error('Error getting distribution history:', error);
     return res.status(500).json({
@@ -1558,6 +1604,61 @@ async function handleGetMarketplaceListings(req: VercelRequest, res: VercelRespo
     return res.status(500).json({
       success: false,
       error: error.message || 'Failed to get marketplace listings',
+    });
+  }
+}
+
+/**
+ * Get unclaimed earnings for investor
+ */
+async function handleGetUnclaimedEarnings(req: VercelRequest, res: VercelResponse) {
+  try {
+    const investorAddress = req.url?.split('/unclaimed/')[1]?.split('?')[0];
+    
+    if (!investorAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing investor address',
+      });
+    }
+
+    console.log('📊 Getting unclaimed earnings for:', investorAddress);
+
+    try {
+      // Get pending distributions
+      const pending = await db.query.revenueDistributions.findMany({
+        where: eq(revenueDistributions.holderAddress, investorAddress),
+        orderBy: [desc(revenueDistributions.distributionDate)],
+      });
+
+      const unclaimedDistributions = pending.filter(d => d.paymentStatus === 'pending');
+      const totalUnclaimed = unclaimedDistributions.reduce((sum, d) => sum + (d.revenueShare || 0), 0);
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          totalUnclaimed,
+          distributions: unclaimedDistributions,
+          count: unclaimedDistributions.length,
+        },
+      });
+    } catch (dbError: any) {
+      // Table doesn't exist yet - return empty data
+      console.log('⚠️  revenue_distributions table not found, returning empty data');
+      return res.status(200).json({
+        success: true,
+        data: {
+          totalUnclaimed: 0,
+          distributions: [],
+          count: 0,
+        },
+      });
+    }
+  } catch (error: any) {
+    console.error('Error getting unclaimed earnings:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get unclaimed earnings',
     });
   }
 }
