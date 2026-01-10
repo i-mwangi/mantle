@@ -2257,7 +2257,7 @@ async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
         console.log('✅ Terms acceptance recorded');
       }
 
-      const explorerUrl = `https://explorer.sepolia.mantle.xyz/tx/${tx.hash}`;
+      const explorerUrl = `https://explorer.sepolia.mantle.xyz/tx/${txHash}`;
 
       return res.status(200).json({
         success: true,
@@ -2270,13 +2270,13 @@ async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
           totalPrice: totalPrice,
           pricePerToken: pricePerToken,
           investorAddress: investorAddress,
-          transactionHash: tx.hash,
+          transactionHash: txHash,
           blockExplorerUrl: explorerUrl,
         },
-        transactionHash: tx.hash,
+        transactionHash: txHash,
       });
     } catch (blockchainError: any) {
-      console.error('❌ Blockchain transaction failed:', blockchainError);
+      console.error('❌ Database update failed:', blockchainError);
       
       return res.status(500).json({
         success: false,
