@@ -866,9 +866,11 @@ class InvestorPortal {
                     
                     <div class="modal-actions">
                         <button class="btn btn-secondary modal-close">Close</button>
+                        <!-- Secondary market not implemented yet
                         <button class="btn btn-primary holding-sell-from-details-btn" data-grove-id="${grove.id}" data-token-amount="${holding.tokenAmount || 0}">
                             List for Sale
                         </button>
+                        -->
                     </div>
                 </div>
             </div>
@@ -1391,9 +1393,11 @@ class InvestorPortal {
                         <button class="btn btn-secondary holding-details-btn" data-grove-id="${holding.groveId}">
                             View Details
                         </button>
+                        <!-- Secondary market not implemented yet
                         <button class="btn btn-warning holding-sell-btn" data-grove-id="${holding.groveId}" data-token-amount="${tokenAmount}">
                             List for Sale
                         </button>
+                        -->
                     </div>
                 </div>
             `;
