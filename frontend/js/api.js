@@ -385,12 +385,17 @@ export class CoffeeTreeAPI {
         return this.request('/api/investment/available-groves');
     }
 
-    async purchaseTokens(groveId, tokenAmount, investorAddress, isFirstPurchase = false) {
+    async purchaseTokens(groveId, tokenAmount, investorAddress, isFirstPurchase = false, transactionHash = null) {
         const body = {
             groveId,
             tokenAmount,
             investorAddress
         };
+
+        // Add transaction hash if provided (from blockchain transaction)
+        if (transactionHash) {
+            body.transactionHash = transactionHash;
+        }
 
         // Add terms acceptance for first purchase
         if (isFirstPurchase) {
