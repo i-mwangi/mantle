@@ -1402,10 +1402,9 @@ class InvestorPortal {
 
         // Add event listeners for holding action buttons
         const detailsButtons = container.querySelectorAll('.holding-details-btn');
-        // Secondary market not implemented - sell buttons are commented out in HTML
-        // const sellButtons = container.querySelectorAll('.holding-sell-btn');
+        const sellButtons = container.querySelectorAll('.holding-sell-btn');
 
-        console.log(`[InvestorPortal] Attaching listeners to ${detailsButtons.length} details buttons`);
+        console.log(`[InvestorPortal] Attaching listeners to ${detailsButtons.length} details buttons and ${sellButtons.length} sell buttons`);
 
         detailsButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -1417,9 +1416,6 @@ class InvestorPortal {
             });
         });
 
-        // Secondary market (peer-to-peer token trading) not yet implemented
-        // Commenting out sell button functionality until marketplace is ready
-        /*
         sellButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1430,7 +1426,6 @@ class InvestorPortal {
                 this.listForSale(groveId, tokenAmount);
             });
         });
-        */
 
         console.log(`[InvestorPortal] Holdings rendered with event listeners attached`);
     }
