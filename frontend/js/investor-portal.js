@@ -916,7 +916,7 @@ class InvestorPortal {
                         </p>
                         
                         <div style="background: var(--color-background-light); border: 1px solid var(--color-border); border-radius: var(--border-radius-md); padding: 1rem; margin-bottom: 1rem;">
-                            <h4 style="margin-top: 0;">📋 Key Points:</h4>
+                            <h4 style="margin-top: 0;"> Key Points:</h4>
                             <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
                                 <li>You will receive 40% of harvest revenues</li>
                                 <li>Expected returns: 12-18% annually (not guaranteed)</li>
