@@ -1212,15 +1212,19 @@ class InvestorPortal {
     renderPortfolioStats() {
         if (!this.portfolio) return;
 
-        const totalInvestment = this.portfolio.totalInvestment || 0;
-        const currentValue = this.portfolio.currentValue || 0;
-        const totalReturns = this.portfolio.totalReturns || 0;
-        const roi = this.portfolio.roi || 0;
+        // API returns summary nested in portfolio.summary
+        const summary = this.portfolio.summary || this.portfolio;
+        
+        const totalInvestment = summary.totalInvestment || summary.totalInvested || 0;
+        const currentValue = summary.totalCurrentValue || summary.currentValue || 0;
+        const totalEarnings = summary.totalEarnings || 0;
+        const totalReturns = totalEarnings; // Returns = Earnings
+        const returnPercentage = parseFloat(summary.returnPercentage || summary.roi || 0);
 
         document.getElementById('totalInvestment').textContent = `$${totalInvestment.toFixed(2)}`;
         document.getElementById('currentValue').textContent = `$${currentValue.toFixed(2)}`;
         document.getElementById('totalReturns').textContent = `$${totalReturns.toFixed(2)}`;
-        document.getElementById('roi').textContent = `${roi.toFixed(1)}%`;
+        document.getElementById('roi').textContent = `${returnPercentage.toFixed(1)}%`;
     }
 
     renderPortfolioChart() {
