@@ -1364,6 +1364,194 @@ async function handleFarmerWithdraw(req: VercelRequest, res: VercelResponse) {
   }
 }
 
+/**
+ * Get investor earnings data
+ */
+async function handleGetInvestorEarnings(req: VercelRequest, res: VercelResponse) {
+  try {
+    const holderAddress = req.url?.split('/holder/')[1]?.split('/earnings')[0];
+    
+    if (!holderAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing holder address',
+      });
+    }
+
+    console.log('📊 Getting earnings for holder:', holderAddress);
+
+    // Get all revenue distributions for this holder
+    const distributions = await db.query.revenueDistributions.findMany({
+      where: eq(revenueDistributions.holderAddress, holderAddress),
+      orderBy: [desc(revenueDistributions.distributionDate)],
+    });
+
+    const totalEarnings = distributions.reduce((sum, dist) => sum + (dist.revenueShare || 0), 0);
+    const pendingEarnings = distributions
+      .filter(d => d.paymentStatus === 'pending')
+      .reduce((sum, dist) => sum + (dist.revenueShare || 0), 0);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalEarnings,
+        pendingEarnings,
+        paidEarnings: totalEarnings - pendingEarnings,
+        distributionCount: distributions.length,
+        distributions: distributions.slice(0, 10), // Last 10
+      },
+    });
+  } catch (error: any) {
+    console.error('Error getting investor earnings:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get earnings',
+    });
+  }
+}
+
+/**
+ * Get investor withdrawal history
+ */
+async function handleGetInvestorWithdrawals(req: VercelRequest, res: VercelResponse) {
+  try {
+    const investorAddress = req.url?.split('/withdrawals/')[1]?.split('?')[0];
+    
+    if (!investorAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing investor address',
+      });
+    }
+
+    console.log('📊 Getting withdrawals for investor:', investorAddress);
+
+    // Note: investor_withdrawals table exists in schema but may not be in DB yet
+    // Return empty array for now
+    return res.status(200).json({
+      success: true,
+      data: {
+        withdrawals: [],
+        totalWithdrawn: 0,
+        pendingWithdrawals: 0,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error getting investor withdrawals:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get withdrawals',
+    });
+  }
+}
+
+/**
+ * Get pending revenue distributions
+ */
+async function handleGetPendingDistributions(req: VercelRequest, res: VercelResponse) {
+  try {
+    const holderAddress = req.query?.holderAddress as string;
+    
+    if (!holderAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing holderAddress parameter',
+      });
+    }
+
+    console.log('📊 Getting pending distributions for:', holderAddress);
+
+    const pending = await db.query.revenueDistributions.findMany({
+      where: eq(revenueDistributions.holderAddress, holderAddress),
+      orderBy: [desc(revenueDistributions.distributionDate)],
+    });
+
+    const pendingDistributions = pending.filter(d => d.paymentStatus === 'pending');
+    const totalPending = pendingDistributions.reduce((sum, d) => sum + (d.revenueShare || 0), 0);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        distributions: pendingDistributions,
+        totalPending,
+        count: pendingDistributions.length,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error getting pending distributions:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get pending distributions',
+    });
+  }
+}
+
+/**
+ * Get distribution history
+ */
+async function handleGetDistributionHistory(req: VercelRequest, res: VercelResponse) {
+  try {
+    const holderAddress = req.query?.holderAddress as string;
+    
+    if (!holderAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing holderAddress parameter',
+      });
+    }
+
+    console.log('📊 Getting distribution history for:', holderAddress);
+
+    const history = await db.query.revenueDistributions.findMany({
+      where: eq(revenueDistributions.holderAddress, holderAddress),
+      orderBy: [desc(revenueDistributions.distributionDate)],
+    });
+
+    const completedDistributions = history.filter(d => d.paymentStatus === 'completed');
+    const totalPaid = completedDistributions.reduce((sum, d) => sum + (d.revenueShare || 0), 0);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        distributions: completedDistributions,
+        totalPaid,
+        count: completedDistributions.length,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error getting distribution history:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get distribution history',
+    });
+  }
+}
+
+/**
+ * Get marketplace listings (secondary market)
+ */
+async function handleGetMarketplaceListings(req: VercelRequest, res: VercelResponse) {
+  try {
+    console.log('📊 Getting marketplace listings');
+
+    // MVP: Return empty listings (secondary market not implemented yet)
+    return res.status(200).json({
+      success: true,
+      data: {
+        listings: [],
+        totalListings: 0,
+        message: 'Secondary market coming soon',
+      },
+    });
+  } catch (error: any) {
+    console.error('Error getting marketplace listings:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get marketplace listings',
+    });
+  }
+}
+
 export default handleMantleAPI;
 
 
