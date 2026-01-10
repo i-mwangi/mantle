@@ -1465,3 +1465,80 @@ body {
         max-height: 300px;
     }
 }
+
+/* ============================================
+   HOLDING DETAILS MODAL - DARK THEME FIX
+   ============================================ */
+
+/* Holding details grid and sections */
+.holding-details-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.holding-details-grid .detail-section {
+    background: #252525 !important;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.holding-details-grid .detail-section h5 {
+    color: #4CAF50 !important;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #333;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.holding-details-grid .detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.holding-details-grid .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.holding-details-grid .detail-row .label {
+    color: #999 !important;
+    font-size: 0.9rem;
+}
+
+.holding-details-grid .detail-row .value {
+    color: #fff !important;
+    font-weight: 600;
+}
+
+/* Health score styling in modals */
+.holding-details-grid .health-score {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.holding-details-grid .health-score.health-excellent {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+}
+
+.holding-details-grid .health-score.health-good {
+    background: rgba(139, 195, 74, 0.2);
+    color: #8BC34A;
+}
+
+.holding-details-grid .health-score.health-moderate {
+    background: rgba(255, 193, 7, 0.2);
+    color: #FFC107;
+}
+
+.holding-details-grid .health-score.health-poor {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
