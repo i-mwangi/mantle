@@ -2515,14 +2515,20 @@ async function handleGetInvestorPortfolio(req: VercelRequest, res: VercelRespons
           const pricePerToken = 10.00; // Same as in available groves
           const investmentValue = balanceNumber * pricePerToken;
           
-          // Calculate earnings from revenue distributions
-          const distributions = await db.select()
-            .from(revenueDistributions)
-            .where(eq(revenueDistributions.holderAddress, investorAddress.toLowerCase()));
-          
-          const earnings = distributions
-            .filter(d => d.paymentStatus === 'completed')
-            .reduce((sum, d) => sum + (d.revenueShare || 0), 0);
+          // Calculate earnings from revenue distributions (if table exists)
+          let earnings = 0;
+          try {
+            const distributions = await db.select()
+              .from(revenueDistributions)
+              .where(eq(revenueDistributions.holderAddress, investorAddress.toLowerCase()));
+            
+            earnings = distributions
+              .filter(d => d.paymentStatus === 'completed')
+              .reduce((sum, d) => sum + (d.revenueShare || 0), 0);
+          } catch (dbError: any) {
+            // Table doesn't exist yet - no earnings
+            console.log('⚠️  revenue_distributions table not found, earnings = 0');
+          }
 
           const totalValue = investmentValue + earnings;
 
