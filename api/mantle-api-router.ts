@@ -241,8 +241,8 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetDistributionHistory(req, res);
     }
 
-    // Marketplace: List tokens for sale (must come before /listings to avoid false match)
-    if (url.includes('/api/marketplace/list') && method === 'POST') {
+    // Marketplace: List tokens for sale (exact match to avoid conflict with /listings)
+    if (url.endsWith('/api/marketplace/list') && method === 'POST') {
       return await handleListTokensForSale(req, res);
     }
 
