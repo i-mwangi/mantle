@@ -1012,6 +1012,11 @@ class InvestorPortal {
             // Step 1: Get grove details from API
             console.log(`[InvestorPortal] Fetching grove details...`);
             const grovesResponse = await window.coffeeAPI.request(`/api/investment/available-groves`);
+            
+            if (!grovesResponse.success || !grovesResponse.data) {
+                throw new Error('Failed to fetch grove details');
+            }
+            
             const grove = grovesResponse.data.find(g => g.id === parseInt(groveId));
             
             if (!grove) {
