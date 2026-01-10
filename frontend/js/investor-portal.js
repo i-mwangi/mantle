@@ -1419,6 +1419,9 @@ class InvestorPortal {
             });
         });
 
+        // Secondary market (peer-to-peer token trading) not yet implemented
+        // Commenting out sell button functionality until marketplace is ready
+        /*
         sellButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1429,6 +1432,7 @@ class InvestorPortal {
                 this.listForSale(groveId, tokenAmount);
             });
         });
+        */
 
         console.log(`[InvestorPortal] Holdings rendered with event listeners attached`);
     }
