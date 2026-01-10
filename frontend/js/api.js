@@ -385,6 +385,10 @@ export class CoffeeTreeAPI {
         return this.request('/api/investment/available-groves');
     }
 
+    async getGroveDetails(groveId) {
+        return this.request(`/api/groves/${groveId}`);
+    }
+
     async purchaseTokens(groveId, tokenAmount, investorAddress, isFirstPurchase = false, transactionHash = null) {
         const body = {
             groveId,
