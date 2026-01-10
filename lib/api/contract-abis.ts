@@ -36,6 +36,8 @@ export const ISSUER_ABI = [
   'function registerCoffeeGrove(string memory groveName, string memory location, uint64 treeCount, string memory coffeeVariety, uint64 expectedYieldPerTree)',
   // Tokenization
   'function tokenizeCoffeeGrove(string memory groveName, uint64 tokensPerTree)',
+  // Token Purchase (called by investor)
+  'function purchaseTreeTokens(string memory groveName, uint64 amount)',
   // Harvest & Revenue
   'function reportHarvest(string memory groveName, uint64 yieldKg, uint64 salePricePerKg)',
   'function distributeRevenue(string memory groveName, uint256 harvestIndex)',
@@ -48,6 +50,7 @@ export const ISSUER_ABI = [
   // Events
   'event CoffeeGroveRegistered(bytes32 indexed groveNameHash, address indexed farmer, uint64 treeCount)',
   'event CoffeeGroveTokenized(bytes32 indexed groveNameHash, address indexed token, uint64 totalTokens)',
+  'event TreeTokensPurchased(address indexed token, uint64 amount, address indexed investor, uint256 totalCost)',
   'event HarvestReported(bytes32 indexed groveNameHash, uint64 yieldKg, uint64 totalRevenue)',
   'event RevenueDistributed(bytes32 indexed groveNameHash, uint64 totalRevenue, uint64 farmerShare, uint64 investorShare)',
 ];
