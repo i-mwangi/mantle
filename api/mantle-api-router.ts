@@ -1562,6 +1562,117 @@ async function handleGetMarketplaceListings(req: VercelRequest, res: VercelRespo
   }
 }
 
+/**
+ * Get grove harvest history
+ */
+async function handleGetGroveHistory(req: VercelRequest, res: VercelResponse) {
+  try {
+    const groveId = req.url?.split('/groves/')[1]?.split('/history')[0];
+    
+    if (!groveId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing grove ID',
+      });
+    }
+
+    console.log('📊 Getting harvest history for grove:', groveId);
+
+    // Get grove info
+    const grove = await db.query.coffeeGroves.findFirst({
+      where: eq(coffeeGroves.id, parseInt(groveId)),
+    });
+
+    if (!grove) {
+      return res.status(404).json({
+        success: false,
+        error: 'Grove not found',
+      });
+    }
+
+    // Get harvest records
+    const harvests = await db.query.harvestRecords.findMany({
+      where: eq(harvestRecords.groveId, parseInt(groveId)),
+      orderBy: [desc(harvestRecords.harvestDate)],
+    });
+
+    return res.status(200).json({
+      success: true,
+      grove: {
+        id: grove.id,
+        name: grove.groveName,
+        location: grove.location,
+      },
+      data: harvests.map(h => ({
+        id: h.id,
+        harvestDate: h.harvestDate,
+        yieldKg: h.yieldKg,
+        qualityGrade: h.qualityGrade,
+        salePricePerKg: h.salePricePerKg,
+        totalRevenue: h.totalRevenue,
+        farmerShare: h.farmerShare,
+        investorShare: h.investorShare,
+        revenueDistributed: h.revenueDistributed,
+        transactionHash: h.transactionHash,
+      })),
+    });
+  } catch (error: any) {
+    console.error('Error getting grove history:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get grove history',
+    });
+  }
+}
+
+/**
+ * Get grove funding history
+ */
+async function handleGetGroveFundingHistory(req: VercelRequest, res: VercelResponse) {
+  try {
+    const groveId = req.url?.split('/grove/')[1]?.split('/history')[0];
+    
+    if (!groveId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing grove ID',
+      });
+    }
+
+    console.log('📊 Getting funding history for grove:', groveId);
+
+    // Get grove info
+    const grove = await db.query.coffeeGroves.findFirst({
+      where: eq(coffeeGroves.id, parseInt(groveId)),
+    });
+
+    if (!grove) {
+      return res.status(404).json({
+        success: false,
+        error: 'Grove not found',
+      });
+    }
+
+    // Get funding requests (if fundingRequests table exists)
+    // For now, return empty array
+    return res.status(200).json({
+      success: true,
+      grove: {
+        id: grove.id,
+        name: grove.groveName,
+        location: grove.location,
+      },
+      data: [],
+    });
+  } catch (error: any) {
+    console.error('Error getting funding history:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get funding history',
+    });
+  }
+}
+
 export default handleMantleAPI;
 
 
