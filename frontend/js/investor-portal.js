@@ -1180,8 +1180,30 @@ class InvestorPortal {
             console.log(`[InvestorPortal] Portfolio response:`, response);
 
             if (response.success) {
-                this.portfolio = response.portfolio;
-                this.updateCache('portfolio', response.portfolio);
+                // Normalize the portfolio data structure
+                const portfolio = response.portfolio;
+                
+                // Flatten summary into portfolio root for easier access
+                if (portfolio.summary) {
+                    portfolio.totalInvestment = portfolio.summary.totalInvestment;
+                    portfolio.currentValue = portfolio.summary.totalCurrentValue;
+                    portfolio.totalReturns = portfolio.summary.totalEarnings;
+                    portfolio.roi = parseFloat(portfolio.summary.returnPercentage || 0);
+                }
+                
+                // Normalize holdings data
+                if (portfolio.holdings) {
+                    portfolio.holdings = portfolio.holdings.map(h => ({
+                        ...h,
+                        tokenAmount: h.tokenBalance || h.tokenAmount || 0,
+                        purchasePrice: h.tokenBalance > 0 ? (h.investmentValue / h.tokenBalance) : 0,
+                        totalInvestment: h.investmentValue || 0,
+                        currentWorth: h.currentValue || h.investmentValue || 0,
+                    }));
+                }
+                
+                this.portfolio = portfolio;
+                this.updateCache('portfolio', portfolio);
                 console.log(`[InvestorPortal] Portfolio loaded:`, this.portfolio);
                 console.log(`[InvestorPortal] Holdings count:`, this.portfolio.holdings?.length || 0);
                 this.renderPortfolioStats();
