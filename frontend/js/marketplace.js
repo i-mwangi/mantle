@@ -697,8 +697,14 @@ class CoffeeTreeMarketplace {
         try {
             window.walletManager.showLoading('Creating token listing...');
             
+            console.log('[Marketplace] Listing data:', listingData);
+            console.log('[Marketplace] Grove ID:', groveId);
+            console.log('[Marketplace] Seller address:', sellerAddress);
+            
             // Get grove details to get token address and name
             const groveResponse = await window.coffeeAPI.getGroveDetails(groveId);
+            console.log('[Marketplace] Grove response:', groveResponse);
+            
             if (!groveResponse.success || !groveResponse.grove) {
                 throw new Error('Failed to fetch grove details');
             }
@@ -707,9 +713,21 @@ class CoffeeTreeMarketplace {
             const tokenAddress = grove.tokenAddress;
             const groveName = grove.groveName;
 
+            console.log('[Marketplace] Token address:', tokenAddress);
+            console.log('[Marketplace] Grove name:', groveName);
+
             if (!tokenAddress) {
                 throw new Error('Grove is not tokenized yet');
             }
+            
+            console.log('[Marketplace] Calling listTokensForSale with:', {
+                sellerAddress,
+                tokenAddress,
+                groveName,
+                tokenAmount: listingData.amount,
+                pricePerToken: listingData.price,
+                durationDays: listingData.duration
+            });
             
             // Updated API call with correct parameters
             const response = await window.coffeeAPI.listTokensForSale(
