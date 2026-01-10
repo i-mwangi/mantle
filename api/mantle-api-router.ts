@@ -246,6 +246,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetMarketplaceListings(req, res);
     }
 
+    // Marketplace: List tokens for sale
+    if (url.includes('/api/marketplace/list') && method === 'POST') {
+      return await handleListTokensForSale(req, res);
+    }
+
     // Funding History: Get funding history for a grove
     if (url.includes('/api/funding/grove/') && url.includes('/history') && method === 'GET') {
       return await handleGetGroveFundingHistory(req, res);
@@ -1602,6 +1607,63 @@ async function handleGetMarketplaceListings(req: VercelRequest, res: VercelRespo
     return res.status(500).json({
       success: false,
       error: error.message || 'Failed to get marketplace listings',
+    });
+  }
+}
+
+/**
+ * List tokens for sale on secondary market
+ */
+async function handleListTokensForSale(req: VercelRequest, res: VercelResponse) {
+  try {
+    const { sellerAddress, tokenAddress, groveName, tokenAmount, pricePerToken, durationDays } = req.body;
+
+    console.log('📝 Listing tokens for sale:', {
+      sellerAddress,
+      tokenAddress,
+      groveName,
+      tokenAmount,
+      pricePerToken,
+      durationDays,
+    });
+
+    // Validate required fields
+    if (!sellerAddress || !tokenAddress || !groveName || !tokenAmount || !pricePerToken) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields',
+      });
+    }
+
+    // Validate amounts
+    if (tokenAmount <= 0 || pricePerToken <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Token amount and price must be greater than 0',
+      });
+    }
+
+    // TODO: Implement actual marketplace listing logic
+    // For now, return success with a message that secondary market is coming soon
+    return res.status(200).json({
+      success: true,
+      message: 'Secondary market listing feature coming soon',
+      listing: {
+        sellerAddress,
+        tokenAddress,
+        groveName,
+        tokenAmount,
+        pricePerToken,
+        totalValue: tokenAmount * pricePerToken,
+        durationDays: durationDays || 30,
+        status: 'pending_implementation',
+      },
+    });
+  } catch (error: any) {
+    console.error('Error listing tokens for sale:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to list tokens for sale',
     });
   }
 }
