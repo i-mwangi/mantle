@@ -1006,15 +1006,105 @@ class InvestorPortal {
             }
         }
 
-        window.walletManager.showLoading('Processing token purchase...');
+        window.walletManager.showLoading('Preparing blockchain transaction...');
 
         try {
-            console.log(`[InvestorPortal] Calling API...`);
-            const response = await window.coffeeAPI.purchaseTokens(groveId, tokenAmount, investorAddress, isFirstPurchase);
-            console.log(`[InvestorPortal] API Response:`, response);
+            // Step 1: Get grove details from API
+            console.log(`[InvestorPortal] Fetching grove details...`);
+            const grovesResponse = await window.coffeeAPI.request(`/api/investment/available-groves`);
+            const grove = grovesResponse.data.find(g => g.id === parseInt(groveId));
+            
+            if (!grove) {
+                throw new Error('Grove not found');
+            }
+
+            console.log(`[InvestorPortal] Grove:`, grove);
+
+            // Step 2: Execute blockchain transaction
+            console.log(`[InvestorPortal] 🔗 Starting blockchain transaction...`);
+            window.walletManager.showLoading('Approving USDC spending...');
+
+            const { ethers } = window;
+            if (!ethers) {
+                throw new Error('Ethers library not loaded');
+            }
+
+            // Get contract addresses from environment or config
+            const USDC_ADDRESS = '0xe96c82aBA229efCC7a46e46D194412C691feD1D5';
+            const ISSUER_ADDRESS = '0xaf4da1406A8EE17AfEF5AeE644481a6b1cB01a9c';
+
+            // Connect to user's wallet
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+
+            // Calculate total cost (price per token * amount)
+            const pricePerToken = grove.pricePerToken || 10.00;
+            const totalCost = ethers.parseUnits((pricePerToken * tokenAmount).toFixed(6), 6); // USDC has 6 decimals
+
+            console.log(`[InvestorPortal] 💰 Total cost: ${ethers.formatUnits(totalCost, 6)} USDC`);
+
+            // Create USDC contract instance
+            const usdcAbi = [
+                'function approve(address spender, uint256 amount) returns (bool)',
+                'function allowance(address owner, address spender) view returns (uint256)',
+                'function balanceOf(address account) view returns (uint256)'
+            ];
+            const usdcContract = new ethers.Contract(USDC_ADDRESS, usdcAbi, signer);
+
+            // Check USDC balance
+            const usdcBalance = await usdcContract.balanceOf(investorAddress);
+            console.log(`[InvestorPortal] 💵 USDC Balance: ${ethers.formatUnits(usdcBalance, 6)}`);
+
+            if (usdcBalance < totalCost) {
+                throw new Error(`Insufficient USDC balance. Need ${ethers.formatUnits(totalCost, 6)} USDC`);
+            }
+
+            // Check current allowance
+            const currentAllowance = await usdcContract.allowance(investorAddress, ISSUER_ADDRESS);
+            console.log(`[InvestorPortal] Current allowance: ${ethers.formatUnits(currentAllowance, 6)} USDC`);
+
+            // Approve USDC spending if needed
+            if (currentAllowance < totalCost) {
+                console.log(`[InvestorPortal] 📝 Requesting USDC approval...`);
+                const approveTx = await usdcContract.approve(ISSUER_ADDRESS, totalCost);
+                console.log(`[InvestorPortal] ⏳ Waiting for approval confirmation...`);
+                window.walletManager.showLoading('Confirming USDC approval...');
+                await approveTx.wait();
+                console.log(`[InvestorPortal] ✅ USDC approved`);
+            }
+
+            // Create issuer contract instance
+            window.walletManager.showLoading('Purchasing tokens on blockchain...');
+            const issuerAbi = [
+                'function purchaseTreeTokens(string memory groveName, uint64 amount) external'
+            ];
+            const issuerContract = new ethers.Contract(ISSUER_ADDRESS, issuerAbi, signer);
+
+            // Purchase tokens
+            console.log(`[InvestorPortal] 🌳 Calling purchaseTreeTokens...`);
+            console.log(`[InvestorPortal] Grove name: ${grove.groveName}`);
+            console.log(`[InvestorPortal] Token amount: ${tokenAmount}`);
+            
+            const purchaseTx = await issuerContract.purchaseTreeTokens(grove.groveName, tokenAmount);
+            console.log(`[InvestorPortal] 📤 Transaction sent: ${purchaseTx.hash}`);
+            
+            window.walletManager.showLoading('Confirming token purchase...');
+            const receipt = await purchaseTx.wait();
+            console.log(`[InvestorPortal] ✅ Transaction confirmed in block ${receipt.blockNumber}`);
+
+            // Step 3: Record purchase in database
+            window.walletManager.showLoading('Recording purchase...');
+            console.log(`[InvestorPortal] 📝 Recording purchase in database...`);
+            const response = await window.coffeeAPI.purchaseTokens(
+                groveId, 
+                tokenAmount, 
+                investorAddress, 
+                isFirstPurchase,
+                purchaseTx.hash
+            );
 
             if (response.success) {
-                console.log(`[InvestorPortal] ✅ Purchase successful! Holding ID: ${response.data?.holdingId}`);
+                console.log(`[InvestorPortal] ✅ Purchase recorded! Holding ID: ${response.data?.holdingId}`);
                 window.walletManager.showToast(`Successfully purchased ${tokenAmount} tokens!`, 'success');
 
                 // Invalidate cache for affected sections
@@ -1022,9 +1112,9 @@ class InvestorPortal {
                 this.invalidateCache('groves');
                 this.invalidateCache('transactions');
 
-                // Refresh balances after transaction within 5 seconds
-                if (window.balancePoller && response.transactionHash) {
-                    await window.balancePoller.refreshAfterTransaction(response.transactionHash, ['usdc', 'token']);
+                // Refresh balances after transaction
+                if (window.balancePoller && purchaseTx.hash) {
+                    await window.balancePoller.refreshAfterTransaction(purchaseTx.hash, ['usdc', 'token']);
                 }
 
                 // Reload portfolio with force refresh
@@ -1035,13 +1125,23 @@ class InvestorPortal {
                 console.log(`[InvestorPortal] Reloading available groves...`);
                 await this.loadAvailableGroves(true);
             } else {
-                console.error(`[InvestorPortal] ❌ Purchase failed:`, response.error);
-                const friendlyError = window.translateError ? window.translateError(response.error || 'Failed to purchase tokens') : (response.error || 'Failed to purchase tokens');
-                throw new Error(friendlyError);
+                console.warn(`[InvestorPortal] ⚠️  Blockchain succeeded but database recording failed:`, response.error);
+                window.walletManager.showToast(`Tokens purchased but recording failed. Transaction: ${purchaseTx.hash}`, 'warning');
             }
         } catch (error) {
             console.error('[InvestorPortal] ❌ Token purchase error:', error);
-            window.walletManager.showToast('Failed to purchase tokens: ' + error.message, 'error');
+            
+            // User-friendly error messages
+            let errorMessage = error.message;
+            if (error.code === 'ACTION_REJECTED' || error.message.includes('user rejected')) {
+                errorMessage = 'Transaction cancelled by user';
+            } else if (error.message.includes('insufficient funds')) {
+                errorMessage = 'Insufficient funds for transaction';
+            } else if (error.message.includes('Insufficient USDC')) {
+                errorMessage = error.message;
+            }
+            
+            window.walletManager.showToast('Failed to purchase tokens: ' + errorMessage, 'error');
         } finally {
             window.walletManager.hideLoading();
             console.log(`[InvestorPortal] ===== PURCHASE COMPLETE =====`);
