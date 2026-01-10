@@ -236,6 +236,16 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetMarketplaceListings(req, res);
     }
 
+    // Grove History: Get harvest history for a grove
+    if (url.includes('/api/groves/') && url.includes('/history') && method === 'GET') {
+      return await handleGetGroveHistory(req, res);
+    }
+
+    // Funding History: Get funding history for a grove
+    if (url.includes('/api/funding/grove/') && url.includes('/history') && method === 'GET') {
+      return await handleGetGroveFundingHistory(req, res);
+    }
+
     // 404
     return res.status(404).json({
       success: false,
