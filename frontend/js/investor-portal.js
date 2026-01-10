@@ -1405,9 +1405,10 @@ class InvestorPortal {
 
         // Add event listeners for holding action buttons
         const detailsButtons = container.querySelectorAll('.holding-details-btn');
-        const sellButtons = container.querySelectorAll('.holding-sell-btn');
+        // Secondary market not implemented - sell buttons are commented out in HTML
+        // const sellButtons = container.querySelectorAll('.holding-sell-btn');
 
-        console.log(`[InvestorPortal] Attaching listeners to ${detailsButtons.length} details buttons and ${sellButtons.length} sell buttons`);
+        console.log(`[InvestorPortal] Attaching listeners to ${detailsButtons.length} details buttons`);
 
         detailsButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
