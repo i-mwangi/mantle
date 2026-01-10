@@ -1618,7 +1618,8 @@ async function handleListTokensForSale(req: VercelRequest, res: VercelResponse) 
   try {
     const { sellerAddress, tokenAddress, groveName, tokenAmount, pricePerToken, durationDays } = req.body;
 
-    console.log('📝 Listing tokens for sale:', {
+    console.log('📝 Listing tokens for sale - Full request body:', req.body);
+    console.log('📝 Extracted values:', {
       sellerAddress,
       tokenAddress,
       groveName,
@@ -1629,6 +1630,13 @@ async function handleListTokensForSale(req: VercelRequest, res: VercelResponse) 
 
     // Validate required fields
     if (!sellerAddress || !tokenAddress || !groveName || !tokenAmount || !pricePerToken) {
+      console.error('❌ Missing required fields:', {
+        hasSellerAddress: !!sellerAddress,
+        hasTokenAddress: !!tokenAddress,
+        hasGroveName: !!groveName,
+        hasTokenAmount: !!tokenAmount,
+        hasPricePerToken: !!pricePerToken,
+      });
       return res.status(400).json({
         success: false,
         error: 'Missing required fields',
