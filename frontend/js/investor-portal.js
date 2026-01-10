@@ -1391,11 +1391,10 @@ class InvestorPortal {
                         <button class="btn btn-secondary holding-details-btn" data-grove-id="${holding.groveId}">
                             View Details
                         </button>
-                        <!-- Secondary market not implemented yet
                         <button class="btn btn-warning holding-sell-btn" data-grove-id="${holding.groveId}" data-token-amount="${tokenAmount}">
                             List for Sale
                         </button>
-                        -->
+                    </div>
                     </div>
                 </div>
             `;
