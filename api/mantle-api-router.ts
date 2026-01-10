@@ -2594,7 +2594,7 @@ async function handleGetInvestorPortfolio(req: VercelRequest, res: VercelRespons
  */
 async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
   try {
-    const { groveId, tokenAmount, investorAddress, termsAccepted, termsVersion } = req.body;
+    const { groveId, tokenAmount, investorAddress, termsAccepted, termsVersion, transactionHash } = req.body;
 
     if (!groveId || !tokenAmount || !investorAddress) {
       return res.status(400).json({
@@ -2603,7 +2603,7 @@ async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    console.log('💰 Processing token purchase:', { groveId, tokenAmount, investorAddress });
+    console.log('💰 Recording token purchase:', { groveId, tokenAmount, investorAddress, transactionHash });
 
     // Get grove from database
     const grove = await db.query.coffeeGroves.findFirst({
@@ -2636,7 +2636,7 @@ async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Calculate purchase price (example: $10 per token)
+    // Calculate purchase price
     const pricePerToken = 10.00;
     const totalPrice = tokenAmount * pricePerToken;
 
@@ -2645,21 +2645,18 @@ async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
       pricePerToken,
       totalPrice,
       tokensAvailable,
+      transactionHash,
     });
 
-    // TODO: Implement proper blockchain integration
-    // The smart contract has purchaseTreeTokens() which requires:
-    // 1. Investor to approve USDC spending
-    // 2. Investor to call purchaseTreeTokens() directly
-    // For now, we'll mock the transaction and just update the database
-    
-    let txHash: string;
-    
     try {
-      // Mock blockchain transaction for testing
-      txHash = '0x' + Date.now().toString(16) + Math.random().toString(16).substr(2, 40);
-      console.log('💰 Mock purchase transaction (no blockchain):', txHash);
-      console.log('⚠️  Note: Real implementation requires investor to call purchaseTreeTokens() on contract');
+      // Use provided transaction hash or generate mock one
+      const txHash = transactionHash || ('0x' + Date.now().toString(16) + Math.random().toString(16).substr(2, 40));
+      
+      if (transactionHash) {
+        console.log('✅ Recording blockchain purchase:', txHash);
+      } else {
+        console.log('💰 Mock purchase (no blockchain):', txHash);
+      }
       
       // Update database: increment tokensSold
       await db.update(coffeeGroves)
