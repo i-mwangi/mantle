@@ -2204,58 +2204,19 @@ async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
       tokensAvailable,
     });
 
-    // Interact with blockchain to transfer tokens
+    // TODO: Implement proper blockchain integration
+    // The smart contract has purchaseTreeTokens() which requires:
+    // 1. Investor to approve USDC spending
+    // 2. Investor to call purchaseTreeTokens() directly
+    // For now, we'll mock the transaction and just update the database
+    
+    let txHash: string;
+    
     try {
-      const { ethers } = await import('ethers');
-      const { ISSUER_ABI } = await import('../lib/api/contract-abis.js');
-      
-      // Get contract addresses from environment
-      const issuerAddress = process.env.MANTLE_ISSUER_ADDRESS;
-      if (!issuerAddress) {
-        throw new Error('MANTLE_ISSUER_ADDRESS not configured in environment');
-      }
-      
-      // Create provider and signer
-      const rpcUrl = process.env.MANTLE_RPC_URL || 'https://rpc.sepolia.mantle.xyz';
-      const privateKey = process.env.PRIVATE_KEY;
-      
-      if (!privateKey) {
-        throw new Error('PRIVATE_KEY not configured in environment');
-      }
-      
-      const provider = new ethers.JsonRpcProvider(rpcUrl);
-      const signer = new ethers.Wallet(privateKey, provider);
-      
-      console.log('🔗 Connected to Mantle network:', rpcUrl);
-      
-      // Create issuer contract instance
-      const issuerContract = new ethers.Contract(
-        issuerAddress,
-        ISSUER_ABI,
-        signer
-      );
-      
-      console.log('🔗 Calling sellTokens on issuer contract:', {
-        tokenAddress: grove.tokenAddress,
-        buyer: investorAddress,
-        amount: tokenAmount,
-      });
-      
-      // Call sellTokens on issuer contract
-      // This transfers tokens from issuer to investor
-      const tx = await issuerContract.sellTokens(
-        grove.tokenAddress,
-        investorAddress,
-        tokenAmount
-      );
-      
-      console.log('🔗 Transaction sent:', tx.hash);
-      console.log('⏳ Waiting for confirmation...');
-      
-      // Wait for transaction confirmation
-      const receipt = await tx.wait();
-      
-      console.log('✅ Transaction confirmed in block:', receipt.blockNumber);
+      // Mock blockchain transaction for testing
+      txHash = '0x' + Date.now().toString(16) + Math.random().toString(16).substr(2, 40);
+      console.log('💰 Mock purchase transaction (no blockchain):', txHash);
+      console.log('⚠️  Note: Real implementation requires investor to call purchaseTreeTokens() on contract');
       
       // Update database: increment tokensSold
       await db.update(coffeeGroves)
