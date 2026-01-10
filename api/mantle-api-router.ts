@@ -1593,11 +1593,9 @@ async function handleGetMarketplaceListings(req: VercelRequest, res: VercelRespo
     // MVP: Return empty listings (secondary market not implemented yet)
     return res.status(200).json({
       success: true,
-      data: {
-        listings: [],
-        totalListings: 0,
-        message: 'Secondary market coming soon',
-      },
+      listings: [],
+      totalListings: 0,
+      message: 'Secondary market coming soon',
     });
   } catch (error: any) {
     console.error('Error getting marketplace listings:', error);
