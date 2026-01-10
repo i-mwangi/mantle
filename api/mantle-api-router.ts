@@ -50,6 +50,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleUpdateTokenization(req, res);
     }
 
+    // Grove History: Get harvest history for a grove (must come before generic /groves/ route)
+    if (url.includes('/groves/') && url.includes('/history') && method === 'GET') {
+      return await handleGetGroveHistory(req, res);
+    }
+
     // Get grove info
     if (url.includes('/groves/') && method === 'GET') {
       return await handleGetGrove(req, res);
@@ -1603,18 +1608,26 @@ async function handleGetGroveHistory(req: VercelRequest, res: VercelResponse) {
         name: grove.groveName,
         location: grove.location,
       },
-      data: harvests.map(h => ({
-        id: h.id,
-        harvestDate: h.harvestDate,
-        yieldKg: h.yieldKg,
-        qualityGrade: h.qualityGrade,
-        salePricePerKg: h.salePricePerKg,
-        totalRevenue: h.totalRevenue,
-        farmerShare: h.farmerShare,
-        investorShare: h.investorShare,
-        revenueDistributed: h.revenueDistributed,
-        transactionHash: h.transactionHash,
-      })),
+      data: {
+        harvests: harvests.map(h => ({
+          id: h.id,
+          harvestDate: h.harvestDate,
+          yieldKg: h.yieldKg,
+          qualityGrade: h.qualityGrade,
+          salePricePerKg: h.salePricePerKg,
+          totalRevenue: h.totalRevenue,
+          farmerShare: h.farmerShare,
+          investorShare: h.investorShare,
+          revenueDistributed: h.revenueDistributed,
+          transactionHash: h.transactionHash,
+        })),
+        stats: {
+          totalHarvests: harvests.length,
+          totalYield: harvests.reduce((sum, h) => sum + (h.yieldKg || 0), 0),
+          totalRevenue: harvests.reduce((sum, h) => sum + (h.totalRevenue || 0), 0),
+          averageYield: harvests.length > 0 ? harvests.reduce((sum, h) => sum + (h.yieldKg || 0), 0) / harvests.length : 0,
+        },
+      },
     });
   } catch (error: any) {
     console.error('Error getting grove history:', error);
@@ -1662,7 +1675,9 @@ async function handleGetGroveFundingHistory(req: VercelRequest, res: VercelRespo
         name: grove.groveName,
         location: grove.location,
       },
-      data: [],
+      data: {
+        requests: [],
+      },
     });
   } catch (error: any) {
     console.error('Error getting funding history:', error);
