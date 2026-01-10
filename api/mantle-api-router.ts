@@ -241,14 +241,14 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetDistributionHistory(req, res);
     }
 
+    // Marketplace: List tokens for sale (must come before /listings to avoid false match)
+    if (url.includes('/api/marketplace/list') && method === 'POST') {
+      return await handleListTokensForSale(req, res);
+    }
+
     // Marketplace: Get listings
     if (url.includes('/api/marketplace/listings') && method === 'GET') {
       return await handleGetMarketplaceListings(req, res);
-    }
-
-    // Marketplace: List tokens for sale
-    if (url.includes('/api/marketplace/list') && method === 'POST') {
-      return await handleListTokensForSale(req, res);
     }
 
     // Funding History: Get funding history for a grove
