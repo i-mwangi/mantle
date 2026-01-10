@@ -211,6 +211,31 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handlePurchaseTokens(req, res);
     }
 
+    // Investor Earnings: Get earnings data
+    if (url.includes('/api/harvest/holder/') && url.includes('/earnings') && method === 'GET') {
+      return await handleGetInvestorEarnings(req, res);
+    }
+
+    // Investor Withdrawals: Get withdrawal history
+    if (url.includes('/api/investor/withdrawals/') && method === 'GET') {
+      return await handleGetInvestorWithdrawals(req, res);
+    }
+
+    // Revenue: Get pending distributions
+    if (url.includes('/api/revenue/pending-distributions') && method === 'GET') {
+      return await handleGetPendingDistributions(req, res);
+    }
+
+    // Revenue: Get distribution history
+    if (url.includes('/api/revenue/distribution-history') && method === 'GET') {
+      return await handleGetDistributionHistory(req, res);
+    }
+
+    // Marketplace: Get listings
+    if (url.includes('/api/marketplace/listings') && method === 'GET') {
+      return await handleGetMarketplaceListings(req, res);
+    }
+
     // 404
     return res.status(404).json({
       success: false,
