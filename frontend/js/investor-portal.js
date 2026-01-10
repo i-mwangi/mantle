@@ -866,11 +866,9 @@ class InvestorPortal {
                     
                     <div class="modal-actions">
                         <button class="btn btn-secondary modal-close">Close</button>
-                        <!-- Secondary market not implemented yet
-                        <button class="btn btn-primary holding-sell-from-details-btn" data-grove-id="${grove.id}" data-token-amount="${holding.tokenAmount || 0}">
+                        <button class="btn btn-warning holding-sell-from-details-btn" data-grove-id="${grove.id}" data-token-amount="${holding.tokenAmount || 0}">
                             List for Sale
                         </button>
-                        -->
                     </div>
                 </div>
             </div>
