@@ -2280,7 +2280,7 @@ async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
       
       return res.status(500).json({
         success: false,
-        error: `Blockchain transaction failed: ${blockchainError.message}`,
+        error: `Database update failed: ${blockchainError.message}`,
       });
     }
   } catch (error: any) {
