@@ -365,22 +365,50 @@ async function handleUpdateTokenization(req: VercelRequest, res: VercelResponse)
  * Get grove info
  */
 async function handleGetGrove(req: VercelRequest, res: VercelResponse) {
-  const groveName = req.url?.split('/').pop() || '';
+  const groveIdentifier = req.url?.split('/groves/')[1]?.split('?')[0] || '';
 
-  if (!groveName) {
+  if (!groveIdentifier) {
     return res.status(400).json({
       success: false,
-      error: 'Invalid grove name',
+      error: 'Invalid grove identifier',
     });
   }
 
-  const tokenService = getMantleTokenizationService();
-  const groveInfo = await tokenService.getGroveInfo(groveName);
+  try {
+    // Check if identifier is a number (ID) or string (name)
+    const isId = !isNaN(Number(groveIdentifier));
+    
+    let grove;
+    if (isId) {
+      // Query by ID
+      grove = await db.query.coffeeGroves.findFirst({
+        where: eq(coffeeGroves.id, Number(groveIdentifier)),
+      });
+    } else {
+      // Query by name
+      grove = await db.query.coffeeGroves.findFirst({
+        where: eq(coffeeGroves.groveName, groveIdentifier),
+      });
+    }
 
-  return res.status(200).json({
-    success: true,
-    grove: groveInfo,
-  });
+    if (!grove) {
+      return res.status(404).json({
+        success: false,
+        error: 'Grove not found',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      grove,
+    });
+  } catch (error: any) {
+    console.error('Error getting grove:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get grove',
+    });
+  }
 }
 
 /**
