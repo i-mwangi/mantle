@@ -618,8 +618,8 @@ class FarmerDashboard {
                 throw new Error('Backend failed to save harvest');
             }
 
-            console.log('SUCCESS: Harvest saved to database!');
-            this.showNotification('Harvest saved to database!', 'success');
+            console.log('SUCCESS: Harvest reported successfully!');
+            this.showNotification('Harvest re!', 'success');
 
             // Reload harvests from database
             if (this.currentFarmerAddress) {
