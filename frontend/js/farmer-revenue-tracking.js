@@ -354,7 +354,7 @@ class FarmerRevenueTracking {
 
                 // Automatically add USDC token to MetaMask after first withdrawal
                 if (window.tokenManager) {
-                    console.log('💰 Auto-adding USDC token to MetaMask...');
+                    console.log('Auto-adding USDC token to MetaMask...');
                     // Check if this is the first withdrawal (optional - can always prompt)
                     setTimeout(() => {
                         window.tokenManager.addUSDCToken().then(added => {
@@ -642,7 +642,7 @@ class FarmerRevenueTracking {
         console.log('[Transaction History] Generating HTML for', transactions.length, 'transactions');
         const html = transactions.map(t => {
             const isPositive = t.amount > 0;
-            const typeIcon = t.type === 'earning' ? '💰' : '💸';
+            const typeIcon = t.type === 'earning' ? '' : '';
             const typeLabel = t.type === 'earning' ? 'Harvest Earnings' : 'Withdrawal';
             const amountClass = isPositive ? 'amount-positive' : 'amount-negative';
 

@@ -90,7 +90,7 @@ function renderFundingOverview() {
     container.innerHTML = `
         <div class="funding-overview-grid">
             <div class="funding-stat-card">
-                <div class="stat-icon">💰</div>
+                <div class="stat-icon"></div>
                 <div class="stat-content">
                     <div class="stat-label">Total Investment Pool</div>
                     <div class="stat-value">$${(pool.totalInvestment / 100).toFixed(2)}</div>

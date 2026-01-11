@@ -716,12 +716,12 @@ class InvestorPortal {
                     
                     <!-- Funding History Section -->
                     <div class="detail-section funding-history-section">
-                        <h5>💰 Funding Transparency</h5>
+                        <h5>Funding Transparency</h5>
                         <div id="funding-history-${grove.id}" class="funding-history-container">
                             <div class="loading">Loading funding history...</div>
                         </div>
                         <div class="info-box">
-                            🔍 <strong>Transparency:</strong> See how farmer funding requests are being used to maintain and improve this grove.
+                             <strong>Transparency:</strong> See how farmer funding requests are being used to maintain and improve this grove.
                         </div>
                     </div>
                     
@@ -1048,7 +1048,7 @@ class InvestorPortal {
             const pricePerToken = grove.pricePerToken || 10.00;
             const totalCost = ethers.parseUnits((pricePerToken * tokenAmount).toFixed(6), 6); // USDC has 6 decimals
 
-            console.log(`[InvestorPortal] 💰 Total cost: ${ethers.formatUnits(totalCost, 6)} USDC`);
+            console.log(`[InvestorPortal]  Total cost: ${ethers.formatUnits(totalCost, 6)} USDC`);
 
             // Create USDC contract instance
             const usdcAbi = [
