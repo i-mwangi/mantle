@@ -2027,8 +2027,8 @@ class InvestorPortal {
         }
     }
 
-    listForSale(groveId, tokenAmount) {
-        window.marketplace.showListingModal(groveId, tokenAmount);
+    listForSale(groveId, tokenAmount, holding = null) {
+        window.marketplace.showListingModal(groveId, tokenAmount, holding);
     }
 
     buyFromMarketplace(listingId) {
