@@ -566,7 +566,7 @@ class CoffeeTreeMarketplace {
                 amount: parseInt(formData.get('listingAmount')),
                 price: parseFloat(formData.get('listingPrice')),
                 duration: parseInt(formData.get('listingDuration'))
-            });
+            }, holding);
             document.body.removeChild(modal);
         });
     }
@@ -691,7 +691,7 @@ class CoffeeTreeMarketplace {
         });
     }
 
-    async handleTokenListing(groveId, listingData) {
+    async handleTokenListing(groveId, listingData, holding = null) {
         const sellerAddress = window.walletManager.getAccountId();
 
         try {
@@ -700,23 +700,35 @@ class CoffeeTreeMarketplace {
             console.log('[Marketplace] Listing data:', listingData);
             console.log('[Marketplace] Grove ID:', groveId);
             console.log('[Marketplace] Seller address:', sellerAddress);
+            console.log('[Marketplace] Holding data:', holding);
             
-            // Get grove details to get token address and name
-            const groveResponse = await window.coffeeAPI.getGroveDetails(groveId);
-            console.log('[Marketplace] Grove response:', groveResponse);
+            let tokenAddress, groveName;
             
-            if (!groveResponse.success || !groveResponse.grove) {
-                throw new Error('Failed to fetch grove details');
+            // If holding data is provided, use it directly (preferred)
+            if (holding && holding.tokenAddress && holding.groveName) {
+                tokenAddress = holding.tokenAddress;
+                groveName = holding.groveName;
+                console.log('[Marketplace] Using holding data - Token address:', tokenAddress);
+                console.log('[Marketplace] Using holding data - Grove name:', groveName);
+            } else {
+                // Fallback: Get grove details from API
+                console.log('[Marketplace] No holding data, fetching grove details...');
+                const groveResponse = await window.coffeeAPI.getGroveDetails(groveId);
+                console.log('[Marketplace] Grove response:', groveResponse);
+                
+                if (!groveResponse.success || !groveResponse.grove) {
+                    throw new Error('Failed to fetch grove details');
+                }
+
+                const grove = groveResponse.grove;
+                tokenAddress = grove.tokenAddress;
+                groveName = grove.groveName;
+
+                console.log('[Marketplace] Token address:', tokenAddress);
+                console.log('[Marketplace] Grove name:', groveName);
             }
 
-            const grove = groveResponse.grove;
-            const tokenAddress = grove.tokenAddress;
-            const groveName = grove.groveName;
-
-            console.log('[Marketplace] Token address:', tokenAddress);
-            console.log('[Marketplace] Grove name:', groveName);
-
-            if (!tokenAddress) {
+            if (!tokenAddress || tokenAddress === '0x0000000000000000000000000000000000000000') {
                 throw new Error('Grove is not tokenized yet');
             }
             
