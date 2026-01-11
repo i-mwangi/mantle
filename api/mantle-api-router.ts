@@ -1648,12 +1648,36 @@ async function handleGetMarketplaceListings(req: VercelRequest, res: VercelRespo
   try {
     console.log('📊 Getting marketplace listings');
 
-    // MVP: Return empty listings (secondary market not implemented yet)
+    // Get active listings that haven't expired
+    const now = Date.now();
+    const result = await db.execute({
+      sql: `SELECT * FROM marketplace_listings 
+            WHERE status = 'active' AND expires_at > ?
+            ORDER BY created_at DESC`,
+      args: [now]
+    });
+
+    const listings = result.rows.map((row: any) => ({
+      id: row.id,
+      sellerAddress: row.seller_address,
+      groveId: row.grove_id,
+      tokenAddress: row.token_address,
+      groveName: row.grove_name,
+      tokenAmount: row.token_amount,
+      pricePerToken: row.price_per_token,
+      totalValue: row.total_value,
+      durationDays: row.duration_days,
+      expiresAt: row.expires_at,
+      status: row.status,
+      createdAt: row.created_at,
+    }));
+
+    console.log(`✅ Found ${listings.length} active listings`);
+
     return res.status(200).json({
       success: true,
-      listings: [],
-      totalListings: 0,
-      message: 'Secondary market coming soon',
+      listings,
+      totalListings: listings.length,
     });
   } catch (error: any) {
     console.error('Error getting marketplace listings:', error);
