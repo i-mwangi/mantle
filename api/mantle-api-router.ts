@@ -2687,6 +2687,26 @@ async function handleGetInvestorPortfolio(req: VercelRequest, res: VercelRespons
     let totalInvestment = 0;
     let totalCurrentValue = 0;
 
+    // Get active marketplace listings for this investor to subtract from available balance
+    const { createClient } = await import('@libsql/client');
+    const client = createClient({
+      url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+      authToken: process.env.TURSO_AUTH_TOKEN
+    });
+
+    const listingsResult = await client.execute({
+      sql: `SELECT grove_id, SUM(token_amount) as listed_amount 
+            FROM marketplace_listings 
+            WHERE seller_address = ? AND status = 'active' AND expires_at > ?
+            GROUP BY grove_id`,
+      args: [investorAddress, Date.now()]
+    });
+
+    const listedTokensByGrove = new Map();
+    for (const row of listingsResult.rows) {
+      listedTokensByGrove.set(Number(row.grove_id), Number(row.listed_amount));
+    }
+
     for (const grove of tokenizedGroves) {
       if (!grove.tokenAddress) continue;
 
@@ -2700,43 +2720,51 @@ async function handleGetInvestorPortfolio(req: VercelRequest, res: VercelRespons
         const balance: bigint = await tokenContract.balanceOf(investorAddress);
         
         if (balance > 0n) {
-          const balanceNumber = Number(balance);
-          const pricePerToken = 10.00; // Same as in available groves
-          const investmentValue = balanceNumber * pricePerToken;
+          const totalBalanceNumber = Number(balance);
+          const listedAmount = listedTokensByGrove.get(grove.id) || 0;
+          const availableBalance = totalBalanceNumber - listedAmount;
           
-          // Calculate earnings from revenue distributions (if table exists)
-          let earnings = 0;
-          try {
-            const distributions = await db.select()
-              .from(revenueDistributions)
-              .where(eq(revenueDistributions.holderAddress, investorAddress.toLowerCase()));
+          // Only show holding if there are available (non-listed) tokens
+          if (availableBalance > 0) {
+            const pricePerToken = 10.00; // Same as in available groves
+            const investmentValue = availableBalance * pricePerToken;
             
-            earnings = distributions
-              .filter(d => d.paymentStatus === 'completed')
-              .reduce((sum, d) => sum + (d.revenueShare || 0), 0);
-          } catch (dbError: any) {
-            // Table doesn't exist yet - no earnings
-            console.log('⚠️  revenue_distributions table not found, earnings = 0');
+            // Calculate earnings from revenue distributions (if table exists)
+            let earnings = 0;
+            try {
+              const distributions = await db.select()
+                .from(revenueDistributions)
+                .where(eq(revenueDistributions.holderAddress, investorAddress.toLowerCase()));
+              
+              earnings = distributions
+                .filter(d => d.paymentStatus === 'completed')
+                .reduce((sum, d) => sum + (d.revenueShare || 0), 0);
+            } catch (dbError: any) {
+              // Table doesn't exist yet - no earnings
+              console.log('⚠️  revenue_distributions table not found, earnings = 0');
+            }
+
+            const totalValue = investmentValue + earnings;
+
+            holdings.push({
+              groveId: grove.id,
+              groveName: grove.groveName,
+              location: grove.location,
+              tokenAddress: grove.tokenAddress,
+              tokenSymbol: grove.tokenSymbol,
+              tokenBalance: availableBalance,
+              totalBalance: totalBalanceNumber,
+              listedAmount: listedAmount,
+              investmentValue: investmentValue,
+              currentValue: totalValue,
+              earnings: earnings,
+              healthScore: grove.currentHealthScore || 0,
+              coffeeVariety: grove.coffeeVariety,
+            });
+
+            totalInvestment += investmentValue;
+            totalCurrentValue += totalValue;
           }
-
-          const totalValue = investmentValue + earnings;
-
-          holdings.push({
-            groveId: grove.id,
-            groveName: grove.groveName,
-            location: grove.location,
-            tokenAddress: grove.tokenAddress,
-            tokenSymbol: grove.tokenSymbol,
-            tokenBalance: balanceNumber,
-            investmentValue: investmentValue,
-            currentValue: totalValue,
-            earnings: earnings,
-            healthScore: grove.currentHealthScore || 0,
-            coffeeVariety: grove.coffeeVariety,
-          });
-
-          totalInvestment += investmentValue;
-          totalCurrentValue += totalValue;
         }
       } catch (error: any) {
         console.error(`Error checking balance for grove ${grove.groveName}:`, error.message);

@@ -1199,6 +1199,7 @@ class InvestorPortal {
                         purchasePrice: h.tokenBalance > 0 ? (h.investmentValue / h.tokenBalance) : 0,
                         totalInvestment: h.investmentValue || 0,
                         currentWorth: h.currentValue || h.investmentValue || 0,
+                        purchaseDate: h.purchaseDate || h.createdAt || Date.now(),
                     }));
                 }
                 
