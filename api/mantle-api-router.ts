@@ -3444,6 +3444,36 @@ async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
 
       console.log('✅ Database updated: tokensSold incremented');
 
+      // Record token holding for distribution tracking
+      try {
+        const { createClient } = await import('@libsql/client');
+        const client = createClient({
+          url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+          authToken: process.env.TURSO_AUTH_TOKEN
+        });
+
+        await client.execute({
+          sql: `INSERT INTO token_holdings 
+                (investor_address, grove_id, token_address, token_amount, purchase_price, transaction_hash, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          args: [
+            investorAddress.toLowerCase(),
+            grove.id,
+            grove.tokenAddress,
+            tokenAmount,
+            totalPrice,
+            txHash,
+            Date.now(),
+            Date.now()
+          ]
+        });
+
+        console.log('✅ Token holding recorded for distribution tracking');
+      } catch (holdingError: any) {
+        console.error('⚠️  Failed to record token holding:', holdingError.message);
+        // Continue even if this fails - the main purchase is recorded
+      }
+
       // TODO: Record terms acceptance (requires investor_profiles table migration)
       // if (termsAccepted && termsVersion) {
       //   const existingProfile = await db.query.investorProfiles.findFirst({
