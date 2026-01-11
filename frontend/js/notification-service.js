@@ -333,7 +333,7 @@ class NotificationService {
     notifyFarmerFundsDisbursed(amount, transactionId) {
         this.addNotification({
             type: 'payment',
-            title: 'Funds Disbursed 💰',
+            title: 'Funds Disbursed ',
             message: `$${amount} has been sent to your wallet. Transaction: ${transactionId.substring(0, 10)}...`
         });
     }
