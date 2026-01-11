@@ -3287,7 +3287,7 @@ async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
       const txHash = transactionHash || ('0x' + Date.now().toString(16) + Math.random().toString(16).substr(2, 40));
       
       if (transactionHash) {
-        console.log('✅ Recording blockchain purchase:', txHash);
+        console.log(' Recording blockchain purchase:', txHash);
       } else {
         console.log('💰 Mock purchase (no blockchain):', txHash);
       }
