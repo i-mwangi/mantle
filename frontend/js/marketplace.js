@@ -467,7 +467,7 @@ class CoffeeTreeMarketplace {
         });
     }
 
-    showListingModal(groveId, availableTokens) {
+    showListingModal(groveId, availableTokens, holding = null) {
         const modal = document.createElement('div');
         modal.className = 'modal active';
         modal.innerHTML = `
