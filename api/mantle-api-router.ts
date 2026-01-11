@@ -1704,11 +1704,57 @@ async function handleListTokensForSale(req: VercelRequest, res: VercelResponse) 
       });
     }
 
-    // TODO: Implement actual marketplace listing logic
-    // For now, return success with a message that secondary market is coming soon
+    // Get grove ID from grove name
+    const grove = await db.query.coffeeGroves.findFirst({
+      where: eq(coffeeGroves.groveName, groveName),
+    });
+
+    if (!grove) {
+      return res.status(404).json({
+        success: false,
+        error: 'Grove not found',
+      });
+    }
+
+    // Calculate expiration
+    const duration = durationDays || 30;
+    const expiresAt = Date.now() + (duration * 24 * 60 * 60 * 1000);
+    const totalValue = tokenAmount * pricePerToken;
+
+    // Insert listing into database
+    const result = await db.execute({
+      sql: `INSERT INTO marketplace_listings 
+            (seller_address, grove_id, token_address, grove_name, token_amount, price_per_token, total_value, duration_days, expires_at, status, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
+      args: [sellerAddress, grove.id, tokenAddress, groveName, tokenAmount, pricePerToken, totalValue, duration, expiresAt, Date.now(), Date.now()]
+    });
+
+    console.log('✅ Listing created successfully');
+
     return res.status(200).json({
       success: true,
-      message: 'Secondary market listing feature coming soon',
+      message: 'Tokens listed for sale successfully',
+      listing: {
+        id: result.lastInsertRowid,
+        sellerAddress,
+        tokenAddress,
+        groveName,
+        tokenAmount,
+        pricePerToken,
+        totalValue,
+        durationDays: duration,
+        expiresAt,
+        status: 'active',
+      },
+    });
+  } catch (error: any) {
+    console.error('Error listing tokens for sale:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to list tokens for sale',
+    });
+  }
+}
       listing: {
         sellerAddress,
         tokenAddress,
