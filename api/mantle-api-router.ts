@@ -256,6 +256,21 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetTradeHistory(req, res);
     }
 
+    // Marketplace: Purchase listing
+    if (url.includes('/api/marketplace/purchase/') && method === 'POST') {
+      return await handlePurchaseListing(req, res);
+    }
+
+    // Marketplace: Cancel listing
+    if (url.includes('/api/marketplace/cancel/') && method === 'POST') {
+      return await handleCancelListing(req, res);
+    }
+
+    // Marketplace: Get listing details
+    if (url.includes('/api/marketplace/listing/') && method === 'GET') {
+      return await handleGetListingDetails(req, res);
+    }
+
     // Funding History: Get funding history for a grove
     if (url.includes('/api/funding/grove/') && url.includes('/history') && method === 'GET') {
       return await handleGetGroveFundingHistory(req, res);
