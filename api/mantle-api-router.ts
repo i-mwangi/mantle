@@ -3237,7 +3237,7 @@ async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    console.log('💰 Recording token purchase:', { groveId, tokenAmount, investorAddress, transactionHash });
+    console.log(' Recording token purchase:', { groveId, tokenAmount, investorAddress, transactionHash });
 
     // Get grove from database
     const grove = await db.query.coffeeGroves.findFirst({
