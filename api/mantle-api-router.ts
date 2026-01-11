@@ -1958,7 +1958,7 @@ async function handlePurchaseListing(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    console.log('💰 Processing marketplace purchase:', { listingId, buyerAddress });
+    console.log(' Processing marketplace purchase:', { listingId, buyerAddress });
 
     const { createClient } = await import('@libsql/client');
     const client = createClient({
