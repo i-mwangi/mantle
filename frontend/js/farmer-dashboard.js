@@ -619,7 +619,7 @@ class FarmerDashboard {
             }
 
             console.log('SUCCESS: Harvest reported successfully!');
-            this.showNotification('Harvest re!', 'success');
+            this.showNotification('Harvest reported successfully!', 'success');
 
             // Reload harvests from database
             if (this.currentFarmerAddress) {
