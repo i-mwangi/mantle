@@ -892,9 +892,7 @@ class CoffeeTreeMarketplace {
                     
                     <div class="modal-actions">
                         <button class="btn btn-secondary modal-close">Close</button>
-                        <button class="btn btn-primary" data-action="buy-tokens" data-listing-id="${listing.id}">
-                            Purchase Tokens
-                        </button>
+                        ${this.renderModalActionButton(listing)}
                     </div>
                 </div>
             </div>
@@ -908,6 +906,48 @@ class CoffeeTreeMarketplace {
                 document.body.removeChild(modal);
             });
         });
+
+        // Buy button handler
+        const buyBtn = modal.querySelector('[data-action="buy-tokens"]');
+        if (buyBtn) {
+            buyBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+                this.handleMarketplacePurchase(listing.id, listing.tokenAmount);
+            });
+        }
+
+        // Cancel button handler
+        const cancelBtn = modal.querySelector('[data-action="cancel-listing"]');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', async () => {
+                document.body.removeChild(modal);
+                await this.cancelListing(listing.id);
+            });
+        }
+        } catch (error) {
+            console.error('[Marketplace] Error viewing listing details:', error);
+            window.walletManager.showToast('Failed to load listing details', 'error');
+        }
+    }
+
+    renderModalActionButton(listing) {
+        const currentUserAddress = window.walletManager?.getAccountId();
+        
+        // If this is the user's own listing, show cancel button
+        if (currentUserAddress && listing.sellerAddress.toLowerCase() === currentUserAddress.toLowerCase()) {
+            return `
+                <button class="btn btn-danger" data-action="cancel-listing" data-listing-id="${listing.id}">
+                    Cancel Listing
+                </button>
+            `;
+        }
+        
+        // Otherwise show buy button
+        return `
+            <button class="btn btn-primary" data-action="buy-tokens" data-listing-id="${listing.id}">
+                Purchase Tokens
+            </button>
+        `;
     }
 
     getHealthClass(score) {
