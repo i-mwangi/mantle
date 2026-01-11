@@ -256,6 +256,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetTradeHistory(req, res);
     }
 
+    // Transaction History: Get transaction history for user
+    if (url.includes('/api/transactions/history') && method === 'GET') {
+      return await handleGetTransactionHistory(req, res);
+    }
+
     // Marketplace: Purchase listing
     if (url.includes('/api/marketplace/purchase/') && method === 'POST') {
       return await handlePurchaseListing(req, res);
