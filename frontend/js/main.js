@@ -209,18 +209,18 @@ class ViewManager {
     updateDashboardStats(marketOverview, pricesResponse) {
         console.log('Updating dashboard stats...');
 
-        // Mock data for dashboard stats
+        // Use real data from API, with fallback to mock data
         const totalGrovesVal = marketOverview && marketOverview.success
-            ? Number(marketOverview.totalGroves ?? marketOverview.data?.totalGroves ?? 0)
-            : 47;
+            ? Number(marketOverview.totalGroves ?? 0)
+            : 0;
 
         const activeFarmersVal = marketOverview && marketOverview.success
-            ? Number(marketOverview.activeFarmers ?? marketOverview.data?.activeFarmers ?? 0)
-            : 23;
+            ? Number(marketOverview.activeFarmers ?? 0)
+            : 0;
 
         const totalRevenueVal = marketOverview && marketOverview.success
-            ? Number(marketOverview.totalRevenue ?? marketOverview.data?.totalRevenue ?? 0)
-            : 125000;
+            ? Number(marketOverview.totalRevenue ?? 0)
+            : 0;
 
         let coffeePriceVal = 4.25;
         try {
