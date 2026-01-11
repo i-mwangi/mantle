@@ -880,7 +880,7 @@ class CoffeeTreeMarketplace {
                                 </div>
                                 <div class="detail-row">
                                     <span class="label">Expires:</span>
-                                    <span class="value">${new Date(listing.expirationDate).toLocaleDateString()}</span>
+                                    <span class="value">${new Date(listing.expiresAt).toLocaleDateString()}</span>
                                 </div>
                                 <div class="detail-row">
                                     <span class="label">Seller:</span>
