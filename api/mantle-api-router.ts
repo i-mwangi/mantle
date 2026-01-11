@@ -1263,7 +1263,7 @@ async function handleFarmerWithdraw(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    console.log('💰 Processing farmer withdrawal:', { farmerAddress, groveId, amount });
+    console.log(' Processing farmer withdrawal:', { farmerAddress, groveId, amount });
 
     // Validate that farmer has sufficient balance
     const farmerGroves = await db.query.coffeeGroves.findMany({
@@ -1317,7 +1317,7 @@ async function handleFarmerWithdraw(req: VercelRequest, res: VercelResponse) {
     
     const availableBalance = totalAvailable - totalWithdrawn;
 
-    console.log('💰 Balance calculation:', {
+    console.log(' Balance calculation:', {
       groveIds,
       totalAvailable,
       totalWithdrawn,
