@@ -1774,7 +1774,7 @@ async function handleListTokensForSale(req: VercelRequest, res: VercelResponse) 
       success: true,
       message: 'Tokens listed for sale successfully',
       listing: {
-        id: result.lastInsertRowid,
+        id: Number(result.lastInsertRowid),
         sellerAddress,
         tokenAddress,
         groveName,
