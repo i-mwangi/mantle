@@ -1793,6 +1793,249 @@ async function handleGetTradeHistory(req: VercelRequest, res: VercelResponse) {
 }
 
 /**
+ * Get listing details
+ */
+async function handleGetListingDetails(req: VercelRequest, res: VercelResponse) {
+  try {
+    const listingId = req.url?.split('/listing/')[1]?.split('?')[0];
+    
+    if (!listingId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Listing ID is required',
+      });
+    }
+
+    console.log('📊 Getting listing details for:', listingId);
+
+    const { createClient } = await import('@libsql/client');
+    const client = createClient({
+      url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+      authToken: process.env.TURSO_AUTH_TOKEN
+    });
+
+    const result = await client.execute({
+      sql: `SELECT 
+              ml.*,
+              cg.coffee_variety,
+              cg.location,
+              cg.current_health_score,
+              cg.tree_count,
+              cg.expected_yield_per_tree
+            FROM marketplace_listings ml
+            LEFT JOIN coffee_groves cg ON ml.grove_id = cg.id
+            WHERE ml.id = ?`,
+      args: [listingId]
+    });
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Listing not found',
+      });
+    }
+
+    const row = result.rows[0];
+    const listing = {
+      id: row.id,
+      sellerAddress: row.seller_address,
+      groveId: row.grove_id,
+      tokenAddress: row.token_address,
+      groveName: row.grove_name,
+      tokenAmount: row.token_amount,
+      pricePerToken: row.price_per_token,
+      totalValue: row.total_value,
+      durationDays: row.duration_days,
+      expiresAt: row.expires_at,
+      status: row.status,
+      createdAt: row.created_at,
+      listingDate: row.created_at,
+      coffeeVariety: row.coffee_variety,
+      location: row.location,
+      healthScore: row.current_health_score,
+      treeCount: row.tree_count,
+      expectedYieldPerTree: row.expected_yield_per_tree,
+      originalPrice: row.price_per_token,
+    };
+
+    return res.status(200).json({
+      success: true,
+      listing,
+    });
+  } catch (error: any) {
+    console.error('Error getting listing details:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get listing details',
+    });
+  }
+}
+
+/**
+ * Purchase listing from marketplace
+ */
+async function handlePurchaseListing(req: VercelRequest, res: VercelResponse) {
+  try {
+    const listingId = req.url?.split('/purchase/')[1]?.split('?')[0];
+    const { buyerAddress } = req.body;
+
+    if (!listingId || !buyerAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Listing ID and buyer address are required',
+      });
+    }
+
+    console.log('💰 Processing marketplace purchase:', { listingId, buyerAddress });
+
+    const { createClient } = await import('@libsql/client');
+    const client = createClient({
+      url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+      authToken: process.env.TURSO_AUTH_TOKEN
+    });
+
+    // Get listing details
+    const listingResult = await client.execute({
+      sql: 'SELECT * FROM marketplace_listings WHERE id = ? AND status = \'active\'',
+      args: [listingId]
+    });
+
+    if (listingResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Listing not found or no longer active',
+      });
+    }
+
+    const listing = listingResult.rows[0];
+
+    // Check if listing has expired
+    if (Number(listing.expires_at) < Date.now()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Listing has expired',
+      });
+    }
+
+    // Can't buy your own listing
+    if (listing.seller_address === buyerAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot purchase your own listing',
+      });
+    }
+
+    // Update listing status to sold
+    const now = Date.now();
+    await client.execute({
+      sql: `UPDATE marketplace_listings 
+            SET status = 'sold', buyer_address = ?, sold_at = ?, updated_at = ?
+            WHERE id = ?`,
+      args: [buyerAddress, now, now, listingId]
+    });
+
+    console.log('✅ Listing marked as sold');
+
+    return res.status(200).json({
+      success: true,
+      message: 'Purchase successful',
+      listing: {
+        id: listing.id,
+        sellerAddress: listing.seller_address,
+        buyerAddress,
+        tokenAmount: listing.token_amount,
+        pricePerToken: listing.price_per_token,
+        totalValue: listing.total_value,
+        soldAt: now,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error purchasing listing:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to purchase listing',
+    });
+  }
+}
+
+/**
+ * Cancel marketplace listing
+ */
+async function handleCancelListing(req: VercelRequest, res: VercelResponse) {
+  try {
+    const listingId = req.url?.split('/cancel/')[1]?.split('?')[0];
+    const { sellerAddress } = req.body;
+
+    if (!listingId || !sellerAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Listing ID and seller address are required',
+      });
+    }
+
+    console.log('❌ Cancelling listing:', { listingId, sellerAddress });
+
+    const { createClient } = await import('@libsql/client');
+    const client = createClient({
+      url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+      authToken: process.env.TURSO_AUTH_TOKEN
+    });
+
+    // Get listing details
+    const listingResult = await client.execute({
+      sql: 'SELECT * FROM marketplace_listings WHERE id = ?',
+      args: [listingId]
+    });
+
+    if (listingResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Listing not found',
+      });
+    }
+
+    const listing = listingResult.rows[0];
+
+    // Verify seller
+    if (listing.seller_address !== sellerAddress) {
+      return res.status(403).json({
+        success: false,
+        error: 'Only the seller can cancel this listing',
+      });
+    }
+
+    // Can only cancel active listings
+    if (listing.status !== 'active') {
+      return res.status(400).json({
+        success: false,
+        error: 'Can only cancel active listings',
+      });
+    }
+
+    // Update listing status to cancelled
+    await client.execute({
+      sql: `UPDATE marketplace_listings 
+            SET status = 'cancelled', updated_at = ?
+            WHERE id = ?`,
+      args: [Date.now(), listingId]
+    });
+
+    console.log('✅ Listing cancelled');
+
+    return res.status(200).json({
+      success: true,
+      message: 'Listing cancelled successfully',
+    });
+  } catch (error: any) {
+    console.error('Error cancelling listing:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to cancel listing',
+    });
+  }
+}
+
+/**
  * List tokens for sale on secondary market
  */
 async function handleListTokensForSale(req: VercelRequest, res: VercelResponse) {
