@@ -1798,6 +1798,73 @@ async function handleGetTradeHistory(req: VercelRequest, res: VercelResponse) {
 }
 
 /**
+ * Get transaction history for user
+ */
+async function handleGetTransactionHistory(req: VercelRequest, res: VercelResponse) {
+  try {
+    const userAddress = req.query.userAddress as string;
+    
+    if (!userAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'User address is required',
+      });
+    }
+
+    console.log('📊 Getting transaction history for:', userAddress);
+
+    // For now, return marketplace trades as transactions
+    // In the future, this could include token purchases, earnings claims, etc.
+    const { createClient } = await import('@libsql/client');
+    const client = createClient({
+      url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+      authToken: process.env.TURSO_AUTH_TOKEN
+    });
+
+    // Get marketplace trades
+    const tradesResult = await client.execute({
+      sql: `SELECT * FROM marketplace_listings 
+            WHERE (seller_address = ? OR buyer_address = ?) AND status = 'sold'
+            ORDER BY sold_at DESC
+            LIMIT 50`,
+      args: [userAddress, userAddress]
+    });
+
+    const transactions = tradesResult.rows.map((row: any) => {
+      const isSeller = row.seller_address.toLowerCase() === userAddress.toLowerCase();
+      return {
+        id: `trade-${row.id}`,
+        type: isSeller ? 'sell' : 'buy',
+        timestamp: row.sold_at,
+        groveName: row.grove_name,
+        tokenAmount: row.token_amount,
+        pricePerToken: row.price_per_token,
+        totalValue: row.total_value,
+        counterparty: isSeller ? row.buyer_address : row.seller_address,
+        transactionHash: row.transaction_hash,
+        status: 'completed',
+      };
+    });
+
+    console.log(`✅ Found ${transactions.length} transactions`);
+
+    return res.status(200).json({
+      success: true,
+      transactions,
+      count: transactions.length,
+    });
+  } catch (error: any) {
+    console.error('Error getting transaction history:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get transaction history',
+      transactions: [],
+      count: 0,
+    });
+  }
+}
+
+/**
  * Get listing details
  */
 async function handleGetListingDetails(req: VercelRequest, res: VercelResponse) {
