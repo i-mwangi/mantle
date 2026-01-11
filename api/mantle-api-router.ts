@@ -1702,6 +1702,71 @@ async function handleGetMarketplaceListings(req: VercelRequest, res: VercelRespo
 }
 
 /**
+ * Get trade history
+ */
+async function handleGetTradeHistory(req: VercelRequest, res: VercelResponse) {
+  try {
+    const userAddress = req.url?.split('/trades/')[1]?.split('?')[0];
+    
+    console.log('📊 Getting trade history for:', userAddress || 'all users');
+
+    const { createClient } = await import('@libsql/client');
+    const client = createClient({
+      url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+      authToken: process.env.TURSO_AUTH_TOKEN
+    });
+
+    let result;
+    if (userAddress) {
+      // Get trades for specific user (as buyer or seller)
+      result = await client.execute({
+        sql: `SELECT * FROM marketplace_listings 
+              WHERE (seller_address = ? OR buyer_address = ?) AND status = 'sold'
+              ORDER BY sold_at DESC`,
+        args: [userAddress, userAddress]
+      });
+    } else {
+      // Get all completed trades
+      result = await client.execute({
+        sql: `SELECT * FROM marketplace_listings 
+              WHERE status = 'sold'
+              ORDER BY sold_at DESC
+              LIMIT 100`,
+        args: []
+      });
+    }
+
+    const trades = result.rows.map((row: any) => ({
+      id: row.id,
+      sellerAddress: row.seller_address,
+      buyerAddress: row.buyer_address,
+      groveId: row.grove_id,
+      tokenAddress: row.token_address,
+      groveName: row.grove_name,
+      tokenAmount: row.token_amount,
+      pricePerToken: row.price_per_token,
+      totalValue: row.total_value,
+      soldAt: row.sold_at,
+      transactionHash: row.transaction_hash,
+    }));
+
+    console.log(`✅ Found ${trades.length} trades`);
+
+    return res.status(200).json({
+      success: true,
+      trades,
+      count: trades.length,
+    });
+  } catch (error: any) {
+    console.error('Error getting trade history:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get trade history',
+    });
+  }
+}
+
+/**
  * List tokens for sale on secondary market
  */
 async function handleListTokensForSale(req: VercelRequest, res: VercelResponse) {
