@@ -1052,19 +1052,7 @@ async function handleReportHarvest(req: VercelRequest, res: VercelResponse) {
     }).returning();
 
     console.log('✅ Harvest saved to database:', harvest);
-
-    // Automatically trigger revenue distribution
-    console.log('📊 Automatically triggering revenue distribution...');
-    try {
-      await handleConfirmDistribution(
-        { body: { harvestId: harvest.id } } as any,
-        { status: () => ({ json: () => {} }) } as any
-      );
-      console.log('✅ Revenue distribution completed automatically');
-    } catch (distError: any) {
-      console.error('⚠️  Auto-distribution failed:', distError.message);
-      // Continue even if distribution fails - can be done manually later
-    }
+    console.log('📝 Note: Revenue distribution must be triggered manually via "Distribute Revenue" button');
 
     return res.status(200).json({
       success: true,
