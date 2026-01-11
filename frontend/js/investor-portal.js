@@ -896,7 +896,7 @@ class InvestorPortal {
                 const groveId = e.currentTarget.dataset.groveId;
                 const tokenAmount = parseInt(e.currentTarget.dataset.tokenAmount);
                 document.body.removeChild(modal);
-                this.listForSale(groveId, tokenAmount);
+                this.listForSale(groveId, tokenAmount, holding);
             });
         }
     }
