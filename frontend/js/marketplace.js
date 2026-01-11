@@ -807,9 +807,20 @@ class CoffeeTreeMarketplace {
         }
     }
 
-    viewListingDetails(listingId) {
-        const listing = this.listings.find(l => l.id === listingId);
-        if (!listing) return;
+    async viewListingDetails(listingId) {
+        try {
+            console.log('[Marketplace] Viewing details for listing:', listingId);
+            
+            // Fetch fresh listing details from API
+            const response = await window.coffeeAPI.getListingDetails(listingId);
+            
+            if (!response.success || !response.listing) {
+                window.walletManager.showToast('Listing not found', 'error');
+                return;
+            }
+
+            const listing = response.listing;
+            console.log('[Marketplace] Listing details:', listing);
 
         // Create detailed view modal
         const modal = document.createElement('div');
