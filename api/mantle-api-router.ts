@@ -1744,13 +1744,20 @@ async function handleListTokensForSale(req: VercelRequest, res: VercelResponse) 
     const duration = durationDays || 30;
     const expiresAt = Date.now() + (duration * 24 * 60 * 60 * 1000);
     const totalValue = tokenAmount * pricePerToken;
+    const now = Date.now();
 
-    // Insert listing into database
-    const result = await db.execute({
+    // Use raw SQL via run method (compatible with Turso)
+    const { createClient } = await import('@libsql/client');
+    const client = createClient({
+      url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+      authToken: process.env.TURSO_AUTH_TOKEN
+    });
+
+    const result = await client.execute({
       sql: `INSERT INTO marketplace_listings 
             (seller_address, grove_id, token_address, grove_name, token_amount, price_per_token, total_value, duration_days, expires_at, status, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
-      args: [sellerAddress, grove.id, tokenAddress, groveName, tokenAmount, pricePerToken, totalValue, duration, expiresAt, Date.now(), Date.now()]
+      args: [sellerAddress, grove.id, tokenAddress, groveName, tokenAmount, pricePerToken, totalValue, duration, expiresAt, now, now]
     });
 
     console.log('✅ Listing created successfully');
