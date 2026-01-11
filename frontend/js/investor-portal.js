@@ -3683,7 +3683,7 @@ class InvestorPortal {
                             'upfront': '🌱',
                             'maintenance': '🔧',
                             'harvest': '🌾'
-                        }[request.milestoneType] || '💰';
+                        }[request.milestoneType] || '';
                         
                         return `
                             <div class="timeline-item">
