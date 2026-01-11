@@ -3289,7 +3289,7 @@ async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
       if (transactionHash) {
         console.log(' Recording blockchain purchase:', txHash);
       } else {
-        console.log('💰 Mock purchase (no blockchain):', txHash);
+        console.log(' Mock purchase (no blockchain):', txHash);
       }
       
       // Update database: increment tokensSold
