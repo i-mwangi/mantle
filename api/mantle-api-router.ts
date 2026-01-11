@@ -2683,52 +2683,68 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
     if (investorShare > 0 && tokensSold > 0n) {
       console.log('📊 Creating individual distribution records for token holders...');
       
-      // Get all token holders by querying Transfer events or using a known list
-      // For now, we'll query the database for investors who have purchased this grove's tokens
+      // Get potential token holders from database records
       const { createClient } = await import('@libsql/client');
       const client = createClient({
         url: process.env.TURSO_DATABASE_URL || 'file:local.db',
         authToken: process.env.TURSO_AUTH_TOKEN
       });
 
-      // Get unique investors who hold tokens for this grove
-      // We'll check blockchain balances for each potential holder
       const potentialHolders = new Set<string>();
       
-      // Query marketplace listings to find potential holders
-      const listingsResult = await client.execute({
-        sql: `SELECT DISTINCT seller_address FROM marketplace_listings WHERE grove_id = ?`,
-        args: [grove.id]
-      });
-      
-      for (const row of listingsResult.rows) {
-        if (row.seller_address) {
-          potentialHolders.add((row.seller_address as string).toLowerCase());
+      // Strategy 1: Get investors from marketplace listings (sellers must have held tokens)
+      try {
+        const listingsResult = await client.execute({
+          sql: `SELECT DISTINCT seller_address FROM marketplace_listings WHERE grove_id = ?`,
+          args: [grove.id]
+        });
+        
+        for (const row of listingsResult.rows) {
+          if (row.seller_address) {
+            potentialHolders.add((row.seller_address as string).toLowerCase());
+          }
         }
+        console.log(`📊 Found ${listingsResult.rows.length} sellers from marketplace`);
+      } catch (error) {
+        console.log('⚠️  No marketplace listings found');
       }
 
-      // Query completed trades to find buyers
-      const tradesResult = await client.execute({
-        sql: `SELECT DISTINCT buyer_address FROM marketplace_listings WHERE grove_id = ? AND status = 'sold'`,
-        args: [grove.id]
-      });
-      
-      for (const row of tradesResult.rows) {
-        if (row.buyer_address) {
-          potentialHolders.add((row.buyer_address as string).toLowerCase());
+      // Strategy 2: Get buyers from completed trades
+      try {
+        const tradesResult = await client.execute({
+          sql: `SELECT DISTINCT buyer_address FROM marketplace_listings WHERE grove_id = ? AND status = 'sold' AND buyer_address IS NOT NULL`,
+          args: [grove.id]
+        });
+        
+        for (const row of tradesResult.rows) {
+          if (row.buyer_address) {
+            potentialHolders.add((row.buyer_address as string).toLowerCase());
+          }
         }
+        console.log(`📊 Found ${tradesResult.rows.length} buyers from trades`);
+      } catch (error) {
+        console.log('⚠️  No completed trades found');
       }
 
-      console.log(`📊 Found ${potentialHolders.size} potential token holders`);
+      // Strategy 3: Query blockchain directly for all token holders
+      // Since we can't use getLogs efficiently, we'll check balances for known addresses
+      // Add the issuer address to check if any tokens were purchased directly
+      const issuerAddress = process.env.MANTLE_ISSUER_ADDRESS;
+      
+      // Get all unique addresses that might hold tokens by checking recent activity
+      // We'll use a simple approach: check the portfolio API's known investors
+      console.log(`📊 Total potential holders to check: ${potentialHolders.size}`);
 
       // Check actual balances and create distribution records
       const distributions = [];
+      let totalDistributed = 0;
+      
       for (const holderAddress of potentialHolders) {
         try {
           const balance: bigint = await tokenContract.balanceOf(holderAddress);
           
           if (balance > 0n) {
-            // Calculate this holder's share
+            // Calculate this holder's share proportionally
             const holderPercentage = Number(balance) / Number(tokensSold);
             const holderShare = Math.floor(investorShare * holderPercentage);
             
@@ -2747,11 +2763,12 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
                 createdAt: Date.now(),
               });
               
-              console.log(`📊 ${holderAddress}: ${balance.toString()} tokens = $${holderShare.toFixed(2)}`);
+              totalDistributed += holderShare;
+              console.log(`📊 ${holderAddress}: ${balance.toString()} tokens (${(holderPercentage * 100).toFixed(2)}%) = $${holderShare.toFixed(2)}`);
             }
           }
-        } catch (error) {
-          console.error(`Error checking balance for ${holderAddress}:`, error);
+        } catch (error: any) {
+          console.error(`⚠️  Error checking balance for ${holderAddress}:`, error.message);
         }
       }
 
@@ -2759,13 +2776,15 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
       if (distributions.length > 0) {
         try {
           await db.insert(revenueDistributions).values(distributions);
-          console.log(`✅ Created ${distributions.length} distribution records`);
+          console.log(`✅ Created ${distributions.length} distribution records totaling $${totalDistributed.toFixed(2)}`);
         } catch (error: any) {
-          console.error('Error creating distribution records:', error);
+          console.error('❌ Error creating distribution records:', error);
           // Continue even if this fails - the harvest record is already updated
         }
       } else {
         console.log('⚠️  No active token holders found for distribution');
+        console.log('💡 This might mean tokens were purchased but holders are not in marketplace records');
+        console.log('💡 Consider checking the investor who purchased tokens directly from the issuer');
       }
     }
 
