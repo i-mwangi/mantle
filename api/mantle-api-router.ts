@@ -787,24 +787,56 @@ async function handleGetMarketOverview(req: VercelRequest, res: VercelResponse) 
     const totalGroves = groves.length;
     const totalTrees = groves.reduce((sum, g) => sum + (g.treeCount || 0), 0);
     
-    // Get total investments (sum of tokens sold)
-    const totalInvestment = groves.reduce((sum, g) => sum + (g.tokensSold || 0), 0);
+    // Get unique farmers (active farmers)
+    const uniqueFarmers = new Set(groves.map(g => g.farmerAddress?.toLowerCase()).filter(Boolean));
+    const activeFarmers = uniqueFarmers.size;
+    
+    // Get total investments (sum of tokens sold * price per token)
+    const totalInvestment = groves.reduce((sum, g) => sum + ((g.tokensSold || 0) * 10), 0); // $10 per token
+    
+    // Calculate total revenue from harvest records
+    let totalRevenue = 0;
+    try {
+      const harvests = await db.query.harvestRecords.findMany();
+      totalRevenue = harvests.reduce((sum, h) => sum + (h.totalRevenue || 0), 0);
+    } catch (error) {
+      console.log('⚠️  harvest_records table not found, totalRevenue = 0');
+    }
     
     // Calculate average health score
     const avgHealthScore = groves.length > 0
       ? groves.reduce((sum, g) => sum + (g.currentHealthScore || 0), 0) / groves.length
       : 0;
 
+    // Count active investors (unique token holders)
+    let activeInvestors = 0;
+    try {
+      const { createClient } = await import('@libsql/client');
+      const client = createClient({
+        url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+        authToken: process.env.TURSO_AUTH_TOKEN
+      });
+      
+      // This would require querying blockchain for all token holders
+      // For now, we'll estimate based on marketplace activity
+      const result = await client.execute({
+        sql: `SELECT COUNT(DISTINCT seller_address) as count FROM marketplace_listings`,
+        args: []
+      });
+      activeInvestors = Number(result.rows[0]?.count || 0);
+    } catch (error) {
+      console.log('⚠️  Could not count active investors');
+    }
+
     return res.status(200).json({
       success: true,
-      overview: {
-        totalGroves,
-        totalTrees,
-        totalInvestment,
-        averageHealthScore: Math.round(avgHealthScore),
-        activeInvestors: 0, // TODO: Calculate from token holdings
-        totalRevenue: 0, // TODO: Calculate from harvest records
-      },
+      totalGroves,
+      activeFarmers,
+      totalRevenue,
+      totalTrees,
+      totalInvestment,
+      averageHealthScore: Math.round(avgHealthScore),
+      activeInvestors,
     });
   } catch (error: any) {
     console.error('Error fetching market overview:', error);
