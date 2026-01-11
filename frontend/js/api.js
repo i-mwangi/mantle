@@ -462,6 +462,14 @@ export class CoffeeTreeAPI {
         return this.request(`/api/marketplace/trades/${userAddress}`);
     }
 
+    async getTradeHistory(userAddress) {
+        // Alias for getUserTrades - returns all trades if no address provided
+        if (userAddress) {
+            return this.request(`/api/marketplace/trades/${userAddress}`);
+        }
+        return this.request('/api/marketplace/trades');
+    }
+
     async getMarketplaceStats() {
         return this.request('/api/marketplace/stats');
     }
