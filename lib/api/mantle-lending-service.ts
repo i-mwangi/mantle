@@ -51,7 +51,7 @@ export class MantleLendingService {
    */
   async deposit(userAddress: string, amount: string): Promise<DepositResult> {
     try {
-      console.log(`💰 Depositing ${amount} USDC to lending pool...`);
+      console.log(` Depositing ${amount} USDC to lending pool...`);
 
       // First, approve USDC spending
       const usdcContract = this.mantleService.getContract('USDC', USDC_ABI);

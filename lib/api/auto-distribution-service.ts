@@ -37,7 +37,7 @@ export class AutoDistributionService {
         const now = Date.now();
 
         try {
-            console.log(`\n💰 Starting automatic distribution for harvest ${harvestId}...`);
+            console.log(`\n Starting automatic distribution for harvest ${harvestId}...`);
 
             // Get harvest with grove information
             const harvestWithGrove = await db.select({
