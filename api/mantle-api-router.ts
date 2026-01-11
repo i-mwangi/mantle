@@ -1779,25 +1779,6 @@ async function handleListTokensForSale(req: VercelRequest, res: VercelResponse) 
     });
   }
 }
-      listing: {
-        sellerAddress,
-        tokenAddress,
-        groveName,
-        tokenAmount,
-        pricePerToken,
-        totalValue: tokenAmount * pricePerToken,
-        durationDays: durationDays || 30,
-        status: 'pending_implementation',
-      },
-    });
-  } catch (error: any) {
-    console.error('Error listing tokens for sale:', error);
-    return res.status(500).json({
-      success: false,
-      error: error.message || 'Failed to list tokens for sale',
-    });
-  }
-}
 
 /**
  * Get unclaimed earnings for investor
