@@ -1424,7 +1424,9 @@ class InvestorPortal {
                 const groveId = e.currentTarget.dataset.groveId;
                 const tokenAmount = parseInt(e.currentTarget.dataset.tokenAmount);
                 console.log(`[InvestorPortal] List for sale clicked for grove: ${groveId}, tokens: ${tokenAmount}`);
-                this.listForSale(groveId, tokenAmount);
+                // Find the holding data for this grove
+                const holding = this.portfolio?.holdings.find(h => h.groveId == groveId);
+                this.listForSale(groveId, tokenAmount, holding);
             });
         });
 
