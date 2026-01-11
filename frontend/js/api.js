@@ -422,6 +422,10 @@ export class CoffeeTreeAPI {
         return this.request('/api/marketplace/listings');
     }
 
+    async getListingDetails(listingId) {
+        return this.request(`/api/marketplace/listing/${listingId}`);
+    }
+
     async getUserListings(userAddress) {
         return this.request(`/api/marketplace/listings/user/${userAddress}`);
     }
