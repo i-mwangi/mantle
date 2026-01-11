@@ -398,9 +398,34 @@ async function handleGetGrove(req: VercelRequest, res: VercelResponse) {
       });
     }
 
+    // Transform to camelCase for frontend compatibility
+    const groveData = {
+      id: grove.id,
+      groveName: grove.groveName,
+      farmerAddress: grove.farmerAddress,
+      tokenAddress: grove.tokenAddress,
+      tokenSymbol: grove.tokenSymbol,
+      location: grove.location,
+      coordinatesLat: grove.coordinatesLat,
+      coordinatesLng: grove.coordinatesLng,
+      treeCount: grove.treeCount,
+      coffeeVariety: grove.coffeeVariety,
+      plantingDate: grove.plantingDate,
+      expectedYieldPerTree: grove.expectedYieldPerTree,
+      totalTokensIssued: grove.totalTokensIssued,
+      tokensSold: grove.tokensSold,
+      tokensPerTree: grove.tokensPerTree,
+      verificationStatus: grove.verificationStatus,
+      currentHealthScore: grove.currentHealthScore,
+      isTokenized: grove.isTokenized,
+      tokenizedAt: grove.tokenizedAt,
+      createdAt: grove.createdAt,
+      updatedAt: grove.updatedAt,
+    };
+
     return res.status(200).json({
       success: true,
-      grove,
+      grove: groveData,
     });
   } catch (error: any) {
     console.error('Error getting grove:', error);
