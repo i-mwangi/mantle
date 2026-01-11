@@ -2457,54 +2457,87 @@ async function handlePreviewDistribution(req: VercelRequest, res: VercelResponse
       });
     }
 
-    // Get actual investor count from blockchain
+    // Get actual investor count from database
     let investorCount = 0;
     
     if (grove.tokenAddress) {
       try {
         console.log('📊 Fetching token holders for grove:', grove.groveName);
         
-        const { MantleContractService } = await import('../lib/api/mantle-contract-service.js');
-        const { GROVE_TOKEN_ABI } = await import('../lib/api/contract-abis.js');
-        
-        const contractService = new MantleContractService(
-          process.env.MANTLE_NETWORK === 'mantleSepolia' ? 'mantleSepolia' : 'localhost'
-        );
-        
-        const tokenContract = contractService.getContractByAddress(
-          grove.tokenAddress,
-          GROVE_TOKEN_ABI
-        );
+        // Get potential holders from database
+        const { createClient } = await import('@libsql/client');
+        const client = createClient({
+          url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+          authToken: process.env.TURSO_AUTH_TOKEN
+        });
 
-        // Get Transfer events to find all unique token holders
-        const filter = tokenContract.filters.Transfer();
-        const events = await tokenContract.queryFilter(filter);
+        const potentialHolders = new Set<string>();
         
-        // Track unique holders (exclude zero address and issuer)
-        const holders = new Set<string>();
-        const issuerAddress = process.env.MANTLE_ISSUER_ADDRESS?.toLowerCase();
-        const zeroAddress = '0x0000000000000000000000000000000000000000';
-        
-        for (const event of events) {
-          // Type guard: only EventLog has args property
-          if ('args' in event) {
-            const to = event.args?.to?.toLowerCase();
-            if (to && to !== zeroAddress && to !== issuerAddress) {
-              // Check if they still have tokens
-              const balance: bigint = await tokenContract.balanceOf(to);
+        // Strategy 1: Get from token_holdings table
+        try {
+          const holdingsResult = await client.execute({
+            sql: `SELECT DISTINCT investor_address FROM token_holdings WHERE grove_id = ?`,
+            args: [grove.id]
+          });
+          
+          for (const row of holdingsResult.rows) {
+            if (row.investor_address) {
+              potentialHolders.add((row.investor_address as string).toLowerCase());
+            }
+          }
+        } catch (error) {
+          console.log('⚠️  token_holdings table query failed');
+        }
+
+        // Strategy 2: Get from marketplace
+        try {
+          const listingsResult = await client.execute({
+            sql: `SELECT DISTINCT seller_address FROM marketplace_listings WHERE grove_id = ?`,
+            args: [grove.id]
+          });
+          
+          for (const row of listingsResult.rows) {
+            if (row.seller_address) {
+              potentialHolders.add((row.seller_address as string).toLowerCase());
+            }
+          }
+        } catch (error) {
+          console.log('⚠️  marketplace_listings query failed');
+        }
+
+        console.log(`📊 Found ${potentialHolders.size} potential holders from database`);
+
+        // Check blockchain balances
+        if (potentialHolders.size > 0) {
+          const { MantleContractService } = await import('../lib/api/mantle-contract-service.js');
+          const { GROVE_TOKEN_ABI } = await import('../lib/api/contract-abis.js');
+          
+          const contractService = new MantleContractService(
+            process.env.MANTLE_NETWORK === 'mantleSepolia' ? 'mantleSepolia' : 'localhost'
+          );
+          
+          const tokenContract = contractService.getContractByAddress(
+            grove.tokenAddress,
+            GROVE_TOKEN_ABI
+          );
+
+          for (const holder of potentialHolders) {
+            try {
+              const balance: bigint = await tokenContract.balanceOf(holder);
               if (balance > 0n) {
-                holders.add(to);
+                investorCount++;
               }
+            } catch (error) {
+              console.error(`Error checking balance for ${holder}`);
             }
           }
         }
         
-        investorCount = holders.size;
-        console.log('📊 Found', investorCount, 'unique token holders with non-zero balance');
+        console.log('📊 Found', investorCount, 'investors with non-zero balance');
         
       } catch (error: any) {
         console.error('Error fetching token holders:', error.message);
-        // Continue with investorCount = 0 if blockchain query fails
+        // Continue with investorCount = 0 if query fails
       }
     }
 
