@@ -1664,9 +1664,15 @@ async function handleGetMarketplaceListings(req: VercelRequest, res: VercelRespo
     });
 
     const result = await client.execute({
-      sql: `SELECT * FROM marketplace_listings 
-            WHERE status = 'active' AND expires_at > ?
-            ORDER BY created_at DESC`,
+      sql: `SELECT 
+              ml.*,
+              cg.coffee_variety,
+              cg.location,
+              cg.current_health_score
+            FROM marketplace_listings ml
+            LEFT JOIN coffee_groves cg ON ml.grove_id = cg.id
+            WHERE ml.status = 'active' AND ml.expires_at > ?
+            ORDER BY ml.created_at DESC`,
       args: [now]
     });
 
@@ -1683,6 +1689,11 @@ async function handleGetMarketplaceListings(req: VercelRequest, res: VercelRespo
       expiresAt: row.expires_at,
       status: row.status,
       createdAt: row.created_at,
+      listingDate: row.created_at, // Alias for frontend compatibility
+      coffeeVariety: row.coffee_variety,
+      location: row.location,
+      healthScore: row.current_health_score,
+      originalPrice: row.price_per_token, // For now, same as current price
     }));
 
     console.log(`✅ Found ${listings.length} active listings`);
