@@ -2678,6 +2678,96 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
       })
       .where(eq(harvestRecords.id, harvestId));
 
+    // Create individual revenue distribution records for each token holder
+    if (investorShare > 0 && tokensSold > 0n) {
+      console.log('📊 Creating individual distribution records for token holders...');
+      
+      // Get all token holders by querying Transfer events or using a known list
+      // For now, we'll query the database for investors who have purchased this grove's tokens
+      const { createClient } = await import('@libsql/client');
+      const client = createClient({
+        url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+        authToken: process.env.TURSO_AUTH_TOKEN
+      });
+
+      // Get unique investors who hold tokens for this grove
+      // We'll check blockchain balances for each potential holder
+      const potentialHolders = new Set<string>();
+      
+      // Query marketplace listings to find potential holders
+      const listingsResult = await client.execute({
+        sql: `SELECT DISTINCT seller_address FROM marketplace_listings WHERE grove_id = ?`,
+        args: [grove.id]
+      });
+      
+      for (const row of listingsResult.rows) {
+        if (row.seller_address) {
+          potentialHolders.add((row.seller_address as string).toLowerCase());
+        }
+      }
+
+      // Query completed trades to find buyers
+      const tradesResult = await client.execute({
+        sql: `SELECT DISTINCT buyer_address FROM marketplace_listings WHERE grove_id = ? AND status = 'sold'`,
+        args: [grove.id]
+      });
+      
+      for (const row of tradesResult.rows) {
+        if (row.buyer_address) {
+          potentialHolders.add((row.buyer_address as string).toLowerCase());
+        }
+      }
+
+      console.log(`📊 Found ${potentialHolders.size} potential token holders`);
+
+      // Check actual balances and create distribution records
+      const distributions = [];
+      for (const holderAddress of potentialHolders) {
+        try {
+          const balance: bigint = await tokenContract.balanceOf(holderAddress);
+          
+          if (balance > 0n) {
+            // Calculate this holder's share
+            const holderPercentage = Number(balance) / Number(tokensSold);
+            const holderShare = Math.floor(investorShare * holderPercentage);
+            
+            if (holderShare > 0) {
+              distributions.push({
+                holderAddress: holderAddress,
+                groveId: grove.id,
+                groveName: grove.groveName,
+                tokenAddress: grove.tokenAddress,
+                harvestId: harvestId,
+                tokenBalance: Number(balance),
+                revenueShare: holderShare,
+                distributionDate: Date.now(),
+                paymentStatus: 'pending',
+                transactionHash: null,
+                createdAt: Date.now(),
+              });
+              
+              console.log(`📊 ${holderAddress}: ${balance.toString()} tokens = $${holderShare.toFixed(2)}`);
+            }
+          }
+        } catch (error) {
+          console.error(`Error checking balance for ${holderAddress}:`, error);
+        }
+      }
+
+      // Insert distribution records
+      if (distributions.length > 0) {
+        try {
+          await db.insert(revenueDistributions).values(distributions);
+          console.log(`✅ Created ${distributions.length} distribution records`);
+        } catch (error: any) {
+          console.error('Error creating distribution records:', error);
+          // Continue even if this fails - the harvest record is already updated
+        }
+      } else {
+        console.log('⚠️  No active token holders found for distribution');
+      }
+    }
+
     console.log('✅ Revenue distribution calculated and recorded for harvest:', harvestId);
     console.log('📝 Note: Farmer can claim via /api/farmer/withdraw, investors via /api/investor/claim');
 
