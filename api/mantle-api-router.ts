@@ -3274,7 +3274,7 @@ async function handlePurchaseTokens(req: VercelRequest, res: VercelResponse) {
     const pricePerToken = 10.00;
     const totalPrice = tokenAmount * pricePerToken;
 
-    console.log('💰 Purchase details:', {
+    console.log(' Purchase details:', {
       tokenAmount,
       pricePerToken,
       totalPrice,
