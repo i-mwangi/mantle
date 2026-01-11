@@ -761,8 +761,12 @@ class CoffeeTreeMarketplace {
     }
 
     async cancelListing(listingId) {
-        const listing = this.listings.find(l => l.id === listingId);
+        console.log('[Marketplace] cancelListing called with ID:', listingId);
+        console.log('[Marketplace] Available listings:', this.listings.map(l => l.id));
+        
+        const listing = this.listings.find(l => l.id == listingId); // Use == for loose comparison
         if (!listing) {
+            console.error('[Marketplace] Listing not found for ID:', listingId);
             window.walletManager.showToast('Listing not found', 'error');
             return;
         }
