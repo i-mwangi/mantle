@@ -2683,7 +2683,7 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
     if (investorShare > 0 && tokensSold > 0n) {
       console.log('📊 Creating individual distribution records for token holders...');
       
-      // Get potential token holders from database records
+      // Get token holders from database
       const { createClient } = await import('@libsql/client');
       const client = createClient({
         url: process.env.TURSO_DATABASE_URL || 'file:local.db',
@@ -2692,7 +2692,24 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
 
       const potentialHolders = new Set<string>();
       
-      // Strategy 1: Get investors from marketplace listings (sellers must have held tokens)
+      // Strategy 1: Get from token_holdings table (most reliable)
+      try {
+        const holdingsResult = await client.execute({
+          sql: `SELECT DISTINCT investor_address FROM token_holdings WHERE grove_id = ?`,
+          args: [grove.id]
+        });
+        
+        for (const row of holdingsResult.rows) {
+          if (row.investor_address) {
+            potentialHolders.add((row.investor_address as string).toLowerCase());
+          }
+        }
+        console.log(`📊 Found ${holdingsResult.rows.length} investors from token_holdings table`);
+      } catch (error: any) {
+        console.log('⚠️  token_holdings table not found or empty:', error.message);
+      }
+
+      // Strategy 2: Get from marketplace listings (sellers must have held tokens)
       try {
         const listingsResult = await client.execute({
           sql: `SELECT DISTINCT seller_address FROM marketplace_listings WHERE grove_id = ?`,
@@ -2709,7 +2726,7 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
         console.log('⚠️  No marketplace listings found');
       }
 
-      // Strategy 2: Get buyers from completed trades
+      // Strategy 3: Get buyers from completed trades
       try {
         const tradesResult = await client.execute({
           sql: `SELECT DISTINCT buyer_address FROM marketplace_listings WHERE grove_id = ? AND status = 'sold' AND buyer_address IS NOT NULL`,
@@ -2726,13 +2743,6 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
         console.log('⚠️  No completed trades found');
       }
 
-      // Strategy 3: Query blockchain directly for all token holders
-      // Since we can't use getLogs efficiently, we'll check balances for known addresses
-      // Add the issuer address to check if any tokens were purchased directly
-      const issuerAddress = process.env.MANTLE_ISSUER_ADDRESS;
-      
-      // Get all unique addresses that might hold tokens by checking recent activity
-      // We'll use a simple approach: check the portfolio API's known investors
       console.log(`📊 Total potential holders to check: ${potentialHolders.size}`);
 
       // Check actual balances and create distribution records
@@ -2783,8 +2793,8 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
         }
       } else {
         console.log('⚠️  No active token holders found for distribution');
-        console.log('💡 This might mean tokens were purchased but holders are not in marketplace records');
-        console.log('💡 Consider checking the investor who purchased tokens directly from the issuer');
+        console.log('💡 Tokens may have been purchased but holders not tracked in database');
+        console.log('💡 Run: node scripts/create-token-holdings-table.cjs to create tracking table');
       }
     }
 
