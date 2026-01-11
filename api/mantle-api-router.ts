@@ -1650,7 +1650,15 @@ async function handleGetMarketplaceListings(req: VercelRequest, res: VercelRespo
 
     // Get active listings that haven't expired
     const now = Date.now();
-    const result = await db.execute({
+    
+    // Use raw SQL via client
+    const { createClient } = await import('@libsql/client');
+    const client = createClient({
+      url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+      authToken: process.env.TURSO_AUTH_TOKEN
+    });
+
+    const result = await client.execute({
       sql: `SELECT * FROM marketplace_listings 
             WHERE status = 'active' AND expires_at > ?
             ORDER BY created_at DESC`,
