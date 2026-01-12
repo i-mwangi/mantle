@@ -100,6 +100,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleRepay(req, res);
     }
 
+    // Investor Balance: Get balance summary (check BEFORE generic /balance/)
+    if (url.includes('/api/investor/balance/') && method === 'GET') {
+      return await handleGetInvestorBalance(req, res);
+    }
+
     // Get user balance
     if (url.includes('/balance/') && method === 'GET') {
       return await handleGetBalance(req, res);
