@@ -169,7 +169,7 @@ class InvestorEarnings {
         // Update available balance help text
         const availableBalanceHelp = document.getElementById('availableBalanceHelp');
         if (availableBalanceHelp) {
-            const displayValue = ((this.balance.availableBalance || 0) / 100).toFixed(2);
+            const displayValue = (this.balance.availableBalance || 0).toFixed(2);
             availableBalanceHelp.textContent = `$${displayValue}`;
         }
     }
@@ -199,8 +199,8 @@ class InvestorEarnings {
     updateSummaryCard(cardId, value) {
         const element = document.getElementById(cardId);
         if (element) {
-            // Convert from cents to dollars
-            const displayValue = (value / 100).toFixed(2);
+            // Values are already in dollars, no conversion needed
+            const displayValue = value.toFixed(2);
             element.textContent = `$${displayValue}`;
         }
     }
