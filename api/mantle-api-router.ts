@@ -10,7 +10,7 @@ import { getMantleLendingService } from '../lib/api/mantle-lending-service.js';
 import { getMantleFarmerService } from '../lib/api/mantle-farmer-service.js';
 import { getMantlePriceOracleService } from '../lib/api/mantle-price-oracle-service.js';
 import { db } from '../db/index.js';
-import { coffeeGroves, farmers, harvestRecords, farmerWithdrawals, revenueDistributions, investorProfiles } from '../db/schema/index.js';
+import { coffeeGroves, farmers, harvestRecords, farmerWithdrawals, revenueDistributions, investorProfiles, investorWithdrawals } from '../db/schema/index.js';
 import { eq, desc } from 'drizzle-orm';
 
 /**
@@ -1730,7 +1730,7 @@ async function handleInvestorWithdraw(req: VercelRequest, res: VercelResponse) {
       let totalWithdrawn = 0;
       try {
         const withdrawals = await db.query.investorWithdrawals.findMany({
-          where: eq(revenueDistributions.holderAddress, investorAddress.toLowerCase()),
+          where: eq(investorWithdrawals.investorAddress, investorAddress.toLowerCase()),
         });
         totalWithdrawn = withdrawals
           .filter(w => w.status === 'completed')
@@ -1751,7 +1751,7 @@ async function handleInvestorWithdraw(req: VercelRequest, res: VercelResponse) {
       // Create withdrawal record
       const withdrawalId = `withdrawal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      await db.insert(revenueDistributions).values({
+      await db.insert(investorWithdrawals).values({
         id: withdrawalId,
         investorAddress: investorAddress.toLowerCase(),
         amount: amount,
@@ -1765,14 +1765,14 @@ async function handleInvestorWithdraw(req: VercelRequest, res: VercelResponse) {
 
       // TODO: Process actual USDC transfer to investor wallet
       // For now, just mark as completed
-      await db.update(revenueDistributions)
+      await db.update(investorWithdrawals)
         .set({
           status: 'completed',
           completedAt: Date.now(),
           transactionHash: '0x' + Date.now().toString(16), // Mock transaction hash
           updatedAt: Date.now(),
         })
-        .where(eq(revenueDistributions.id, withdrawalId));
+        .where(eq(investorWithdrawals.id, withdrawalId));
 
       return res.status(200).json({
         success: true,
