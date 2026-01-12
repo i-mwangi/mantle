@@ -3753,9 +3753,9 @@ class FarmerDashboard {
             // Show modal with preview data
             const modal = document.getElementById('distributionConfirmModal');
             document.getElementById('distGroveName').textContent = preview.groveName;
-            document.getElementById('distTotalRevenue').textContent = `$${(preview.totalRevenue / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            document.getElementById('distFarmerShare').textContent = `$${(preview.farmerShare / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            document.getElementById('distInvestorPool').textContent = `$${(preview.investorPool / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('distTotalRevenue').textContent = `$${preview.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('distFarmerShare').textContent = `$${preview.farmerShare.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('distInvestorPool').textContent = `$${preview.investorPool.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             document.getElementById('distInvestorCount').textContent = preview.investorCount;
 
             // Show warning if already distributed
