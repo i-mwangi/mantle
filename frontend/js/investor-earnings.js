@@ -351,7 +351,7 @@ class InvestorEarnings {
         }
 
         const earningIds = this.selectedEarnings.map(e => e.id);
-        const totalAmount = this.selectedEarnings.reduce((sum, e) => sum + e.amount, 0) / 100; // Convert to dollars
+        const totalAmount = this.selectedEarnings.reduce((sum, e) => sum + e.amount, 0); // Already in dollars
 
         try {
             // Show loading
@@ -485,7 +485,7 @@ class InvestorEarnings {
             return;
         }
 
-        const availableBalance = (this.balance?.availableBalance || 0) / 100;
+        const availableBalance = this.balance?.availableBalance || 0;
         if (amount > availableBalance) {
             this.showNotification(`Amount exceeds available balance ($${availableBalance.toFixed(2)})`, 'error');
             return;
