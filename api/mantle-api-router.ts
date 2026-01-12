@@ -2793,17 +2793,15 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
             
             if (holderShare > 0) {
               distributions.push({
-                holderAddress: holderAddress,
-                groveId: grove.id,
-                groveName: grove.groveName,
-                tokenAddress: grove.tokenAddress,
                 harvestId: harvestId,
-                tokenBalance: Number(balance),
+                holderAddress: holderAddress,
+                tokenAmount: Number(balance),
                 revenueShare: holderShare,
                 distributionDate: Date.now(),
-                paymentStatus: 'pending',
                 transactionHash: null,
-                createdAt: Date.now(),
+                payment_status: 'pending',
+                transaction_id: null,
+                paid_at: null,
               });
               
               totalDistributed += holderShare;
