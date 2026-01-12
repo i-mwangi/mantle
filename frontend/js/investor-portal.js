@@ -3653,23 +3653,23 @@ class InvestorPortal {
                 <div class="funding-stats">
                     <div class="stat-card">
                         <div class="stat-label">Total Investment Pool</div>
-                        <div class="stat-value">$${(pool.totalInvestment / 100).toFixed(2)}</div>
+                        <div class="stat-value">$${pool.totalInvestment.toFixed(2)}</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Funds Disbursed</div>
-                        <div class="stat-value">$${((pool.upfront.disbursed + pool.maintenance.disbursed + pool.harvest.disbursed) / 100).toFixed(2)}</div>
+                        <div class="stat-value">$${(pool.upfront.disbursed + pool.maintenance.disbursed + pool.harvest.disbursed).toFixed(2)}</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Upfront (40%)</div>
-                        <div class="stat-value">$${(pool.upfront.disbursed / 100).toFixed(2)} / $${(pool.upfront.allocated / 100).toFixed(2)}</div>
+                        <div class="stat-value">$${pool.upfront.disbursed.toFixed(2)} / $${pool.upfront.allocated.toFixed(2)}</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Maintenance (30%)</div>
-                        <div class="stat-value">$${(pool.maintenance.disbursed / 100).toFixed(2)} / $${(pool.maintenance.allocated / 100).toFixed(2)}</div>
+                        <div class="stat-value">$${pool.maintenance.disbursed.toFixed(2)} / $${pool.maintenance.allocated.toFixed(2)}</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Harvest (30%)</div>
-                        <div class="stat-value">$${(pool.harvest.disbursed / 100).toFixed(2)} / $${(pool.harvest.allocated / 100).toFixed(2)}</div>
+                        <div class="stat-value">$${pool.harvest.disbursed.toFixed(2)} / $${pool.harvest.allocated.toFixed(2)}</div>
                     </div>
                 </div>
             ` : '';
