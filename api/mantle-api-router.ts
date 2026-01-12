@@ -2597,6 +2597,19 @@ async function handleConfirmDistribution(req: VercelRequest, res: VercelResponse
       });
     }
 
+    // Additional check: See if distribution records already exist
+    const existingDistributions = await db.query.revenueDistributions.findMany({
+      where: eq(revenueDistributions.harvestId, harvestId),
+    });
+
+    if (existingDistributions.length > 0) {
+      console.log('⚠️  Distribution records already exist for this harvest');
+      return res.status(400).json({
+        success: false,
+        error: 'Distribution records already exist for this harvest',
+      });
+    }
+
     // Get grove info from database
     const grove = await db.query.coffeeGroves.findFirst({
       where: eq(coffeeGroves.id, harvest.groveId),
