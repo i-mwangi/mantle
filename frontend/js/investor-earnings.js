@@ -499,13 +499,13 @@ class InvestorEarnings {
             }
             this.showNotification('Processing withdrawal...', 'info');
 
-            // Convert to cents for API
-            const amountInCents = Math.round(amount * 100);
+            // Amount is already in dollars, no conversion needed
+            const amountInDollars = amount;
 
             // Process withdrawal
             const response = await window.coffeeAPI.processInvestorWithdrawal(
                 investorAddress,
-                amountInCents
+                amountInDollars
             );
 
             if (form) {

@@ -1763,27 +1763,70 @@ async function handleInvestorWithdraw(req: VercelRequest, res: VercelResponse) {
 
       console.log('✅ Withdrawal request created:', withdrawalId);
 
-      // TODO: Process actual USDC transfer to investor wallet
-      // For now, just mark as completed
-      await db.update(investorWithdrawals)
-        .set({
-          status: 'completed',
-          completedAt: Date.now(),
-          transactionHash: '0x' + Date.now().toString(16), // Mock transaction hash
-          updatedAt: Date.now(),
-        })
-        .where(eq(investorWithdrawals.id, withdrawalId));
+      // Process actual USDC transfer to investor wallet
+      console.log('💸 Transferring USDC to investor wallet...');
+      
+      try {
+        const paymentService = getMantlePaymentService();
+        const transferResult = await paymentService.sendUSDC(investorAddress, amount);
 
-      return res.status(200).json({
-        success: true,
-        message: 'Withdrawal processed successfully',
-        withdrawal: {
-          id: withdrawalId,
-          amount,
-          status: 'completed',
-          transactionHash: '0x' + Date.now().toString(16),
-        },
-      });
+        if (!transferResult.success) {
+          // Mark withdrawal as failed
+          await db.update(investorWithdrawals)
+            .set({
+              status: 'failed',
+              errorMessage: transferResult.error || 'USDC transfer failed',
+              updatedAt: Date.now(),
+            })
+            .where(eq(investorWithdrawals.id, withdrawalId));
+
+          return res.status(400).json({
+            success: false,
+            error: transferResult.error || 'Failed to transfer USDC',
+          });
+        }
+
+        console.log('✅ USDC transferred successfully:', transferResult.transactionHash);
+
+        // Mark withdrawal as completed with real transaction hash
+        await db.update(investorWithdrawals)
+          .set({
+            status: 'completed',
+            completedAt: Date.now(),
+            transactionHash: transferResult.transactionHash,
+            blockExplorerUrl: `https://explorer.sepolia.mantle.xyz/tx/${transferResult.transactionHash}`,
+            updatedAt: Date.now(),
+          })
+          .where(eq(investorWithdrawals.id, withdrawalId));
+
+        return res.status(200).json({
+          success: true,
+          message: 'Withdrawal processed successfully',
+          withdrawal: {
+            id: withdrawalId,
+            amount,
+            status: 'completed',
+            transactionHash: transferResult.transactionHash,
+            blockExplorerUrl: `https://explorer.sepolia.mantle.xyz/tx/${transferResult.transactionHash}`,
+          },
+        });
+      } catch (transferError: any) {
+        console.error('❌ USDC transfer error:', transferError);
+        
+        // Mark withdrawal as failed
+        await db.update(investorWithdrawals)
+          .set({
+            status: 'failed',
+            errorMessage: transferError.message || 'USDC transfer failed',
+            updatedAt: Date.now(),
+          })
+          .where(eq(investorWithdrawals.id, withdrawalId));
+
+        return res.status(500).json({
+          success: false,
+          error: transferError.message || 'Failed to transfer USDC',
+        });
+      }
     } catch (dbError: any) {
       console.error('Database error:', dbError);
       return res.status(500).json({
