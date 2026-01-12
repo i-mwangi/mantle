@@ -236,6 +236,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetInvestorWithdrawals(req, res);
     }
 
+    // Investor Withdrawals: Process withdrawal
+    if (url.includes('/api/investor/withdraw') && method === 'POST') {
+      return await handleInvestorWithdraw(req, res);
+    }
+
     // Revenue: Get pending distributions
     if (url.includes('/api/revenue/pending-distributions') && method === 'GET') {
       return await handleGetPendingDistributions(req, res);
