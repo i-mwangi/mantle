@@ -222,7 +222,7 @@ class InvestorEarnings {
         }
 
         container.innerHTML = earnings.map(earning => {
-            const amount = (earning.earningAmount / 100).toFixed(2);
+            const amount = earning.earningAmount.toFixed(2);
             const date = earning.distributedAt ? new Date(earning.distributedAt).toLocaleDateString() : 'N/A';
             const typeLabel = this.getEarningTypeLabel(earning.earningType);
             const typeClass = this.getEarningTypeClass(earning.earningType);
@@ -321,7 +321,7 @@ class InvestorEarnings {
         if (!claimButton) return;
 
         const totalSelected = this.selectedEarnings.reduce((sum, e) => sum + e.amount, 0);
-        const displayAmount = (totalSelected / 100).toFixed(2);
+        const displayAmount = totalSelected.toFixed(2);
 
         if (selectedAmountEl) {
             selectedAmountEl.textContent = `$${displayAmount}`;
