@@ -3366,7 +3366,7 @@ class InvestorPortal {
         // Update statistics
         const stats = manager.getStatistics();
         document.getElementById('totalTransactions').textContent = stats.total;
-        document.getElementById('totalVolume').textContent = `$${(stats.totalVolume / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        document.getElementById('totalVolume').textContent = `$${stats.totalVolume.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         document.getElementById('completedTransactions').textContent = stats.byStatus.completed || 0;
         document.getElementById('pendingTransactions').textContent = stats.byStatus.pending || 0;
 
