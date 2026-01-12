@@ -288,7 +288,7 @@ class NotificationService {
                                 this.addNotification({
                                     type: 'success',
                                     title: 'Funding Request Approved',
-                                    message: `Your funding request for $${(request.amountApproved / 100).toFixed(2)} has been approved!`
+                                    message: `Your funding request for $${request.amountApproved.toFixed(2)} has been approved!`
                                 });
                             } else if (request.status === 'rejected') {
                                 this.addNotification({

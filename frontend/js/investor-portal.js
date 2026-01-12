@@ -3690,7 +3690,7 @@ class InvestorPortal {
                                 <div class="timeline-content">
                                     <div class="timeline-date">${date}</div>
                                     <div class="timeline-title">
-                                        ${milestoneIcon} ${this.formatMilestone(request.milestoneType)} - $${(request.amountApproved / 100).toFixed(2)}
+                                        ${milestoneIcon} ${this.formatMilestone(request.milestoneType)} - $${request.amountApproved.toFixed(2)}
                                     </div>
                                     <div class="timeline-description">
                                         ${request.purpose ? request.purpose.substring(0, 100) + (request.purpose.length > 100 ? '...' : '') : 'No description provided'}
