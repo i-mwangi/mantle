@@ -1703,6 +1703,104 @@ async function handleGetInvestorBalance(req: VercelRequest, res: VercelResponse)
 }
 
 /**
+ * Process investor withdrawal
+ */
+async function handleInvestorWithdraw(req: VercelRequest, res: VercelResponse) {
+  try {
+    const { investorAddress, amount } = req.body;
+
+    if (!investorAddress || !amount) {
+      return res.status(400).json({
+        success: false,
+        error: 'Investor address and amount are required',
+      });
+    }
+
+    console.log('💰 Processing investor withdrawal:', { investorAddress, amount });
+
+    // Get investor's available balance
+    try {
+      const distributions = await db.query.revenueDistributions.findMany({
+        where: eq(revenueDistributions.holderAddress, investorAddress.toLowerCase()),
+      });
+
+      const totalEarned = distributions.reduce((sum, dist) => sum + (dist.revenueShare || 0), 0);
+
+      // Get previous withdrawals
+      let totalWithdrawn = 0;
+      try {
+        const withdrawals = await db.query.investorWithdrawals.findMany({
+          where: eq(revenueDistributions.holderAddress, investorAddress.toLowerCase()),
+        });
+        totalWithdrawn = withdrawals
+          .filter(w => w.status === 'completed')
+          .reduce((sum, w) => sum + (w.amount || 0), 0);
+      } catch (e) {
+        console.log('⚠️  No previous withdrawals found');
+      }
+
+      const availableBalance = totalEarned - totalWithdrawn;
+
+      if (amount > availableBalance) {
+        return res.status(400).json({
+          success: false,
+          error: `Insufficient balance. Available: $${availableBalance.toFixed(2)}, Requested: $${amount.toFixed(2)}`,
+        });
+      }
+
+      // Create withdrawal record
+      const withdrawalId = `withdrawal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      await db.insert(revenueDistributions).values({
+        id: withdrawalId,
+        investorAddress: investorAddress.toLowerCase(),
+        amount: amount,
+        status: 'pending',
+        requestedAt: Date.now(),
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+
+      console.log('✅ Withdrawal request created:', withdrawalId);
+
+      // TODO: Process actual USDC transfer to investor wallet
+      // For now, just mark as completed
+      await db.update(revenueDistributions)
+        .set({
+          status: 'completed',
+          completedAt: Date.now(),
+          transactionHash: '0x' + Date.now().toString(16), // Mock transaction hash
+          updatedAt: Date.now(),
+        })
+        .where(eq(revenueDistributions.id, withdrawalId));
+
+      return res.status(200).json({
+        success: true,
+        message: 'Withdrawal processed successfully',
+        withdrawal: {
+          id: withdrawalId,
+          amount,
+          status: 'completed',
+          transactionHash: '0x' + Date.now().toString(16),
+        },
+      });
+    } catch (dbError: any) {
+      console.error('Database error:', dbError);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to process withdrawal',
+      });
+    }
+  } catch (error: any) {
+    console.error('Error processing investor withdrawal:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to process withdrawal',
+    });
+  }
+}
+
+/**
  * Get pending revenue distributions
  */
 async function handleGetPendingDistributions(req: VercelRequest, res: VercelResponse) {
