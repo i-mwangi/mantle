@@ -3007,16 +3007,16 @@ class FarmerDashboard {
                                     </div>
                                     <div class="metric">
                                         <span class="metric-label">Revenue</span>
-                                        <span class="metric-value">$$${this.getTotalRevenue(harvest).toLocaleString()}</span>
+                                        <span class="metric-value">${this.getTotalRevenue(harvest).toLocaleString()}</span>
                                     </div>                                </div>
                                 <div class="harvest-distribution">
                                     <div class="metric">
                                         <span class="metric-label">Farmer Share (30%)</span>
-                                        <span class="metric-value">$$${this.calculateFarmerShare(harvest).toLocaleString()}</span>
+                                        <span class="metric-value">${this.calculateFarmerShare(harvest).toLocaleString()}</span>
                                     </div>
                                     <div class="metric">
                                         <span class="metric-label">Investor Share (70%)</span>
-                                        <span class="metric-value">$$${this.calculateInvestorShare(harvest).toLocaleString()}</span>
+                                        <span class="metric-value">${this.calculateInvestorShare(harvest).toLocaleString()}</span>
                                     </div>
                                 </div>
                                 ${!harvest.revenueDistributed ? `
@@ -3123,17 +3123,17 @@ class FarmerDashboard {
                             </div>
                             <div class="metric">
                                 <span class="metric-label">Revenue</span>
-                                <span class="metric-value">$$${this.getTotalRevenue(harvest).toLocaleString()}</span>
+                                <span class="metric-value">${this.getTotalRevenue(harvest).toLocaleString()}</span>
                             </div>
                         </div>
                         <div class="harvest-distribution">
                             <div class="metric">
                                 <span class="metric-label">Farmer Share (30%)</span>
-                                <span class="metric-value">$$${this.calculateFarmerShare(harvest).toLocaleString()}</span>
+                                <span class="metric-value">${this.calculateFarmerShare(harvest).toLocaleString()}</span>
                             </div>
                             <div class="metric">
                                 <span class="metric-label">Investor Share (70%)</span>
-                                <span class="metric-value">$$${this.calculateInvestorShare(harvest).toLocaleString()}</span>
+                                <span class="metric-value">${this.calculateInvestorShare(harvest).toLocaleString()}</span>
                             </div>
                         </div>
                         ${harvest.notes ? `
@@ -3241,11 +3241,11 @@ class FarmerDashboard {
                         <div class="harvest-distribution">
                             <div class="metric">
                                 <span class="metric-label">Farmer Share (30%)</span>
-                                <span class="metric-value">$$${this.calculateFarmerShare(harvest).toLocaleString()}</span>
+                                <span class="metric-value">${this.calculateFarmerShare(harvest).toLocaleString()}</span>
                             </div>
                             <div class="metric">
                                 <span class="metric-label">Investor Share (70%)</span>
-                                <span class="metric-value">$$${this.calculateInvestorShare(harvest).toLocaleString()}</span>
+                                <span class="metric-value">${this.calculateInvestorShare(harvest).toLocaleString()}</span>
                             </div>
                         </div>
                         ${harvest.notes ? `
@@ -4094,6 +4094,7 @@ class FarmerDashboard {
 
 // Create global farmer dashboard instance
 window.farmerDashboard = new FarmerDashboard();
+
 
 
 

@@ -226,6 +226,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetUnclaimedEarnings(req, res);
     }
 
+    // Investor Balance: Get balance summary
+    if (url.includes('/api/investor/balance/') && method === 'GET') {
+      return await handleGetInvestorBalance(req, res);
+    }
+
     // Investor Withdrawals: Get withdrawal history
     if (url.includes('/api/investor/withdrawals/') && method === 'GET') {
       return await handleGetInvestorWithdrawals(req, res);
