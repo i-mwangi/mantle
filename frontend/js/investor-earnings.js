@@ -560,7 +560,7 @@ class InvestorEarnings {
         }
 
         container.innerHTML = this.withdrawalHistory.map(withdrawal => {
-            const amount = (withdrawal.amount / 100).toFixed(2);
+            const amount = withdrawal.amount.toFixed(2);
             const date = new Date(withdrawal.requestedAt).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
