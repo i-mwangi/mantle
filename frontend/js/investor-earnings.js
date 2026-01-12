@@ -460,7 +460,7 @@ class InvestorEarnings {
     setMaxWithdrawalAmount() {
         const withdrawalInput = document.getElementById('withdrawalAmount');
         if (withdrawalInput && this.balance) {
-            const maxAmount = ((this.balance.availableBalance || 0) / 100).toFixed(2);
+            const maxAmount = (this.balance.availableBalance || 0).toFixed(2);
             withdrawalInput.value = maxAmount;
         }
     }
