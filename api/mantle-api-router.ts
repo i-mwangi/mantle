@@ -1597,6 +1597,107 @@ async function handleGetInvestorWithdrawals(req: VercelRequest, res: VercelRespo
 }
 
 /**
+ * Get investor balance summary
+ */
+async function handleGetInvestorBalance(req: VercelRequest, res: VercelResponse) {
+  try {
+    const investorAddress = req.url?.split('/balance/')[1]?.split('?')[0];
+    
+    if (!investorAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing investor address',
+      });
+    }
+
+    console.log('📊 Getting balance for investor:', investorAddress);
+
+    try {
+      // Get all revenue distributions for this investor
+      const distributions = await db.query.revenueDistributions.findMany({
+        where: eq(revenueDistributions.holderAddress, investorAddress.toLowerCase()),
+        orderBy: [desc(revenueDistributions.distributionDate)],
+      });
+
+      // Calculate totals (values are in cents in database)
+      const totalEarned = distributions.reduce((sum, dist) => sum + (dist.revenueShare || 0), 0);
+      const totalClaimed = distributions
+        .filter(d => d.paymentStatus === 'completed')
+        .reduce((sum, dist) => sum + (dist.revenueShare || 0), 0);
+      const totalUnclaimed = distributions
+        .filter(d => d.paymentStatus === 'pending' || !d.paymentStatus)
+        .reduce((sum, dist) => sum + (dist.revenueShare || 0), 0);
+
+      // Get withdrawals (if table exists)
+      let totalWithdrawn = 0;
+      try {
+        const withdrawals = await db.query.investorWithdrawals.findMany({
+          where: eq(revenueDistributions.holderAddress, investorAddress.toLowerCase()),
+        });
+        totalWithdrawn = withdrawals
+          .filter(w => w.status === 'completed')
+          .reduce((sum, w) => sum + (w.amount || 0), 0);
+      } catch (e) {
+        console.log('⚠️  investor_withdrawals table not found');
+      }
+
+      const availableBalance = totalEarned - totalWithdrawn;
+
+      // Calculate this month's earnings
+      const now = Date.now();
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+      const totalEarningsThisMonth = distributions
+        .filter(d => d.distributionDate >= startOfMonth)
+        .reduce((sum, dist) => sum + (dist.revenueShare || 0), 0);
+
+      // For now, all unclaimed earnings are from primary market
+      // TODO: Add secondary market and LP interest tracking
+      const balance = {
+        totalEarned,
+        totalWithdrawn,
+        availableBalance,
+        totalEarningsThisMonth,
+        totalClaimed,
+        unclaimedPrimaryMarket: totalUnclaimed,
+        unclaimedSecondaryMarket: 0,
+        unclaimedLpInterest: 0,
+        totalUnclaimed,
+      };
+
+      console.log('📊 Investor balance:', balance);
+
+      return res.status(200).json({
+        success: true,
+        balance,
+      });
+    } catch (dbError: any) {
+      // Table doesn't exist yet - return empty data
+      console.log('⚠️  revenue_distributions table not found, returning empty balance');
+      return res.status(200).json({
+        success: true,
+        balance: {
+          totalEarned: 0,
+          totalWithdrawn: 0,
+          availableBalance: 0,
+          totalEarningsThisMonth: 0,
+          totalClaimed: 0,
+          unclaimedPrimaryMarket: 0,
+          unclaimedSecondaryMarket: 0,
+          unclaimedLpInterest: 0,
+          totalUnclaimed: 0,
+        },
+      });
+    }
+  } catch (error: any) {
+    console.error('Error getting investor balance:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get balance',
+    });
+  }
+}
+
+/**
  * Get pending revenue distributions
  */
 async function handleGetPendingDistributions(req: VercelRequest, res: VercelResponse) {
