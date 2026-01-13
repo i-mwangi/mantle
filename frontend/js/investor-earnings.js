@@ -165,9 +165,9 @@ class InvestorEarnings {
         if (!this.balance) return;
 
         // Update balance cards
-        this.updateSummaryCard('totalEarned', this.balance.totalEarned || 0);
-        this.updateSummaryCard('totalWithdrawn', this.balance.totalWithdrawn || 0);
-        this.updateSummaryCard('availableBalance', this.balance.availableBalance || 0);
+        this.updateSummaryCard('investorTotalEarned', this.balance.totalEarned || 0);
+        this.updateSummaryCard('investorTotalWithdrawn', this.balance.totalWithdrawn || 0);
+        this.updateSummaryCard('investorAvailableBalance', this.balance.availableBalance || 0);
         
         // Update available balance help text
         const availableBalanceHelp = document.getElementById('availableBalanceHelp');
