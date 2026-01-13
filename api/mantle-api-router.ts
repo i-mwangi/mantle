@@ -747,6 +747,108 @@ async function handleGetLendingPools(req: VercelRequest, res: VercelResponse) {
 }
 
 /**
+ * Get pool statistics (same as pools but different endpoint)
+ */
+async function handleGetPoolStats(req: VercelRequest, res: VercelResponse) {
+  try {
+    const assetAddress = req.url?.split('assetAddress=')[1]?.split('&')[0];
+    
+    console.log('📊 Getting pool stats for asset:', assetAddress);
+    
+    const lendingService = getMantleLendingService();
+    
+    // Get pool stats from blockchain
+    const stats = await lendingService.getPoolStats();
+    const lpTokenAddress = await lendingService.getLPTokenAddress();
+    
+    // Format pool data
+    const poolStats = {
+      assetAddress: process.env.MANTLE_USDC_ADDRESS,
+      assetName: 'USDC',
+      assetSymbol: 'USDC',
+      totalLiquidity: parseFloat(stats.totalLiquidity),
+      availableLiquidity: parseFloat(stats.availableLiquidity),
+      totalBorrowed: parseFloat(stats.totalBorrowed),
+      utilizationRate: stats.utilizationRate,
+      lenderAPY: stats.currentAPY,
+      borrowerAPR: 10,
+      lpTokenAddress,
+      collateralRatio: 125,
+      liquidationThreshold: 90,
+    };
+
+    return res.status(200).json({
+      success: true,
+      data: poolStats,
+    });
+  } catch (error: any) {
+    console.error('Error getting pool stats:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get pool stats',
+    });
+  }
+}
+
+/**
+ * Provide liquidity (frontend endpoint)
+ */
+async function handleProvideLiquidity(req: VercelRequest, res: VercelResponse) {
+  try {
+    const { assetAddress, amount, providerAddress } = req.body;
+
+    if (!providerAddress || !amount) {
+      return res.status(400).json({
+        success: false,
+        error: 'Provider address and amount required',
+      });
+    }
+
+    console.log(`💰 Providing liquidity: ${amount} USDC from ${providerAddress}`);
+
+    const lendingService = getMantleLendingService();
+    const result = await lendingService.deposit(providerAddress, amount.toString());
+
+    return res.status(result.success ? 200 : 400).json(result);
+  } catch (error: any) {
+    console.error('Error providing liquidity:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to provide liquidity',
+    });
+  }
+}
+
+/**
+ * Withdraw liquidity (frontend endpoint)
+ */
+async function handleWithdrawLiquidity(req: VercelRequest, res: VercelResponse) {
+  try {
+    const { assetAddress, lpTokenAmount, providerAddress } = req.body;
+
+    if (!providerAddress || !lpTokenAmount) {
+      return res.status(400).json({
+        success: false,
+        error: 'Provider address and LP token amount required',
+      });
+    }
+
+    console.log(`💸 Withdrawing liquidity: ${lpTokenAmount} LP tokens from ${providerAddress}`);
+
+    const lendingService = getMantleLendingService();
+    const result = await lendingService.withdraw(providerAddress, lpTokenAmount.toString());
+
+    return res.status(result.success ? 200 : 400).json(result);
+  } catch (error: any) {
+    console.error('Error withdrawing liquidity:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to withdraw liquidity',
+    });
+  }
+}
+
+/**
  * Get loan details
  */
 async function handleGetLoanDetails(req: VercelRequest, res: VercelResponse) {
