@@ -752,7 +752,7 @@ async function handleGetCreditScore(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // For now, return default credit score
+    // For now, return default credit score with all required fields
     // TODO: Implement actual credit score calculation based on payment history
     return res.status(200).json({
       success: true,
@@ -761,6 +761,13 @@ async function handleGetCreditScore(req: VercelRequest, res: VercelResponse) {
         rating: 'No History',
         address,
         lastUpdated: Date.now(),
+        paymentHistory: {
+          onTimePayments: 0,
+          latePayments: 0,
+          totalPayments: 0,
+        },
+        utilizationRate: 0,
+        accountAge: 0,
       },
     });
   } catch (error: any) {
@@ -768,6 +775,37 @@ async function handleGetCreditScore(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({
       success: false,
       error: error.message || 'Failed to get credit score',
+    });
+  }
+}
+
+/**
+ * Get liquidity positions
+ */
+async function handleGetLiquidityPositions(req: VercelRequest, res: VercelResponse) {
+  try {
+    const address = req.url?.split('/liquidity-positions/')[1]?.split('?')[0];
+    
+    if (!address) {
+      return res.status(400).json({
+        success: false,
+        error: 'Address required',
+      });
+    }
+
+    // For now, return empty positions
+    // TODO: Implement actual liquidity position tracking from blockchain/database
+    return res.status(200).json({
+      success: true,
+      positions: [],
+      totalLiquidity: 0,
+      totalEarnings: 0,
+    });
+  } catch (error: any) {
+    console.error('Error getting liquidity positions:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get liquidity positions',
     });
   }
 }
