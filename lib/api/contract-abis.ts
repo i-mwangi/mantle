@@ -57,17 +57,51 @@ export const ISSUER_ABI = [
 
 // CoffeeLendingPool ABI
 export const LENDING_POOL_ABI = [
-  'function deposit(uint256 amount)',
-  'function withdraw(uint256 amount)',
-  'function borrow(address collateralToken, uint256 collateralAmount, uint256 borrowAmount)',
-  'function repay(uint256 loanId, uint256 amount)',
+  // Liquidity provision
+  'function provideLiquidity(uint256 amount)',
+  'function withdrawLiquidity(uint256 lpTokenAmount)',
+  
+  // Borrowing
+  'function takeLoan(address collateralToken, uint256 collateralAmount, uint256 loanAmount)',
+  'function repayLoan()',
+  
+  // Collateral management
+  'function addCollateralToken(address _token)',
+  'function removeCollateralToken(address _token)',
+  'function isCollateralSupported(address token) view returns (bool)',
+  'function getSupportedCollateral() view returns (address[] memory)',
+  
+  // Queries
   'function getLPToken() view returns (address)',
-  'function getUserDeposit(address user) view returns (uint256)',
-  'function getLoan(uint256 loanId) view returns (address borrower, uint256 collateralAmount, uint256 borrowedAmount, uint256 interestRate, bool active)',
-  'event Deposited(address indexed user, uint256 amount)',
-  'event Withdrawn(address indexed user, uint256 amount)',
-  'event Borrowed(address indexed borrower, uint256 loanId, uint256 amount)',
-  'event Repaid(address indexed borrower, uint256 loanId, uint256 amount)',
+  'function getPoolStats() view returns (uint256 _totalLiquidity, uint256 _availableLiquidity, uint256 _totalBorrowed, uint256 _utilizationRate, uint256 _currentAPY)',
+  'function getLoan(address borrower) view returns (address collateralToken, uint256 loanAmount, uint256 collateralAmount, uint256 repayAmount, uint256 borrowDate, bool isActive, bool isLiquidated)',
+  'function getLiquidityPosition(address provider) view returns (uint256 amountProvided, uint256 lpTokensReceived, uint256 depositDate, uint256 accruedInterest)',
+  'function getCollateralValue(address collateralToken, uint256 collateralAmount) view returns (uint256)',
+  'function getMaxLoanAmount(address collateralToken, uint256 collateralAmount) view returns (uint256)',
+  
+  // Admin
+  'function liquidateLoan(address borrower)',
+  'function updateAPY(uint256 newAPY)',
+  'function setOracle(address _oracle)',
+  
+  // Public variables
+  'function totalLiquidity() view returns (uint256)',
+  'function availableLiquidity() view returns (uint256)',
+  'function totalBorrowed() view returns (uint256)',
+  'function baseAPY() view returns (uint256)',
+  'function USDC() view returns (address)',
+  'function oracle() view returns (address)',
+  'function lpToken() view returns (address)',
+  
+  // Events
+  'event LiquidityProvided(address indexed provider, uint256 amount, uint256 lpTokensReceived, uint256 timestamp)',
+  'event LiquidityWithdrawn(address indexed provider, uint256 amount, uint256 lpTokensBurned, uint256 interestEarned, uint256 timestamp)',
+  'event LoanTaken(address indexed borrower, uint256 loanAmount, uint256 collateralAmount, uint256 repayAmount, uint256 timestamp)',
+  'event LoanRepaid(address indexed borrower, uint256 repayAmount, uint256 timestamp)',
+  'event LoanLiquidated(address indexed borrower, uint256 collateralSeized, uint256 timestamp)',
+  'event PoolStatsUpdated(uint256 totalLiquidity, uint256 availableLiquidity, uint256 totalBorrowed, uint256 utilizationRate, uint256 timestamp)',
+  'event CollateralAdded(address indexed token, uint256 timestamp)',
+  'event CollateralRemoved(address indexed token, uint256 timestamp)',
 ];
 
 // LP Token ABI (ERC20)
