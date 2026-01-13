@@ -982,22 +982,24 @@ async function handleGetLiquidityPositions(req: VercelRequest, res: VercelRespon
 
     const amountProvided = parseFloat(position.amountProvided);
     const accruedInterest = parseFloat(position.accruedInterest);
+    const lpTokenBalance = parseFloat(lpBalance);
     const currentValue = amountProvided + accruedInterest;
 
     // Calculate APY
     const timeHeld = (Date.now() - position.depositDate) / (365 * 24 * 60 * 60 * 1000);
-    const apy = timeHeld > 0 ? (accruedInterest / amountProvided) / timeHeld * 100 : 0;
+    const apy = timeHeld > 0 && amountProvided > 0 ? (accruedInterest / amountProvided) / timeHeld * 100 : 8.5; // Default to 8.5% APY
 
-    const positions = amountProvided > 0 ? [{
+    // Show position if user has LP tokens OR has provided liquidity
+    const positions = (lpTokenBalance > 0 || amountProvided > 0) ? [{
       poolAddress: process.env.MANTLE_LENDING_POOL_ADDRESS,
       assetName: 'USDC',
       assetSymbol: 'USDC',
       amountDeposited: amountProvided,
-      lpTokenBalance: parseFloat(lpBalance),
-      currentValue,
+      lpTokenBalance,
+      currentValue: lpTokenBalance > 0 ? currentValue : amountProvided, // Use current value if has LP tokens
       earnedInterest: accruedInterest,
       apy,
-      depositDate: position.depositDate,
+      depositDate: position.depositDate || Date.now(),
     }] : [];
 
     console.log('✅ Liquidity positions:', positions);
