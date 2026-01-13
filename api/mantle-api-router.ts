@@ -1606,15 +1606,62 @@ async function handleGetInvestorWithdrawals(req: VercelRequest, res: VercelRespo
         },
       });
     } catch (dbError: any) {
-      console.log('⚠️  investor_withdrawals table not found, returning empty data');
-      return res.status(200).json({
-        success: true,
-        data: {
-          withdrawals: [],
-          totalWithdrawn: 0,
-          pendingWithdrawals: 0,
-        },
-      });
+      console.log('⚠️  Drizzle query failed, trying raw SQL:', dbError.message);
+      
+      // Fallback to raw SQL
+      try {
+        const { createClient } = await import('@libsql/client');
+        const client = createClient({
+          url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+          authToken: process.env.TURSO_AUTH_TOKEN
+        });
+        
+        const result = await client.execute({
+          sql: 'SELECT * FROM investor_withdrawals WHERE investor_address = ? ORDER BY requested_at DESC',
+          args: [investorAddress.toLowerCase()]
+        });
+        
+        const withdrawals = result.rows.map((row: any) => ({
+          id: row.id,
+          investorAddress: row.investor_address,
+          amount: row.amount,
+          status: row.status,
+          transactionHash: row.transaction_hash,
+          blockExplorerUrl: row.block_explorer_url,
+          requestedAt: row.requested_at,
+          completedAt: row.completed_at,
+        }));
+        
+        const totalWithdrawn = withdrawals
+          .filter((w: any) => w.status === 'completed')
+          .reduce((sum: number, w: any) => sum + (w.amount || 0), 0);
+
+        const pendingWithdrawals = withdrawals
+          .filter((w: any) => w.status === 'pending')
+          .reduce((sum: number, w: any) => sum + (w.amount || 0), 0);
+        
+        console.log(`📊 Raw SQL found ${withdrawals.length} withdrawals`);
+        client.close();
+
+        return res.status(200).json({
+          success: true,
+          data: {
+            withdrawals,
+            totalWithdrawn,
+            pendingWithdrawals,
+          },
+        });
+      } catch (sqlError: any) {
+        console.error('❌ Raw SQL also failed:', sqlError.message);
+        return res.status(200).json({
+          success: true,
+          data: {
+            withdrawals: [],
+            totalWithdrawn: 0,
+            pendingWithdrawals: 0,
+          },
+        });
+      }
     }
   } catch (error: any) {
     console.error('Error getting investor withdrawals:', error);
