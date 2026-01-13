@@ -85,8 +85,11 @@ class InvestorEarnings {
             ]);
             
             console.log('[Investor Earnings] Balance response:', balanceResponse);
+            console.log('[Investor Earnings] Balance response.balance:', balanceResponse?.balance);
+            console.log('[Investor Earnings] Balance response.data:', balanceResponse?.data);
             console.log('[Investor Earnings] Earnings response:', earningsResponse);
             console.log('[Investor Earnings] Withdrawal history response:', withdrawalHistoryResponse);
+            console.log('[Investor Earnings] Withdrawal history response.data:', withdrawalHistoryResponse?.data);
 
             if (balanceResponse && balanceResponse.success) {
                 this.balance = balanceResponse.balance || balanceResponse.data;
