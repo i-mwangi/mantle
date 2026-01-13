@@ -218,7 +218,7 @@ class InvestorEarnings {
         const container = document.getElementById('unclaimedEarningsList');
         if (!container) return;
 
-        const earnings = this.unclaimedEarnings.all || [];
+        const earnings = this.unclaimedEarnings.distributions || [];
 
         if (earnings.length === 0) {
             container.innerHTML = '<p class="empty-state">No unclaimed earnings available</p>';
