@@ -801,6 +801,76 @@ async function handleGetPoolStats(req: VercelRequest, res: VercelResponse) {
 }
 
 /**
+ * Track deposit in database (optional, non-blocking)
+ */
+async function handleTrackDeposit(req: VercelRequest, res: VercelResponse) {
+  try {
+    const { providerAddress, amount, lpTokensReceived, transactionHash } = req.body;
+
+    if (!providerAddress || !amount) {
+      return res.status(400).json({
+        success: false,
+        error: 'Provider address and amount required',
+      });
+    }
+
+    console.log(`📝 Tracking deposit: ${amount} USDC from ${providerAddress}`);
+
+    // Record in database
+    await db.insert(providedLiquidity).values({
+      id: `${providerAddress}-${Date.now()}`,
+      account: providerAddress.toLowerCase(),
+      asset: process.env.MANTLE_USDC_ADDRESS!.toLowerCase(),
+      amount: parseFloat(amount),
+      timestamp: Date.now(),
+    });
+
+    console.log('✅ Deposit tracked in database');
+
+    return res.status(200).json({ success: true });
+  } catch (error: any) {
+    console.error('Error tracking deposit:', error);
+    // Don't fail - this is optional
+    return res.status(200).json({ success: true, warning: 'Database tracking failed' });
+  }
+}
+
+/**
+ * Track withdrawal in database (optional, non-blocking)
+ */
+async function handleTrackWithdrawal(req: VercelRequest, res: VercelResponse) {
+  try {
+    const { providerAddress, lpTokenAmount, usdcAmount, transactionHash } = req.body;
+
+    if (!providerAddress || !usdcAmount) {
+      return res.status(400).json({
+        success: false,
+        error: 'Provider address and USDC amount required',
+      });
+    }
+
+    console.log(`📝 Tracking withdrawal: ${usdcAmount} USDC to ${providerAddress}`);
+
+    // Record in database
+    await db.insert(withdrawnLiquidity).values({
+      id: `${providerAddress}-${Date.now()}`,
+      account: providerAddress.toLowerCase(),
+      asset: process.env.MANTLE_USDC_ADDRESS!.toLowerCase(),
+      amount: parseFloat(usdcAmount),
+      timestamp: Date.now(),
+    });
+
+    console.log('✅ Withdrawal tracked in database');
+
+    return res.status(200).json({ success: true });
+  } catch (error: any) {
+    console.error('Error tracking withdrawal:', error);
+    // Don't fail - this is optional
+    return res.status(200).json({ success: true, warning: 'Database tracking failed' });
+  }
+}
+
+/**
  * Provide liquidity (frontend endpoint)
  */
 async function handleProvideLiquidity(req: VercelRequest, res: VercelResponse) {
