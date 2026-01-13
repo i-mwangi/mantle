@@ -855,13 +855,41 @@ async function handleGetLiquidityPositions(req: VercelRequest, res: VercelRespon
       });
     }
 
-    // For now, return empty positions
-    // TODO: Implement actual liquidity position tracking from blockchain/database
+    console.log(`📊 Getting liquidity positions for: ${address}`);
+
+    const lendingService = getMantleLendingService();
+    
+    // Get position from blockchain
+    const position = await lendingService.getLiquidityPosition(address);
+    const lpBalance = await lendingService.getLPTokenBalance(address);
+
+    const amountProvided = parseFloat(position.amountProvided);
+    const accruedInterest = parseFloat(position.accruedInterest);
+    const currentValue = amountProvided + accruedInterest;
+
+    // Calculate APY
+    const timeHeld = (Date.now() - position.depositDate) / (365 * 24 * 60 * 60 * 1000);
+    const apy = timeHeld > 0 ? (accruedInterest / amountProvided) / timeHeld * 100 : 0;
+
+    const positions = amountProvided > 0 ? [{
+      poolAddress: process.env.MANTLE_LENDING_POOL_ADDRESS,
+      assetName: 'USDC',
+      assetSymbol: 'USDC',
+      amountDeposited: amountProvided,
+      lpTokenBalance: parseFloat(lpBalance),
+      currentValue,
+      earnedInterest: accruedInterest,
+      apy,
+      depositDate: position.depositDate,
+    }] : [];
+
+    console.log('✅ Liquidity positions:', positions);
+
     return res.status(200).json({
       success: true,
-      positions: [],
-      totalLiquidity: 0,
-      totalEarnings: 0,
+      positions,
+      totalLiquidity: currentValue,
+      totalEarnings: accruedInterest,
     });
   } catch (error: any) {
     console.error('Error getting liquidity positions:', error);
