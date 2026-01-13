@@ -573,7 +573,8 @@ class InvestorEarnings {
             });
             const status = withdrawal.status || 'pending';
             const txHash = withdrawal.transactionHash || withdrawal.transactionId;
-            const hashscanUrl = txHash ? `https://hashscan.io/testnet/transaction/${txHash}` : null;
+            // Use Mantle Sepolia explorer
+            const explorerUrl = txHash ? `https://explorer.sepolia.mantle.xyz/tx/${txHash}` : null;
 
             return `
                 <div class="withdrawal-item">
