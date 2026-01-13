@@ -692,12 +692,35 @@ async function handleRepay(req: VercelRequest, res: VercelResponse) {
  */
 async function handleGetLendingPools(req: VercelRequest, res: VercelResponse) {
   try {
-    // For now, return empty pools array
-    // TODO: Implement actual lending pool data from blockchain/database
+    console.log('📊 Getting lending pools...');
+    
+    const lendingService = getMantleLendingService();
+    
+    // Get pool stats from blockchain
+    const stats = await lendingService.getPoolStats();
+    const lpTokenAddress = await lendingService.getLPTokenAddress();
+    
+    // Format pool data
+    const pool = {
+      assetAddress: process.env.MANTLE_USDC_ADDRESS,
+      assetName: 'USDC',
+      assetSymbol: 'USDC',
+      totalLiquidity: parseFloat(stats.totalLiquidity),
+      availableLiquidity: parseFloat(stats.availableLiquidity),
+      totalBorrowed: parseFloat(stats.totalBorrowed),
+      utilizationRate: stats.utilizationRate,
+      lenderAPY: stats.currentAPY,
+      borrowerAPR: 10, // 10% fixed rate
+      lpTokenAddress,
+      collateralRatio: 125, // 125% collateralization
+      liquidationThreshold: 90, // 90% threshold
+    };
+
+    console.log('✅ Pool stats:', pool);
+
     return res.status(200).json({
       success: true,
-      pools: [],
-      message: 'Lending pools feature coming soon',
+      pools: [pool],
     });
   } catch (error: any) {
     console.error('Error getting lending pools:', error);
