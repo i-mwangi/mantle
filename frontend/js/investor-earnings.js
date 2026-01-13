@@ -121,6 +121,7 @@ class InvestorEarnings {
             if (withdrawalHistoryResponse && withdrawalHistoryResponse.success) {
                 this.withdrawalHistory = withdrawalHistoryResponse.data?.withdrawals || [];
                 console.log('[Investor Earnings] Withdrawal history:', this.withdrawalHistory);
+                console.log('[Investor Earnings] Withdrawal history JSON:', JSON.stringify(this.withdrawalHistory, null, 2));
             } else {
                 console.warn('[Investor Earnings] Withdrawal history request failed:', withdrawalHistoryResponse);
                 this.withdrawalHistory = [];
