@@ -555,7 +555,13 @@ class InvestorEarnings {
      */
     renderWithdrawalHistory() {
         const container = document.getElementById('withdrawalHistoryList');
-        if (!container) return;
+        if (!container) {
+            console.warn('[Investor Earnings] withdrawalHistoryList container not found');
+            return;
+        }
+
+        console.log('[Investor Earnings] Rendering withdrawal history:', this.withdrawalHistory);
+        console.log('[Investor Earnings] Withdrawal history length:', this.withdrawalHistory?.length);
 
         if (!this.withdrawalHistory || this.withdrawalHistory.length === 0) {
             container.innerHTML = '<p class="empty-state">No withdrawals yet</p>';
@@ -563,6 +569,7 @@ class InvestorEarnings {
         }
 
         container.innerHTML = this.withdrawalHistory.map(withdrawal => {
+            console.log('[Investor Earnings] Rendering withdrawal:', withdrawal);
             const amount = withdrawal.amount.toFixed(2);
             const date = new Date(withdrawal.requestedAt).toLocaleDateString('en-US', {
                 year: 'numeric',
