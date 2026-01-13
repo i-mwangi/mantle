@@ -752,15 +752,22 @@ async function handleGetCreditScore(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // For now, return default credit score with all required fields
+    // For now, return default credit score with all required fields for frontend
     // TODO: Implement actual credit score calculation based on payment history
     return res.status(200).json({
       success: true,
       creditScore: {
         score: 0,
+        currentScore: 0,
         rating: 'No History',
+        tier: 'fair',
         address,
         lastUpdated: Date.now(),
+        maxLoanAmount: 0,
+        totalLoans: 0,
+        earlyPayments: 0,
+        onTimePayments: 0,
+        latePayments: 0,
         paymentHistory: {
           onTimePayments: 0,
           latePayments: 0,
