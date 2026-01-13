@@ -100,6 +100,21 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleRepay(req, res);
     }
 
+    // Lending: Get pools
+    if (url.includes('/api/lending/pools') && method === 'GET') {
+      return await handleGetLendingPools(req, res);
+    }
+
+    // Lending: Get loan details
+    if (url.includes('/api/lending/loans/') && method === 'GET') {
+      return await handleGetLoanDetails(req, res);
+    }
+
+    // Credit Score: Get credit score
+    if (url.includes('/api/credit-score/') && method === 'GET') {
+      return await handleGetCreditScore(req, res);
+    }
+
     // Investor Balance: Get balance summary (check BEFORE generic /balance/)
     if (url.includes('/api/investor/balance/') && method === 'GET') {
       return await handleGetInvestorBalance(req, res);
