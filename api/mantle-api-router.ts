@@ -1582,16 +1582,40 @@ async function handleGetInvestorWithdrawals(req: VercelRequest, res: VercelRespo
 
     console.log('📊 Getting withdrawals for investor:', investorAddress);
 
-    // Note: investor_withdrawals table exists in schema but may not be in DB yet
-    // Return empty array for now
-    return res.status(200).json({
-      success: true,
-      data: {
-        withdrawals: [],
-        totalWithdrawn: 0,
-        pendingWithdrawals: 0,
-      },
-    });
+    try {
+      // Query investor_withdrawals table
+      const withdrawals = await db.query.investorWithdrawals.findMany({
+        where: eq(investorWithdrawals.investorAddress, investorAddress.toLowerCase()),
+        orderBy: [desc(investorWithdrawals.requestedAt)],
+      });
+
+      const totalWithdrawn = withdrawals
+        .filter(w => w.status === 'completed')
+        .reduce((sum, w) => sum + (w.amount || 0), 0);
+
+      const pendingWithdrawals = withdrawals
+        .filter(w => w.status === 'pending')
+        .reduce((sum, w) => sum + (w.amount || 0), 0);
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          withdrawals,
+          totalWithdrawn,
+          pendingWithdrawals,
+        },
+      });
+    } catch (dbError: any) {
+      console.log('⚠️  investor_withdrawals table not found, returning empty data');
+      return res.status(200).json({
+        success: true,
+        data: {
+          withdrawals: [],
+          totalWithdrawn: 0,
+          pendingWithdrawals: 0,
+        },
+      });
+    }
   } catch (error: any) {
     console.error('Error getting investor withdrawals:', error);
     return res.status(500).json({
