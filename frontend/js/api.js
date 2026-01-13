@@ -694,25 +694,69 @@ export class CoffeeTreeAPI {
     }
 
     async provideLiquidity(assetAddress, amount) {
-        const providerAddress = window.walletManager?.getAccountId();
-        if (!providerAddress) {
-            throw new Error('Please connect your wallet to continue');
+        // Use Web3 service to sign transaction with user's wallet
+        if (!window.lendingWeb3) {
+            throw new Error('Lending Web3 service not initialized');
         }
-        return this.request('/api/lending/provide-liquidity', {
+
+        // Initialize if needed
+        if (!window.lendingWeb3.signer) {
+            await window.lendingWeb3.initialize();
+        }
+
+        // User signs transaction in MetaMask
+        const result = await window.lendingWeb3.deposit(amount);
+        
+        if (!result.success) {
+            throw new Error(result.error);
+        }
+
+        // Optionally notify backend for database tracking (non-blocking)
+        const providerAddress = await window.lendingWeb3.signer.getAddress();
+        this.request('/api/lending/track-deposit', {
             method: 'POST',
-            body: { assetAddress, amount, providerAddress }
-        });
+            body: { 
+                providerAddress, 
+                amount, 
+                lpTokensReceived: result.lpTokensReceived,
+                transactionHash: result.transactionHash 
+            }
+        }).catch(err => console.warn('Failed to track deposit in database:', err));
+
+        return result;
     }
 
     async withdrawLiquidity(assetAddress, lpTokenAmount) {
-        const providerAddress = window.walletManager?.getAccountId();
-        if (!providerAddress) {
-            throw new Error('Please connect your wallet to continue');
+        // Use Web3 service to sign transaction with user's wallet
+        if (!window.lendingWeb3) {
+            throw new Error('Lending Web3 service not initialized');
         }
-        return this.request('/api/lending/withdraw-liquidity', {
+
+        // Initialize if needed
+        if (!window.lendingWeb3.signer) {
+            await window.lendingWeb3.initialize();
+        }
+
+        // User signs transaction in MetaMask
+        const result = await window.lendingWeb3.withdraw(lpTokenAmount);
+        
+        if (!result.success) {
+            throw new Error(result.error);
+        }
+
+        // Optionally notify backend for database tracking (non-blocking)
+        const providerAddress = await window.lendingWeb3.signer.getAddress();
+        this.request('/api/lending/track-withdrawal', {
             method: 'POST',
-            body: { assetAddress, lpTokenAmount, providerAddress }
-        });
+            body: { 
+                providerAddress, 
+                lpTokenAmount, 
+                usdcAmount: result.amount,
+                transactionHash: result.transactionHash 
+            }
+        }).catch(err => console.warn('Failed to track withdrawal in database:', err));
+
+        return result;
     }
 
     async getPoolStatistics(assetAddress) {
