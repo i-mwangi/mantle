@@ -779,7 +779,7 @@ async function handleGetPoolStats(req: VercelRequest, res: VercelResponse) {
 
     return res.status(200).json({
       success: true,
-      data: poolStats,
+      pool: poolStats, // Changed from 'data' to 'pool'
     });
   } catch (error: any) {
     console.error('Error getting pool stats:', error);
