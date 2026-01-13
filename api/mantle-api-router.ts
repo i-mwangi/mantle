@@ -736,21 +736,53 @@ async function handleGetLendingPools(req: VercelRequest, res: VercelResponse) {
  */
 async function handleGetLoanDetails(req: VercelRequest, res: VercelResponse) {
   try {
-    const loanId = req.url?.split('/loans/')[1]?.split('?')[0];
+    const address = req.url?.split('/loans/')[1]?.split('?')[0];
     
-    if (!loanId) {
+    if (!address) {
       return res.status(400).json({
         success: false,
-        error: 'Loan ID required',
+        error: 'Address required',
       });
     }
 
-    // For now, return no active loan
-    // TODO: Implement actual loan data from blockchain/database
+    console.log(`📊 Getting loan details for: ${address}`);
+
+    const lendingService = getMantleLendingService();
+    
+    // Get loan from blockchain
+    const loan = await lendingService.getLoan(address);
+
+    if (!loan) {
+      return res.status(200).json({
+        success: true,
+        loan: null,
+        message: 'No active loan found',
+      });
+    }
+
+    // Calculate health factor
+    const collateralValue = parseFloat(loan.collateralAmount); // Simplified
+    const loanValue = parseFloat(loan.loanAmount);
+    const healthFactor = collateralValue / loanValue;
+
+    const formattedLoan = {
+      borrower: address,
+      collateralToken: loan.collateralToken,
+      collateralAmount: parseFloat(loan.collateralAmount),
+      loanAmount: parseFloat(loan.loanAmount),
+      repayAmount: parseFloat(loan.repayAmount),
+      borrowDate: loan.borrowDate,
+      healthFactor,
+      isActive: loan.isActive,
+      isLiquidated: loan.isLiquidated,
+      status: loan.isLiquidated ? 'liquidated' : loan.isActive ? 'active' : 'repaid',
+    };
+
+    console.log('✅ Loan details:', formattedLoan);
+
     return res.status(200).json({
       success: true,
-      loan: null,
-      message: 'No active loan found',
+      loan: formattedLoan,
     });
   } catch (error: any) {
     console.error('Error getting loan details:', error);
