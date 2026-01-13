@@ -115,9 +115,19 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleProvideLiquidity(req, res);
     }
 
+    // Lending: Track deposit (optional, for database)
+    if (url.includes('/api/lending/track-deposit') && method === 'POST') {
+      return await handleTrackDeposit(req, res);
+    }
+
     // Lending: Withdraw liquidity
     if (url.includes('/api/lending/withdraw-liquidity') && method === 'POST') {
       return await handleWithdrawLiquidity(req, res);
+    }
+
+    // Lending: Track withdrawal (optional, for database)
+    if (url.includes('/api/lending/track-withdrawal') && method === 'POST') {
+      return await handleTrackWithdrawal(req, res);
     }
 
     // Lending: Get loan details
