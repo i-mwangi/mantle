@@ -89,12 +89,13 @@ export class MantleLendingService {
         await db.insert(providedLiquidity).values({
           id: `${userAddress}-${Date.now()}`,
           account: userAddress.toLowerCase(),
-          asset: process.env.MANTLE_USDC_ADDRESS!,
+          asset: process.env.MANTLE_USDC_ADDRESS!.toLowerCase(),
           amount: parseFloat(amount),
           timestamp: Date.now(),
         });
+        console.log('✅ Database record created');
       } catch (dbError: any) {
-        console.warn('⚠️  Database insert failed (foreign key constraint), but blockchain transaction succeeded:', dbError.message);
+        console.warn('⚠️  Database insert failed, but blockchain transaction succeeded:', dbError.message);
         // Continue anyway - the blockchain transaction succeeded
       }
 
@@ -163,12 +164,13 @@ export class MantleLendingService {
         await db.insert(withdrawnLiquidity).values({
           id: `${userAddress}-${Date.now()}`,
           account: userAddress.toLowerCase(),
-          asset: process.env.MANTLE_USDC_ADDRESS!,
+          asset: process.env.MANTLE_USDC_ADDRESS!.toLowerCase(),
           amount: parseFloat(usdcAmount),
           timestamp: Date.now(),
         });
+        console.log('✅ Database record created');
       } catch (dbError: any) {
-        console.warn('⚠️  Database insert failed (foreign key constraint), but blockchain transaction succeeded:', dbError.message);
+        console.warn('⚠️  Database insert failed, but blockchain transaction succeeded:', dbError.message);
         // Continue anyway - the blockchain transaction succeeded
       }
 
