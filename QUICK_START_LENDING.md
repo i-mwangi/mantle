@@ -1,5 +1,20 @@
 # 🚀 Quick Start - Lending System
 
+## ⚠️ IMPORTANT: Address Setup
+
+The test deposits were made from address `0x81F0CC60cf0E0562B8545994a0a34E7Ed5Be45e9` (from PRIVATE_KEY in .env).
+
+**To see your LP tokens in the frontend:**
+1. Import this private key to MetaMask: `0xb888fc593e5475be06e04efbac2debd1184272d7ed6f86cba99553ed1ff055d3`
+2. Add LP token: `0x6cE5cac2e918F7749f23169ea4E00BCEE2D42dE5` (Symbol: CLP-LP, Decimals: 6)
+3. Connect with this address in the frontend
+
+**OR** make new deposits from your current MetaMask address.
+
+See `QUICK_FIX.md` for detailed instructions.
+
+---
+
 ## ✅ What's Been Done
 
 I've fully implemented the lending system with complete blockchain integration. Here's what works:
@@ -8,6 +23,7 @@ I've fully implemented the lending system with complete blockchain integration. 
 - `lib/api/mantle-lending-service.ts` - Complete implementation
 - `lib/api/contract-abis.ts` - Updated with correct ABIs
 - `api/mantle-api-router.ts` - Real data endpoints
+- Database foreign key issue fixed
 
 ### 2. **MetaMask Integration** ✅
 - Deposit USDC → See LP tokens appear
@@ -18,6 +34,8 @@ I've fully implemented the lending system with complete blockchain integration. 
 ### 3. **Test Scripts** ✅
 - `scripts/mantle/add-collateral-tokens.cjs` - Add grove tokens as collateral
 - `scripts/mantle/test-lending-system.cjs` - End-to-end test
+- `scripts/mantle/compare-addresses.cjs` - Check LP balances
+- `scripts/mantle/fix-usdc-asset.cjs` - Fix database
 
 ---
 
