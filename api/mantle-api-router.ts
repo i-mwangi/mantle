@@ -1862,7 +1862,8 @@ async function handleInvestorWithdraw(req: VercelRequest, res: VercelResponse) {
       
       try {
         const paymentService = getMantlePaymentService();
-        const transferResult = await paymentService.sendUSDC(investorAddress, amount);
+        // Convert amount to string for ethers.js parseUnits
+        const transferResult = await paymentService.sendUSDC(investorAddress, amount.toString());
 
         if (!transferResult.success) {
           // Mark withdrawal as failed
