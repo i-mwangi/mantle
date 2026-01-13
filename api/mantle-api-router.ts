@@ -110,6 +110,11 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetLoanDetails(req, res);
     }
 
+    // Lending: Get liquidity positions
+    if (url.includes('/api/lending/liquidity-positions/') && method === 'GET') {
+      return await handleGetLiquidityPositions(req, res);
+    }
+
     // Credit Score: Get credit score
     if (url.includes('/api/credit-score/') && method === 'GET') {
       return await handleGetCreditScore(req, res);
@@ -736,7 +741,36 @@ async function handleGetLoanDetails(req: VercelRequest, res: VercelResponse) {
 /**
  * Get credit score
  */
-async function handleGetCreditScore(req:
+async function handleGetCreditScore(req: VercelRequest, res: VercelResponse) {
+  try {
+    const address = req.url?.split('/credit-score/')[1]?.split('?')[0];
+    
+    if (!address) {
+      return res.status(400).json({
+        success: false,
+        error: 'Address required',
+      });
+    }
+
+    // For now, return default credit score
+    // TODO: Implement actual credit score calculation based on payment history
+    return res.status(200).json({
+      success: true,
+      creditScore: {
+        score: 0,
+        rating: 'No History',
+        address,
+        lastUpdated: Date.now(),
+      },
+    });
+  } catch (error: any) {
+    console.error('Error getting credit score:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get credit score',
+    });
+  }
+}
 
 /**
  * Get user balance
