@@ -105,6 +105,21 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
       return await handleGetLendingPools(req, res);
     }
 
+    // Lending: Get pool statistics
+    if (url.includes('/api/lending/pool-stats') && method === 'GET') {
+      return await handleGetPoolStats(req, res);
+    }
+
+    // Lending: Provide liquidity
+    if (url.includes('/api/lending/provide-liquidity') && method === 'POST') {
+      return await handleProvideLiquidity(req, res);
+    }
+
+    // Lending: Withdraw liquidity
+    if (url.includes('/api/lending/withdraw-liquidity') && method === 'POST') {
+      return await handleWithdrawLiquidity(req, res);
+    }
+
     // Lending: Get loan details
     if (url.includes('/api/lending/loans/') && method === 'GET') {
       return await handleGetLoanDetails(req, res);
