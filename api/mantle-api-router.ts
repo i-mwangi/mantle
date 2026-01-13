@@ -1668,8 +1668,29 @@ async function handleGetInvestorBalance(req: VercelRequest, res: VercelResponse)
           .reduce((sum, w) => sum + (w.amount || 0), 0);
         
         console.log(`📊 Found ${withdrawals.length} withdrawals, total: $${totalWithdrawn}`);
-      } catch (e) {
-        console.log('⚠️  investor_withdrawals table not found');
+      } catch (e: any) {
+        console.log('⚠️  Drizzle query failed, trying raw SQL:', e.message);
+        
+        // Fallback to raw SQL query
+        try {
+          const { createClient } = await import('@libsql/client');
+          const client = createClient({
+            url: process.env.TURSO_DATABASE_URL || 'file:local.db',
+            authToken: process.env.TURSO_AUTH_TOKEN
+          });
+          
+          const result = await client.execute({
+            sql: 'SELECT * FROM investor_withdrawals WHERE investor_address = ? AND status = ?',
+            args: [investorAddress.toLowerCase(), 'completed']
+          });
+          
+          totalWithdrawn = result.rows.reduce((sum: number, w: any) => sum + (w.amount || 0), 0);
+          console.log(`📊 Raw SQL found ${result.rows.length} withdrawals, total: $${totalWithdrawn}`);
+          
+          client.close();
+        } catch (sqlError: any) {
+          console.error('❌ Raw SQL also failed:', sqlError.message);
+        }
       }
 
       const availableBalance = totalEarned - totalWithdrawn;
