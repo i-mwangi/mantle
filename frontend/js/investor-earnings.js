@@ -116,7 +116,7 @@ class InvestorEarnings {
             }
 
             if (withdrawalHistoryResponse && withdrawalHistoryResponse.success) {
-                this.withdrawalHistory = withdrawalHistoryResponse.withdrawals || [];
+                this.withdrawalHistory = withdrawalHistoryResponse.data?.withdrawals || [];
                 console.log('[Investor Earnings] Withdrawal history:', this.withdrawalHistory);
             } else {
                 console.warn('[Investor Earnings] Withdrawal history request failed:', withdrawalHistoryResponse);
