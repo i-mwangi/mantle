@@ -672,17 +672,17 @@ async function handleBorrow(req: VercelRequest, res: VercelResponse) {
  * Repay loan
  */
 async function handleRepay(req: VercelRequest, res: VercelResponse) {
-  const { borrowerAddress, loanId, amount } = req.body;
+  const { borrowerAddress } = req.body;
 
-  if (!borrowerAddress || loanId === undefined || !amount) {
+  if (!borrowerAddress) {
     return res.status(400).json({
       success: false,
-      error: 'Borrower address, loan ID, and amount required',
+      error: 'Borrower address required',
     });
   }
 
   const lendingService = getMantleLendingService();
-  const result = await lendingService.repay(borrowerAddress, loanId, amount);
+  const result = await lendingService.repay(borrowerAddress);
 
   return res.status(result.success ? 200 : 400).json(result);
 }
