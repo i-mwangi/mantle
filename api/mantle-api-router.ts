@@ -1661,11 +1661,13 @@ async function handleGetInvestorBalance(req: VercelRequest, res: VercelResponse)
       let totalWithdrawn = 0;
       try {
         const withdrawals = await db.query.investorWithdrawals.findMany({
-          where: eq(revenueDistributions.holderAddress, investorAddress.toLowerCase()),
+          where: eq(investorWithdrawals.investorAddress, investorAddress.toLowerCase()),
         });
         totalWithdrawn = withdrawals
           .filter(w => w.status === 'completed')
           .reduce((sum, w) => sum + (w.amount || 0), 0);
+        
+        console.log(`📊 Found ${withdrawals.length} withdrawals, total: $${totalWithdrawn}`);
       } catch (e) {
         console.log('⚠️  investor_withdrawals table not found');
       }
