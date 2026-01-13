@@ -683,6 +683,62 @@ async function handleRepay(req: VercelRequest, res: VercelResponse) {
 }
 
 /**
+ * Get lending pools
+ */
+async function handleGetLendingPools(req: VercelRequest, res: VercelResponse) {
+  try {
+    // For now, return empty pools array
+    // TODO: Implement actual lending pool data from blockchain/database
+    return res.status(200).json({
+      success: true,
+      pools: [],
+      message: 'Lending pools feature coming soon',
+    });
+  } catch (error: any) {
+    console.error('Error getting lending pools:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get lending pools',
+    });
+  }
+}
+
+/**
+ * Get loan details
+ */
+async function handleGetLoanDetails(req: VercelRequest, res: VercelResponse) {
+  try {
+    const loanId = req.url?.split('/loans/')[1]?.split('?')[0];
+    
+    if (!loanId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Loan ID required',
+      });
+    }
+
+    // For now, return no active loan
+    // TODO: Implement actual loan data from blockchain/database
+    return res.status(200).json({
+      success: true,
+      loan: null,
+      message: 'No active loan found',
+    });
+  } catch (error: any) {
+    console.error('Error getting loan details:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get loan details',
+    });
+  }
+}
+
+/**
+ * Get credit score
+ */
+async function handleGetCreditScore(req:
+
+/**
  * Get user balance
  */
 async function handleGetBalance(req: VercelRequest, res: VercelResponse) {
