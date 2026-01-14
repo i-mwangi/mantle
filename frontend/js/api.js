@@ -729,7 +729,7 @@ export class CoffeeTreeAPI {
     async withdrawLiquidity(assetAddress, lpTokenAmount) {
         // Use Web3 service to sign transaction with user's wallet
         if (!window.lendingWeb3) {
-            throw new Error('Lending Web3 service not initialized');
+            throw new Error('Lending Web3 service not initialized. Please ensure MetaMask is connected.');
         }
 
         // Initialize if needed
@@ -744,17 +744,22 @@ export class CoffeeTreeAPI {
             throw new Error(result.error);
         }
 
-        // Optionally notify backend for database tracking (non-blocking)
-        const providerAddress = await window.lendingWeb3.signer.getAddress();
-        this.request('/api/lending/track-withdrawal', {
-            method: 'POST',
-            body: { 
-                providerAddress, 
-                lpTokenAmount, 
-                usdcAmount: result.amount,
-                transactionHash: result.transactionHash 
-            }
-        }).catch(err => console.warn('Failed to track withdrawal in database:', err));
+        // Optionally notify backend for database tracking (non-blocking, fire-and-forget)
+        try {
+            const providerAddress = await window.lendingWeb3.signer.getAddress();
+            this.request('/api/lending/track-withdrawal', {
+                method: 'POST',
+                body: { 
+                    providerAddress, 
+                    lpTokenAmount, 
+                    usdcAmount: result.amount,
+                    transactionHash: result.transactionHash 
+                }
+            }).catch(err => console.warn('Failed to track withdrawal in database:', err));
+        } catch (trackingError) {
+            // Silently ignore tracking errors - withdrawal was successful
+            console.warn('Could not track withdrawal:', trackingError);
+        }
 
         return result;
     }
