@@ -68,6 +68,16 @@ const server = http.createServer((req, res) => {
     
     let filePath = path.join(__dirname, pathname === '/' ? 'index.html' : pathname);
 
+    // Debug logging for image requests
+    if (pathname.includes('.jpg') || pathname.includes('.jpeg') || pathname.includes('.png')) {
+        console.log('Image request:', {
+            originalUrl: req.url,
+            pathname: pathname,
+            filePath: filePath,
+            exists: fs.existsSync(filePath)
+        });
+    }
+
     // Security check - prevent directory traversal
     if (!filePath.startsWith(__dirname)) {
         res.writeHead(403, { 'Content-Type': 'text/html' });
