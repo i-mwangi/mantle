@@ -727,18 +727,29 @@ export class CoffeeTreeAPI {
     }
 
     async withdrawLiquidity(assetAddress, lpTokenAmount) {
+        console.log('🔍 withdrawLiquidity called:', { assetAddress, lpTokenAmount });
+        console.log('🔍 window.lendingWeb3 exists:', !!window.lendingWeb3);
+        console.log('🔍 window.ethereum exists:', !!window.ethereum);
+        
         // Use Web3 service to sign transaction with user's wallet
         if (!window.lendingWeb3) {
-            throw new Error('Lending Web3 service not initialized. Please ensure MetaMask is connected.');
+            throw new Error('Lending Web3 service not initialized. Please refresh the page and ensure MetaMask is installed.');
+        }
+
+        if (!window.ethereum) {
+            throw new Error('MetaMask not detected. Please install MetaMask browser extension.');
         }
 
         // Initialize if needed
         if (!window.lendingWeb3.signer) {
+            console.log('🔄 Initializing lendingWeb3...');
             await window.lendingWeb3.initialize();
         }
 
+        console.log('💸 Calling lendingWeb3.withdraw...');
         // User signs transaction in MetaMask
         const result = await window.lendingWeb3.withdraw(lpTokenAmount);
+        console.log('✅ lendingWeb3.withdraw result:', result);
         
         if (!result.success) {
             throw new Error(result.error);
