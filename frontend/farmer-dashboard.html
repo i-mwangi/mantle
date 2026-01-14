@@ -128,6 +128,7 @@
         .impact-map-section {
             padding: 80px 20px;
             background-color: transparent;
+            margin-bottom: 40px;
         }
 
         .section-header {
@@ -155,6 +156,7 @@
         .grove-tracker-section {
             padding: 80px 20px;
             background-color: transparent;
+            margin-bottom: 40px;
         }
 
         .tracker-embed {
@@ -177,6 +179,7 @@
         .farmer-stories-section {
             padding: 80px 20px;
             background-color: transparent;
+            margin-bottom: 40px;
         }
 
         .stories-grid {
@@ -188,14 +191,18 @@
         }
 
         .story-card {
-            background: transparent;
-            border: none;
+            background: rgba(60, 45, 38, 0.3);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
             padding: 30px;
             transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
 
         .story-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(212, 163, 115, 0.2);
+            border-color: var(--accent-primary);
         }
 
         .farmer-avatar {
@@ -203,7 +210,7 @@
             height: 120px;
             border-radius: 50%;
             overflow: hidden;
-            margin-bottom: 20px;
+            margin: 0 auto 20px auto;
             border: 3px solid var(--accent-primary);
             box-shadow: 0 4px 15px rgba(212, 163, 115, 0.3);
         }
@@ -219,12 +226,14 @@
             font-weight: 600;
             color: var(--text-light);
             margin-bottom: 8px;
+            text-align: center;
         }
 
         .farmer-location {
             font-size: 0.9rem;
             color: var(--accent-primary);
             margin-bottom: 15px;
+            text-align: center;
         }
 
         .farmer-stats {
@@ -265,10 +274,19 @@
         }
 
         .metric-card {
-            background: transparent;
-            border: none;
+            background: rgba(60, 45, 38, 0.3);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
             padding: 30px;
             text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(212, 163, 115, 0.2);
+            border-color: var(--accent-primary);
         }
 
         .metric-icon {
@@ -373,6 +391,7 @@
                 <div class="metric-value">200+</div>
                 <div class="metric-label">Farmers Supported</div>
             </div>
+        </div>
     </section>
 
     <!-- Grove Tracker Section -->
