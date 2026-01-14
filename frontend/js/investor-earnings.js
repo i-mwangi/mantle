@@ -555,9 +555,9 @@ class InvestorEarnings {
      * Render withdrawal history
      */
     renderWithdrawalHistory() {
-        const container = document.getElementById('investorWithdrawalHistoryList');
+        const container = document.getElementById('withdrawalHistoryList');
         if (!container) {
-            console.warn('[Investor Earnings] investorWithdrawalHistoryList container not found');
+            console.warn('[Investor Earnings] withdrawalHistoryList container not found');
             return;
         }
 
