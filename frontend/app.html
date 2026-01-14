@@ -2716,7 +2716,7 @@
                         `;
                     } else {
                         creditScoreContainer.innerHTML = renderCreditScoreCard(scoreData);
-                        console.log('💳 Credit score loaded successfully:', scoreData.currentScore);
+                        console.log('💳 Credit score loaded successfully:', scoreData?.currentScore || 0);
                     }
                 } catch (error) {
                     console.error('Error loading credit score:', error);
