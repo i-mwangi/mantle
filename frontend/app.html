@@ -2598,7 +2598,15 @@
 
             // Render credit score card
             function renderCreditScoreCard(scoreData) {
-                const { currentScore, tier, maxLoanAmount, totalLoans, earlyPayments, onTimePayments, latePayments } = scoreData;
+                const { 
+                    currentScore = 0, 
+                    tier = 'fair', 
+                    maxLoanAmount = 0, 
+                    totalLoans = 0, 
+                    earlyPayments = 0, 
+                    onTimePayments = 0, 
+                    latePayments = 0 
+                } = scoreData || {};
 
                 const tierColors = {
                     excellent: { bg: 'rgba(34, 197, 94, 0.1)', border: 'rgba(34, 197, 94, 0.3)', text: '#22c55e', icon: '🟢' },
