@@ -3535,11 +3535,11 @@ class InvestorPortal {
                 <div class="harvest-stats">
                     <div class="stat-card">
                         <div class="stat-label">Total Harvests</div>
-                        <div class="stat-value">${stats.totalHarvests}</div>
+                        <div class="stat-value">${stats.totalHarvests || 0}</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Total Revenue</div>
-                        <div class="stat-value">$${stats.totalRevenue.toLocaleString()}</div>
+                        <div class="stat-value">$${(stats.totalRevenue || 0).toLocaleString()}</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Avg Quality</div>
@@ -3547,7 +3547,7 @@ class InvestorPortal {
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Avg Yield</div>
-                        <div class="stat-value">${stats.averageYield.toLocaleString()} kg</div>
+                        <div class="stat-value">${(stats.averageYield || 0).toLocaleString()} kg</div>
                     </div>
                 </div>
             `;
