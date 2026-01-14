@@ -64,7 +64,7 @@ const server = http.createServer((req, res) => {
     
     // Parse URL to separate path from query parameters
     const url = new URL(req.url, `http://${req.headers.host}`);
-    const pathname = url.pathname;
+    const pathname = decodeURIComponent(url.pathname); // Decode URL-encoded characters like %20
     
     let filePath = path.join(__dirname, pathname === '/' ? 'index.html' : pathname);
 
