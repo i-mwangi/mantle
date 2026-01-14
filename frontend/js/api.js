@@ -1,6 +1,7 @@
 /**
  * API Client for Coffee Tree Platform
  * Handles all communication with the backend API
+ * Last updated: 2026-01-15 - Fixed withdrawLiquidity to use Web3 directly
  */
 
 export class CoffeeTreeAPI {
