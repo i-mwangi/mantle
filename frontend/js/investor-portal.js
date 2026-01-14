@@ -3543,7 +3543,7 @@ class InvestorPortal {
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Avg Quality</div>
-                        <div class="stat-value">${stats.averageQuality.toFixed(1)}/100</div>
+                        <div class="stat-value">${(stats.averageQuality || 0).toFixed(1)}/100</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Avg Yield</div>
