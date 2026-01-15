@@ -11,7 +11,7 @@ import { getMantleLendingService } from '../lib/api/mantle-lending-service.js';
 import { getMantleFarmerService } from '../lib/api/mantle-farmer-service.js';
 import { getMantlePriceOracleService } from '../lib/api/mantle-price-oracle-service.js';
 
-// Try to import database and schema - if it fails, we'll use demo mode
+// Database and schema will be loaded on first request
 let db: any = null;
 let schema: any = null;
 let coffeeGroves: any = null;
@@ -24,28 +24,35 @@ let farmerWithdrawals: any = null;
 let revenueDistributions: any = null;
 let investorWithdrawals: any = null;
 let dbLoadError: Error | null = null;
+let dbLoaded = false;
 
-try {
-  const dbModule = await import('../db/index.js');
-  const schemaModule = await import('../db/schema/index.js');
+async function ensureDbLoaded() {
+  if (dbLoaded) return;
   
-  db = dbModule.db;
-  schema = schemaModule;
-  coffeeGroves = schemaModule.coffeeGroves;
-  harvestRecords = schemaModule.harvestRecords;
-  farmerVerifications = schemaModule.farmerVerifications;
-  farmers = schemaModule.farmers;
-  providedLiquidity = schemaModule.providedLiquidity;
-  withdrawnLiquidity = schemaModule.withdrawnLiquidity;
-  farmerWithdrawals = schemaModule.farmerWithdrawals;
-  revenueDistributions = schemaModule.revenueDistributions;
-  investorWithdrawals = schemaModule.investorWithdrawals;
-  
-  console.log('✅ Database and schema loaded successfully');
-} catch (error: any) {
-  dbLoadError = error;
-  console.error('❌ Failed to load database:', error.message);
-  console.error('Stack:', error.stack);
+  try {
+    const dbModule = await import('../db/index.js');
+    const schemaModule = await import('../db/schema/index.js');
+    
+    db = dbModule.db;
+    schema = schemaModule;
+    coffeeGroves = schemaModule.coffeeGroves;
+    harvestRecords = schemaModule.harvestRecords;
+    farmerVerifications = schemaModule.farmerVerifications;
+    farmers = schemaModule.farmers;
+    providedLiquidity = schemaModule.providedLiquidity;
+    withdrawnLiquidity = schemaModule.withdrawnLiquidity;
+    farmerWithdrawals = schemaModule.farmerWithdrawals;
+    revenueDistributions = schemaModule.revenueDistributions;
+    investorWithdrawals = schemaModule.investorWithdrawals;
+    
+    dbLoaded = true;
+    console.log('✅ Database and schema loaded successfully');
+  } catch (error: any) {
+    dbLoadError = error;
+    console.error('❌ Failed to load database:', error.message);
+    console.error('Stack:', error.stack);
+    throw error;
+  }
 }
 
 /**
@@ -64,11 +71,8 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  // Check if database loaded successfully
-  if (!db || dbLoadError) {
-    console.error('Database not available, error:', dbLoadError?.message);
-    throw new Error(`Database not available: ${dbLoadError?.message || 'Unknown error'}`);
-  }
+  // Load database on first request
+  await ensureDbLoaded();
 
   try {
     // Health check
