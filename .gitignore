@@ -227,7 +227,6 @@ drizzle-orm.d.ts
 
 
 .vercelignore
-vercel.json
 .renderignore
 render.dev.yaml
 render.staging.yaml
