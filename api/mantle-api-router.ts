@@ -9,19 +9,41 @@ import { getMantlePaymentService } from '../lib/api/mantle-payment-service.js';
 import { getMantleLendingService } from '../lib/api/mantle-lending-service.js';
 import { getMantleFarmerService } from '../lib/api/mantle-farmer-service.js';
 import { getMantlePriceOracleService } from '../lib/api/mantle-price-oracle-service.js';
-import { db } from '../db/index.js';
-import { 
-  coffeeGroves, 
-  farmers, 
-  harvestRecords, 
-  farmerWithdrawals, 
-  revenueDistributions, 
-  investorProfiles, 
-  investorWithdrawals,
-  providedLiquidity,
-  withdrawnLiquidity
-} from '../db/schema/index.js';
-import { eq, desc } from 'drizzle-orm';
+
+// Lazy load database to prevent initialization errors
+let db: any = null;
+let dbError: Error | null = null;
+
+async function getDb() {
+  if (db) return db;
+  if (dbError) throw dbError;
+  
+  try {
+    const dbModule = await import('../db/index.js');
+    db = dbModule.db;
+    return db;
+  } catch (error: any) {
+    dbError = error;
+    console.error('Failed to load database:', error);
+    throw new Error('Database connection failed');
+  }
+}
+
+// Lazy load schema
+let schema: any = null;
+
+async function getSchema() {
+  if (schema) return schema;
+  
+  try {
+    const schemaModule = await import('../db/schema/index.js');
+    schema = schemaModule;
+    return schema;
+  } catch (error: any) {
+    console.error('Failed to load schema:', error);
+    throw new Error('Schema loading failed');
+  }
+}
 
 /**
  * Main API handler
