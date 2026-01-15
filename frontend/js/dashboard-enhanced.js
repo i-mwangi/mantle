@@ -482,6 +482,8 @@ function initializeQuickActions() {
         return;
     }
     
+    console.log('[QuickActions] Initializing', quickActionButtons.length, 'buttons');
+    
     quickActionButtons.forEach(button => {
         // Remove existing listeners by cloning
         const newButton = button.cloneNode(true);
@@ -540,6 +542,11 @@ function initializeQuickActions() {
     console.log('[QuickActions] ✅ Quick action buttons initialized:', quickActionButtons.length);
 }
 
+// Make it available globally
+if (typeof window !== 'undefined') {
+    window.initializeQuickActions = initializeQuickActions;
+}
+
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -552,3 +559,6 @@ if (document.readyState === 'loading') {
     // Initialize quick actions
     initializeQuickActions();
 }
+
+// Export for use in other modules
+export { DashboardEnhanced, initializeQuickActions };

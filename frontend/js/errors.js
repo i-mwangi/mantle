@@ -197,6 +197,23 @@ class NetworkError extends PlatformError {
     }
 }
 
+/**
+ * Error thrown when user lacks required authorization
+ */
+class UnauthorizedAccessError extends PlatformError {
+    constructor(message, requiredRole = null, errorCode = null) {
+        super(message, errorCode || 'UNAUTHORIZED_ACCESS');
+        this.requiredRole = requiredRole;
+    }
+
+    toJSON() {
+        return {
+            ...super.toJSON(),
+            requiredRole: this.requiredRole
+        };
+    }
+}
+
 // Export all error classes for ES modules
 export {
     PlatformError,
@@ -208,7 +225,8 @@ export {
     PriceOracleError,
     TransactionError,
     ValidationError,
-    NetworkError
+    NetworkError,
+    UnauthorizedAccessError
 };
 
 // Also make them available globally for non-module scripts
@@ -223,6 +241,7 @@ if (typeof window !== 'undefined') {
     window.TransactionError = TransactionError;
     window.ValidationError = ValidationError;
     window.NetworkError = NetworkError;
+    window.UnauthorizedAccessError = UnauthorizedAccessError;
 }
 
 // CommonJS export for Node.js compatibility
@@ -237,6 +256,7 @@ if (typeof module !== 'undefined' && module.exports) {
         PriceOracleError,
         TransactionError,
         ValidationError,
-        NetworkError
+        NetworkError,
+        UnauthorizedAccessError
     };
 }

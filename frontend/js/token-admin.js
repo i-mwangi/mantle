@@ -8,7 +8,7 @@
  */
 
 // Import error classes
-import { TokenOperationError } from './errors.js';
+import { TokenOperationError, UnauthorizedAccessError } from './errors.js';
 
 /**
  * TokenAdminManager
