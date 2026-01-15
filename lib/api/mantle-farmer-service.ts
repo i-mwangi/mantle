@@ -142,7 +142,7 @@ export class MantleFarmerService {
   async getVerifiedFarmers() {
     try {
       const verifiedFarmers = await db.query.farmers.findMany({
-        where: eq(farmers.verified, true),
+        where: eq(farmers.verificationStatus, 'verified'),
       });
       return verifiedFarmers;
     } catch (error: any) {
