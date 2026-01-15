@@ -477,6 +477,11 @@ class DashboardEnhanced {
 function initializeQuickActions() {
     const quickActionButtons = document.querySelectorAll('.action-btn[data-action]');
     
+    if (quickActionButtons.length === 0) {
+        console.warn('[QuickActions] No quick action buttons found in DOM');
+        return;
+    }
+    
     quickActionButtons.forEach(button => {
         // Remove existing listeners by cloning
         const newButton = button.cloneNode(true);
@@ -487,44 +492,52 @@ function initializeQuickActions() {
             e.stopPropagation();
             
             const action = newButton.dataset.action;
-            console.log('Quick action clicked:', action);
+            console.log('[QuickActions] Button clicked:', action);
             
-            switch(action) {
-                case 'investor-portfolio':
-                    if (window.viewManager) {
+            // Wait for viewManager to be available
+            const waitForViewManager = () => {
+                if (!window.viewManager) {
+                    console.log('[QuickActions] Waiting for viewManager...');
+                    setTimeout(waitForViewManager, 50);
+                    return;
+                }
+                
+                switch(action) {
+                    case 'investor-portfolio':
+                        console.log('[QuickActions] Switching to investor view (browse)');
                         window.viewManager.switchView('investor');
                         setTimeout(() => {
                             if (window.investorPortal && window.investorPortal.switchSection) {
                                 window.investorPortal.switchSection('browse');
                             }
                         }, 100);
-                    }
-                    break;
-                    
-                case 'investor-marketplace':
-                    if (window.viewManager) {
+                        break;
+                        
+                    case 'investor-marketplace':
+                        console.log('[QuickActions] Switching to investor view (marketplace)');
                         window.viewManager.switchView('investor');
                         setTimeout(() => {
                             if (window.investorPortal && window.investorPortal.switchSection) {
                                 window.investorPortal.switchSection('marketplace');
                             }
                         }, 100);
-                    }
-                    break;
-                    
-                case 'farmer-portal':
-                    if (window.viewManager) {
+                        break;
+                        
+                    case 'farmer-portal':
+                        console.log('[QuickActions] Switching to farmer view');
                         window.viewManager.switchView('farmer');
-                    }
-                    break;
-                    
-                default:
-                    console.warn('Unknown action:', action);
-            }
+                        break;
+                        
+                    default:
+                        console.warn('[QuickActions] Unknown action:', action);
+                }
+            };
+            
+            waitForViewManager();
         });
     });
     
-    console.log(' Quick action buttons initialized:', quickActionButtons.length);
+    console.log('[QuickActions] ✅ Quick action buttons initialized:', quickActionButtons.length);
 }
 
 // Initialize when DOM is ready

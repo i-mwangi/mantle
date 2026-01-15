@@ -197,7 +197,35 @@ class NetworkError extends PlatformError {
     }
 }
 
-// Export all error classes
+// Export all error classes for ES modules
+export {
+    PlatformError,
+    DistributionError,
+    LoanError,
+    InsufficientBalanceError,
+    LiquidityError,
+    TokenOperationError,
+    PriceOracleError,
+    TransactionError,
+    ValidationError,
+    NetworkError
+};
+
+// Also make them available globally for non-module scripts
+if (typeof window !== 'undefined') {
+    window.PlatformError = PlatformError;
+    window.DistributionError = DistributionError;
+    window.LoanError = LoanError;
+    window.InsufficientBalanceError = InsufficientBalanceError;
+    window.LiquidityError = LiquidityError;
+    window.TokenOperationError = TokenOperationError;
+    window.PriceOracleError = PriceOracleError;
+    window.TransactionError = TransactionError;
+    window.ValidationError = ValidationError;
+    window.NetworkError = NetworkError;
+}
+
+// CommonJS export for Node.js compatibility
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         PlatformError,

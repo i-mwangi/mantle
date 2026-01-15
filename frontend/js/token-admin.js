@@ -7,6 +7,9 @@
  * - UnauthorizedAccessError
  */
 
+// Import error classes
+import { TokenOperationError } from './errors.js';
+
 /**
  * TokenAdminManager
  * Manages token operations and KYC management for the Coffee Tree Platform
