@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { copyFileSync, mkdirSync, existsSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +41,28 @@ export default defineConfig(({ mode }) => {
           entryFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash].[ext]',
         },
+        plugins: [
+          {
+            name: 'copy-wallet-folder',
+            writeBundle() {
+              const walletSrc = path.resolve(__dirname, 'frontend', 'wallet');
+              const walletDest = path.resolve(__dirname, 'frontend', 'dist', 'wallet');
+              
+              if (!existsSync(walletDest)) {
+                mkdirSync(walletDest, { recursive: true });
+              }
+              
+              ['index.js', 'manager.js', 'metamask-connector.js', 'state.js'].forEach(file => {
+                copyFileSync(
+                  path.join(walletSrc, file),
+                  path.join(walletDest, file)
+                );
+              });
+              
+              console.log('✅ Wallet folder copied to dist');
+            }
+          }
+        ]
       },
       // Enable compression but keep it simple
       minify: 'terser',
