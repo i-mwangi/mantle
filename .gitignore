@@ -102,7 +102,12 @@ tests/
 test-*.mjs
 test-*.ts
 test-*.js
+test-*.cjs
 check-*.mjs
+check-*.cjs
+check-*.js
+check-farmer-data.cjs
+check-grove.cjs
 create-test-*.ts
 start-server.mjs
 loadIntoEnv.ts
@@ -112,9 +117,11 @@ optimize-images.js
 validate-js.js
 verify-vite-config.js
 transactions.json
+fix-table-names.ts
 
 # Frontend test files
 frontend/test-*.html
+frontend/test-*.js
 frontend/wallet-test.html
 frontend/wallet-modal-test.html
 frontend/notification-test.html
@@ -125,6 +132,7 @@ frontend/final-cdn-test.html
 frontend/hashconnect-setup.html
 frontend/debug-*.js
 frontend/check-*.js
+frontend/check-*.html
 frontend/demo-helper.js
 frontend/simple-server.js
 frontend/temp-*.html
@@ -204,6 +212,12 @@ scripts/test-*.md
 
 # Development servers
 api/dev-server.ts
+api/test-*.ts
+api/test-*.js
+
+# Lib test files
+lib/test-*.ts
+lib/test-*.js
 
 # Temporary directories
 temp/
