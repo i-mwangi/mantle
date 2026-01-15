@@ -525,7 +525,7 @@ export const investorWithdrawals = sqliteTable("investor_withdrawals", {
 });
 
 // Export earnings and distribution tables
-export * from "./earnings-distribution";
+export * from "./earnings-distribution.js";
 
 
 // Milestone-Based Funding Request System Tables
