@@ -4,46 +4,27 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { eq, desc, and, gte, lte } from 'drizzle-orm';
 import { getMantleTokenizationService } from '../lib/api/mantle-tokenization-service.js';
 import { getMantlePaymentService } from '../lib/api/mantle-payment-service.js';
 import { getMantleLendingService } from '../lib/api/mantle-lending-service.js';
 import { getMantleFarmerService } from '../lib/api/mantle-farmer-service.js';
 import { getMantlePriceOracleService } from '../lib/api/mantle-price-oracle-service.js';
 
-// Lazy load database to prevent initialization errors
-let db: any = null;
-let dbError: Error | null = null;
-
-async function getDb() {
-  if (db) return db;
-  if (dbError) throw dbError;
-  
-  try {
-    const dbModule = await import('../db/index.js');
-    db = dbModule.db;
-    return db;
-  } catch (error: any) {
-    dbError = error;
-    console.error('Failed to load database:', error);
-    throw new Error('Database connection failed');
-  }
-}
-
-// Lazy load schema
-let schema: any = null;
-
-async function getSchema() {
-  if (schema) return schema;
-  
-  try {
-    const schemaModule = await import('../db/schema/index.js');
-    schema = schemaModule;
-    return schema;
-  } catch (error: any) {
-    console.error('Failed to load schema:', error);
-    throw new Error('Schema loading failed');
-  }
-}
+// Import database and schema at module level
+import { db } from '../db/index.js';
+import * as schema from '../db/schema/index.js';
+const { 
+  coffeeGroves, 
+  harvestRecords, 
+  farmerVerifications, 
+  farmers,
+  providedLiquidity,
+  withdrawnLiquidity,
+  farmerWithdrawals,
+  revenueDistributions,
+  investorWithdrawals
+} = schema;
 
 /**
  * Main API handler

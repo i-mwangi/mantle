@@ -45,23 +45,20 @@ export const coffeeGroves = sqliteTable("coffee_groves", {
 export const harvestRecords = sqliteTable("harvest_records", {
     id: integer("id").primaryKey({ autoIncrement: true }),
     groveId: integer("grove_id").notNull().references(() => coffeeGroves.id),
-    farmerAddress: text("farmer_address").notNull(),
     harvestDate: integer("harvest_date").notNull(),
-    quantityKg: integer("quantity_kg").notNull(),
-    qualityGrade: text("quality_grade"),
-    pricePerKg: integer("price_per_kg"),
-    totalRevenue: integer("total_revenue"),
-    distributionStatus: text("distribution_status").default("pending"),
-    distributedAt: integer("distributed_at"),
+    yieldKg: integer("yield_kg").notNull(),
+    qualityGrade: integer("quality_grade").notNull(),
+    salePricePerKg: integer("sale_price_per_kg").notNull(),
+    totalRevenue: integer("total_revenue").notNull(),
+    farmerShare: integer("farmer_share").notNull(),
+    investorShare: integer("investor_share").notNull(),
+    revenueDistributed: integer("revenue_distributed", { mode: 'boolean' }).default(false),
     transactionHash: text("transaction_hash"),
-    notes: text("notes"),
-    createdAt: integer("created_at").default(Date.now()),
-    updatedAt: integer("updated_at").default(Date.now())
+    createdAt: integer("created_at").default(Date.now())
 }, (table) => {
     return {
-        groveIdIdx: index("harvest_records_grove_idx").on(table.groveId),
-        farmerAddressIdx: index("harvest_records_farmer_idx").on(table.farmerAddress),
+        groveIdIdx: index("harvest_records_grove_id_idx").on(table.groveId),
         harvestDateIdx: index("harvest_records_date_idx").on(table.harvestDate),
-        distributionStatusIdx: index("harvest_records_distribution_idx").on(table.distributionStatus)
+        revenueDistributedIdx: index("harvest_records_distributed_idx").on(table.revenueDistributed)
     }
 });
