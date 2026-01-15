@@ -219,9 +219,50 @@ api/test-*.js
 lib/test-*.ts
 lib/test-*.js
 
-# Temporary directories
-temp/
-tmp/
+# Documentation (not needed for Vercel deployment)
+docs/
+CODE_OF_CONDUCT.md
+SECURITY.md
+!README.md
+!frontend/README.md
+!db/migrations/README.md
+
+# Development and testing directories
+test/
+scripts/
+events/
+providers/
+abi/
+
+# Contract artifacts and cache (not needed for Vercel)
+artifacts/
+cache/
+contracts/
+
+# Local database files
+local.db
+local-store/
+
+# Configuration files for other platforms
+render.dev.yaml
+render.staging.yaml
+render.yaml
+hardhat.config.cjs
+drizzle.config.ts
+tsup.config.ts
+
+# Type definition files (generated)
+drizzle-orm.d.ts
+types.ts
+
+# GitHub and IDE configs
+.github/
+.vscode/
+
+# Seed and migration scripts (not needed for runtime)
+db/seed-*.ts
+db/migrate.ts
+db/migration-cli.ts
 
 
 
