@@ -1,7 +1,10 @@
 import { real, sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 
-// Re-export core tables to avoid circular dependencies
-export { coffeeGroves, harvestRecords } from './core-tables';
+// Import core tables first so they can be referenced by other tables in this file
+import { coffeeGroves, harvestRecords } from './core-tables';
+
+// Re-export core tables
+export { coffeeGroves, harvestRecords };
 
 export const assets = sqliteTable("assets", {
     token: text("token").unique().primaryKey().notNull(),
