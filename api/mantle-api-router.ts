@@ -11,20 +11,42 @@ import { getMantleLendingService } from '../lib/api/mantle-lending-service.js';
 import { getMantleFarmerService } from '../lib/api/mantle-farmer-service.js';
 import { getMantlePriceOracleService } from '../lib/api/mantle-price-oracle-service.js';
 
-// Import database and schema at module level
-import { db } from '../db/index.js';
-import * as schema from '../db/schema/index.js';
-const { 
-  coffeeGroves, 
-  harvestRecords, 
-  farmerVerifications, 
-  farmers,
-  providedLiquidity,
-  withdrawnLiquidity,
-  farmerWithdrawals,
-  revenueDistributions,
-  investorWithdrawals
-} = schema;
+// Try to import database and schema - if it fails, we'll use demo mode
+let db: any = null;
+let schema: any = null;
+let coffeeGroves: any = null;
+let harvestRecords: any = null;
+let farmerVerifications: any = null;
+let farmers: any = null;
+let providedLiquidity: any = null;
+let withdrawnLiquidity: any = null;
+let farmerWithdrawals: any = null;
+let revenueDistributions: any = null;
+let investorWithdrawals: any = null;
+let dbLoadError: Error | null = null;
+
+try {
+  const dbModule = await import('../db/index.js');
+  const schemaModule = await import('../db/schema/index.js');
+  
+  db = dbModule.db;
+  schema = schemaModule;
+  coffeeGroves = schemaModule.coffeeGroves;
+  harvestRecords = schemaModule.harvestRecords;
+  farmerVerifications = schemaModule.farmerVerifications;
+  farmers = schemaModule.farmers;
+  providedLiquidity = schemaModule.providedLiquidity;
+  withdrawnLiquidity = schemaModule.withdrawnLiquidity;
+  farmerWithdrawals = schemaModule.farmerWithdrawals;
+  revenueDistributions = schemaModule.revenueDistributions;
+  investorWithdrawals = schemaModule.investorWithdrawals;
+  
+  console.log('✅ Database and schema loaded successfully');
+} catch (error: any) {
+  dbLoadError = error;
+  console.error('❌ Failed to load database:', error.message);
+  console.error('Stack:', error.stack);
+}
 
 /**
  * Main API handler
@@ -42,6 +64,12 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
+  // Check if database loaded successfully
+  if (!db || dbLoadError) {
+    console.error('Database not available, error:', dbLoadError?.message);
+    throw new Error(`Database not available: ${dbLoadError?.message || 'Unknown error'}`);
+  }
+
   try {
     // Health check
     if (url.includes('/health')) {
@@ -50,6 +78,7 @@ export async function handleMantleAPI(req: VercelRequest, res: VercelResponse) {
         message: 'Mantle API is running',
         network: 'Mantle Sepolia',
         timestamp: new Date().toISOString(),
+        database: 'Connected'
       });
     }
 
