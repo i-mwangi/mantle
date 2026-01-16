@@ -11,9 +11,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     timestamp: new Date().toISOString(),
     env: {
       hasTursoUrl: !!process.env.TURSO_DATABASE_URL,
-      tursoUrlPrefix: process.env.TURSO_DATABASE_URL?.substring(0, 30) + '...',
+      tursoUrlPrefix: process.env.TURSO_DATABASE_URL?.substring(0, 50) + '...',
       hasTursoToken: !!process.env.TURSO_AUTH_TOKEN,
-      tursoTokenPrefix: process.env.TURSO_AUTH_TOKEN?.substring(0, 20) + '...',
+      tursoTokenPrefix: process.env.TURSO_AUTH_TOKEN?.substring(0, 30) + '...',
       nodeVersion: process.version,
     },
     tests: {}
@@ -47,37 +47,64 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
   }
 
-  // Test 3: Can we query the database?
+  // Test 3: Can we query the database using raw LibSQL client?
+  if (diagnostics.tests.dbImport?.success) {
+    try {
+      const { createClient } = await import('@libsql/client');
+      
+      const tursoUrl = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
+      const tursoToken = process.env.TURSO_AUTH_TOKEN;
+      
+      if (!tursoUrl) {
+        diagnostics.tests.rawClientQuery = {
+          success: false,
+          error: 'No TURSO_DATABASE_URL or DATABASE_URL found'
+        };
+      } else {
+        const client = createClient({
+          url: tursoUrl,
+          authToken: tursoToken
+        });
+        
+        // Count rows in coffee_groves
+        const countResult = await client.execute('SELECT COUNT(*) as count FROM coffee_groves');
+        diagnostics.tests.rawClientQuery = {
+          success: true,
+          coffee_groves_count: countResult.rows[0]?.count || 0
+        };
+        
+        // Get sample groves
+        const sampleResult = await client.execute('SELECT id, grove_name, farmer_address FROM coffee_groves LIMIT 3');
+        diagnostics.tests.sampleGroves = {
+          success: true,
+          count: sampleResult.rows.length,
+          samples: sampleResult.rows
+        };
+      }
+    } catch (error: any) {
+      diagnostics.tests.rawClientQuery = {
+        success: false,
+        error: error.message,
+        stack: error.stack?.split('\n').slice(0, 5)
+      };
+    }
+  }
+
+  // Test 4: Can we query using Drizzle ORM?
   if (diagnostics.tests.dbImport?.success && diagnostics.tests.schemaImport?.success) {
     try {
       const { db } = await import('../db/index.js');
       const { coffeeGroves } = await import('../db/schema/index.js');
-      const { sql } = await import('drizzle-orm');
       
-      // First, check what tables exist in the database
-      const tablesQuery = await db.all(sql`SELECT name FROM sqlite_master WHERE type='table' ORDER BY name`);
-      diagnostics.tests.availableTables = {
-        success: true,
-        tables: tablesQuery
-      };
-      
-      // Try to query coffeeGroves
-      const allGroves = await db.select().from(coffeeGroves).limit(5);
-      diagnostics.tests.dbQuery = { 
+      const allGroves = await db.select().from(coffeeGroves).limit(3);
+      diagnostics.tests.drizzleQuery = { 
         success: true, 
         groveCount: allGroves.length,
-        sample: allGroves[0] || null
-      };
-      
-      // Try a raw SQL query to see if data exists
-      const rawQuery = await db.all(sql`SELECT COUNT(*) as count FROM coffee_groves`);
-      diagnostics.tests.rawQuery = {
-        success: true,
-        result: rawQuery
+        samples: allGroves
       };
       
     } catch (error: any) {
-      diagnostics.tests.dbQuery = { 
+      diagnostics.tests.drizzleQuery = { 
         success: false, 
         error: error.message,
         stack: error.stack?.split('\n').slice(0, 5)
