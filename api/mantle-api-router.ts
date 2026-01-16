@@ -1279,48 +1279,37 @@ async function handleGetPriceHistory(req: VercelRequest, res: VercelResponse) {
  */
 async function handleGetMarketOverview(req: VercelRequest, res: VercelResponse) {
   try {
-    // Get total groves
-    const groves = await db.query.coffeeGroves.findMany();
+    // Get total groves using raw SQL
+    const groves = await executeQuery('SELECT * FROM coffee_groves');
     const totalGroves = groves.length;
-    const totalTrees = groves.reduce((sum, g) => sum + (g.treeCount || 0), 0);
+    const totalTrees = groves.reduce((sum: number, g: any) => sum + (g.treeCount || 0), 0);
     
     // Get unique farmers (active farmers)
-    const uniqueFarmers = new Set(groves.map(g => g.farmerAddress?.toLowerCase()).filter(Boolean));
+    const uniqueFarmers = new Set(groves.map((g: any) => g.farmerAddress?.toLowerCase()).filter(Boolean));
     const activeFarmers = uniqueFarmers.size;
     
     // Get total investments (sum of tokens sold * price per token)
-    const totalInvestment = groves.reduce((sum, g) => sum + ((g.tokensSold || 0) * 10), 0); // $10 per token
+    const totalInvestment = groves.reduce((sum: number, g: any) => sum + ((g.tokensSold || 0) * 10), 0); // $10 per token
     
     // Calculate total revenue from harvest records
     let totalRevenue = 0;
     try {
-      const harvests = await db.query.harvestRecords.findMany();
-      totalRevenue = harvests.reduce((sum, h) => sum + (h.totalRevenue || 0), 0);
+      const harvests = await executeQuery('SELECT * FROM harvest_records');
+      totalRevenue = harvests.reduce((sum: number, h: any) => sum + (h.totalRevenue || 0), 0);
     } catch (error) {
       console.log('⚠️  harvest_records table not found, totalRevenue = 0');
     }
     
     // Calculate average health score
     const avgHealthScore = groves.length > 0
-      ? groves.reduce((sum, g) => sum + (g.currentHealthScore || 0), 0) / groves.length
+      ? groves.reduce((sum: number, g: any) => sum + (g.currentHealthScore || 0), 0) / groves.length
       : 0;
 
     // Count active investors (unique token holders)
     let activeInvestors = 0;
     try {
-      const { createClient } = await import('@libsql/client');
-      const client = createClient({
-        url: process.env.TURSO_DATABASE_URL || 'file:local.db',
-        authToken: process.env.TURSO_AUTH_TOKEN
-      });
-      
-      // This would require querying blockchain for all token holders
-      // For now, we'll estimate based on marketplace activity
-      const result = await client.execute({
-        sql: `SELECT COUNT(DISTINCT seller_address) as count FROM marketplace_listings`,
-        args: []
-      });
-      activeInvestors = Number(result.rows[0]?.count || 0);
+      const result = await executeQuery('SELECT COUNT(DISTINCT seller_address) as count FROM marketplace_listings');
+      activeInvestors = Number(result[0]?.count || 0);
     } catch (error) {
       console.log('⚠️  Could not count active investors');
     }
