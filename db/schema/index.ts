@@ -1,7 +1,7 @@
 import { real, sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 
 // Import core tables first so they can be referenced by other tables in this file
-import { coffeeGroves, harvestRecords } from './core-tables';
+import { coffeeGroves, harvestRecords } from './core-tables.js';
 
 // Re-export core tables
 export { coffeeGroves, harvestRecords };

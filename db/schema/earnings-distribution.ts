@@ -1,5 +1,5 @@
 import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
-import { coffeeGroves, harvestRecords } from "./core-tables";
+import { coffeeGroves, harvestRecords } from "./core-tables.js";
 
 /**
  * Farmer Grove Earnings Table
