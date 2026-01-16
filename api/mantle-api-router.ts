@@ -10,6 +10,8 @@ import { getMantlePaymentService } from '../lib/api/mantle-payment-service.js';
 import { getMantleLendingService } from '../lib/api/mantle-lending-service.js';
 import { getMantleFarmerService } from '../lib/api/mantle-farmer-service.js';
 import { getMantlePriceOracleService } from '../lib/api/mantle-price-oracle-service.js';
+import { getTursoClient, executeQuery } from '../db/turso-client.js';
+import { getTursoClient, executeQuery } from '../db/turso-client.js';
 
 // Database and schema will be loaded on first request
 let db: any = null;
@@ -566,14 +568,21 @@ async function handleGetGrove(req: VercelRequest, res: VercelResponse) {
  * List all groves
  */
 async function handleListGroves(req: VercelRequest, res: VercelResponse) {
-  const groves = await db.query.coffeeGroves.findMany({
-    orderBy: (groves, { desc }) => [desc(groves.createdAt)],
-  });
-
-  return res.status(200).json({
-    success: true,
-    groves,
-  });
+  try {
+    // Use raw Turso client to bypass Drizzle ORM schema issues
+    const groves = await executeQuery('SELECT * FROM coffee_groves ORDER BY created_at DESC');
+    
+    return res.status(200).json({
+      success: true,
+      groves,
+    });
+  } catch (error: any) {
+    console.error('Error listing groves:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to list groves',
+    });
+  }
 }
 
 /**
