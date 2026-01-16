@@ -53,17 +53,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { eq, sql } = await import('drizzle-orm');
       
       // Test raw SQL to see what tables exist
-      const tables = await db.all(sql`SELECT name FROM sqlite_master WHERE type='table'`);
+      const tables = await db.execute(sql`SELECT name FROM sqlite_master WHERE type='table'`);
       
       // Test raw SQL query on coffee_groves table
-      const rawGroves = await db.all(sql`SELECT * FROM coffee_groves LIMIT 3`);
+      const rawGroves = await db.execute(sql`SELECT * FROM coffee_groves LIMIT 3`);
       
       const allGroves = await db.select().from(coffeeGroves).limit(5);
       diagnostics.tests.dbQuery = { 
         success: true, 
-        tables: tables.map((t: any) => t.name),
-        rawQueryCount: rawGroves.length,
-        rawSample: rawGroves[0],
+        tables: tables.rows.map((t: any) => t.name),
+        rawQueryCount: rawGroves.rows.length,
+        rawSample: rawGroves.rows[0],
         drizzleQueryCount: allGroves.length,
         drizzleSample: allGroves[0]
       };
