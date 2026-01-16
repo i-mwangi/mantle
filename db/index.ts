@@ -286,8 +286,8 @@ if (FORCE_IN_MEMORY) {
     const require = createRequire(import.meta.url)
     const { drizzle } = require('drizzle-orm/libsql')
     const { createClient } = require('@libsql/client')
-    const schemaIndex = require('./schema/index')
-    const schemaEarnings = require('./schema/earnings-distribution')
+    const schemaIndex = require('./schema/index.js')
+    const schemaEarnings = require('./schema/earnings-distribution.js')
     const schema = { ...schemaIndex, ...schemaEarnings }
 
     const tursoUrl = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL
@@ -305,7 +305,7 @@ if (FORCE_IN_MEMORY) {
     })
 
     dbVar = drizzle(client, { schema })
-    console.log(' Connected to Turso database successfully')
+    console.log('✅ Connected to Turso database successfully')
   } catch (e) {
     console.error('❌ Failed to connect to Turso:', e)
     console.warn('Falling back to in-memory DB for demo/testing.')

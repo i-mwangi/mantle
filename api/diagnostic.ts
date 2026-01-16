@@ -96,12 +96,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { db } = await import('../db/index.js');
       const { coffeeGroves } = await import('../db/schema/index.js');
       
+      // Check the table configuration
+      const tableConfig = (coffeeGroves as any)[Symbol.for('drizzle:Name')] || 
+                         (coffeeGroves as any)._.name ||
+                         'unknown';
+      
+      diagnostics.tests.tableInfo = {
+        tableName: tableConfig,
+        hasSymbol: !!(coffeeGroves as any)[Symbol.for('drizzle:Name')],
+        hasUnderscore: !!(coffeeGroves as any)._
+      };
+      
       const allGroves = await db.select().from(coffeeGroves).limit(3);
       diagnostics.tests.drizzleQuery = { 
         success: true, 
         groveCount: allGroves.length,
         samples: allGroves
       };
+      
+      // Try using the relational query API
+      try {
+        const relationalGroves = await db.query.coffeeGroves.findMany({ limit: 3 });
+        diagnostics.tests.relationalQuery = {
+          success: true,
+          groveCount: relationalGroves.length,
+          samples: relationalGroves
+        };
+      } catch (relError: any) {
+        diagnostics.tests.relationalQuery = {
+          success: false,
+          error: relError.message
+        };
+      }
       
     } catch (error: any) {
       diagnostics.tests.drizzleQuery = { 
