@@ -95,6 +95,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
       const { db } = await import('../db/index.js');
       const { coffeeGroves } = await import('../db/schema/index.js');
+      const { sql } = await import('drizzle-orm');
       
       // Check the table configuration
       const tableConfig = (coffeeGroves as any)[Symbol.for('drizzle:Name')] || 
@@ -104,8 +105,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       diagnostics.tests.tableInfo = {
         tableName: tableConfig,
         hasSymbol: !!(coffeeGroves as any)[Symbol.for('drizzle:Name')],
-        hasUnderscore: !!(coffeeGroves as any)._
+        hasUnderscore: !!(coffeeGroves as any)._,
+        hasQuery: !!db.query,
+        hasCoffeeGrovesInQuery: db.query ? !!db.query.coffeeGroves : false
       };
+      
+      // Try raw SQL through Drizzle's execute method
+      try {
+        // Get the underlying client
+        const client = (db as any).client || (db as any).session?.client;
+        if (client && client.execute) {
+          const rawResult = await client.execute('SELECT * FROM coffee_groves LIMIT 3');
+          diagnostics.tests.clientExecute = {
+            success: true,
+            count: rawResult.rows?.length || 0,
+            samples: rawResult.rows
+          };
+        } else {
+          diagnostics.tests.clientExecute = {
+            success: false,
+            error: 'No client.execute method found'
+          };
+        }
+      } catch (clientError: any) {
+        diagnostics.tests.clientExecute = {
+          success: false,
+          error: clientError.message
+        };
+      }
       
       const allGroves = await db.select().from(coffeeGroves).limit(3);
       diagnostics.tests.drizzleQuery = { 
@@ -115,17 +142,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       };
       
       // Try using the relational query API
-      try {
-        const relationalGroves = await db.query.coffeeGroves.findMany({ limit: 3 });
-        diagnostics.tests.relationalQuery = {
-          success: true,
-          groveCount: relationalGroves.length,
-          samples: relationalGroves
-        };
-      } catch (relError: any) {
+      if (db.query && db.query.coffeeGroves) {
+        try {
+          const relationalGroves = await db.query.coffeeGroves.findMany({ limit: 3 });
+          diagnostics.tests.relationalQuery = {
+            success: true,
+            groveCount: relationalGroves.length,
+            samples: relationalGroves
+          };
+        } catch (relError: any) {
+          diagnostics.tests.relationalQuery = {
+            success: false,
+            error: relError.message
+          };
+        }
+      } else {
         diagnostics.tests.relationalQuery = {
           success: false,
-          error: relError.message
+          error: 'db.query.coffeeGroves not available'
         };
       }
       
