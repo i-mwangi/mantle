@@ -1359,44 +1359,28 @@ async function handleGetHarvestHistory(req: VercelRequest, res: VercelResponse) 
     }
 
     console.log('📊 Fetching harvest history for:', farmerAddress);
-    console.log('harvestRecords table:', harvestRecords ? 'defined' : 'undefined');
 
-    // Get farmer's groves
-    const farmerGroves = await db.query.coffeeGroves.findMany({
-      where: eq(coffeeGroves.farmerAddress, farmerAddress),
-    });
-
-    console.log('Found groves:', farmerGroves.length);
-
-    if (farmerGroves.length === 0) {
-      return res.status(200).json({
-        success: true,
-        harvests: [],
-      });
-    }
-
-    // Get harvests for all farmer's groves
-    const groveIds = farmerGroves.map(g => g.id);
-    
-    const harvests = await db.select({
-      id: harvestRecords.id,
-      groveId: harvestRecords.groveId,
-      groveName: coffeeGroves.groveName,
-      tokenAddress: coffeeGroves.tokenAddress,
-      yieldKg: harvestRecords.yieldKg,
-      qualityGrade: harvestRecords.qualityGrade,
-      harvestDate: harvestRecords.harvestDate,
-      totalRevenue: harvestRecords.totalRevenue,
-      farmerShare: harvestRecords.farmerShare,
-      investorShare: harvestRecords.investorShare,
-      revenueDistributed: harvestRecords.revenueDistributed,
-      transactionHash: harvestRecords.transactionHash,
-      createdAt: harvestRecords.createdAt,
-    })
-    .from(harvestRecords)
-    .leftJoin(coffeeGroves, eq(harvestRecords.groveId, coffeeGroves.id))
-    .where(eq(coffeeGroves.farmerAddress, farmerAddress))
-    .orderBy(harvestRecords.harvestDate);
+    // Use raw SQL to get harvest history with grove info
+    const harvests = await executeQuery(`
+      SELECT 
+        hr.id,
+        hr.grove_id as groveId,
+        cg.grove_name as groveName,
+        cg.token_address as tokenAddress,
+        hr.yield_kg as yieldKg,
+        hr.quality_grade as qualityGrade,
+        hr.harvest_date as harvestDate,
+        hr.total_revenue as totalRevenue,
+        hr.farmer_share as farmerShare,
+        hr.investor_share as investorShare,
+        hr.revenue_distributed as revenueDistributed,
+        hr.transaction_hash as transactionHash,
+        hr.created_at as createdAt
+      FROM harvest_records hr
+      LEFT JOIN coffee_groves cg ON hr.grove_id = cg.id
+      WHERE cg.farmer_address = ?
+      ORDER BY hr.harvest_date DESC
+    `, [farmerAddress]);
 
     console.log('Found harvests:', harvests.length);
 
@@ -1427,17 +1411,16 @@ async function handleGetHarvestStats(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Get harvests for farmer
-    
-    const harvests = await db.select({
-      yieldKg: harvestRecords.yieldKg,
-    })
-    .from(harvestRecords)
-    .leftJoin(coffeeGroves, eq(harvestRecords.groveId, coffeeGroves.id))
-    .where(eq(coffeeGroves.farmerAddress, farmerAddress));
+    // Use raw SQL to get harvest stats
+    const harvests = await executeQuery(`
+      SELECT hr.yield_kg as yieldKg
+      FROM harvest_records hr
+      LEFT JOIN coffee_groves cg ON hr.grove_id = cg.id
+      WHERE cg.farmer_address = ?
+    `, [farmerAddress]);
 
     const totalHarvests = harvests.length;
-    const totalYield = harvests.reduce((sum, h) => sum + (h.yieldKg || 0), 0);
+    const totalYield = harvests.reduce((sum: number, h: any) => sum + (h.yieldKg || 0), 0);
     const averageYield = totalHarvests > 0 ? Math.round(totalYield / totalHarvests) : 0;
 
     return res.status(200).json({
@@ -1590,24 +1573,25 @@ async function handleGetFarmerWithdrawals(req: VercelRequest, res: VercelRespons
 
     console.log('📊 Fetching withdrawals for farmer:', farmerAddress);
 
-    // Get withdrawals with grove names
-    const withdrawals = await db.select({
-      id: farmerWithdrawals.id,
-      farmerAddress: farmerWithdrawals.farmerAddress,
-      groveId: farmerWithdrawals.groveId,
-      groveName: coffeeGroves.groveName,
-      amount: farmerWithdrawals.amount,
-      status: farmerWithdrawals.status,
-      transactionHash: farmerWithdrawals.transactionHash,
-      blockExplorerUrl: farmerWithdrawals.blockExplorerUrl,
-      errorMessage: farmerWithdrawals.errorMessage,
-      requestedAt: farmerWithdrawals.requestedAt,
-      completedAt: farmerWithdrawals.completedAt,
-    })
-    .from(farmerWithdrawals)
-    .leftJoin(coffeeGroves, eq(farmerWithdrawals.groveId, coffeeGroves.id))
-    .where(eq(farmerWithdrawals.farmerAddress, farmerAddress))
-    .orderBy(desc(farmerWithdrawals.requestedAt));
+    // Use raw SQL to get withdrawals with grove names
+    const withdrawals = await executeQuery(`
+      SELECT 
+        fw.id,
+        fw.farmer_address as farmerAddress,
+        fw.grove_id as groveId,
+        cg.grove_name as groveName,
+        fw.amount,
+        fw.status,
+        fw.transaction_hash as transactionHash,
+        fw.block_explorer_url as blockExplorerUrl,
+        fw.error_message as errorMessage,
+        fw.requested_at as requestedAt,
+        fw.completed_at as completedAt
+      FROM farmer_withdrawals fw
+      LEFT JOIN coffee_groves cg ON fw.grove_id = cg.id
+      WHERE fw.farmer_address = ?
+      ORDER BY fw.requested_at DESC
+    `, [farmerAddress]);
 
     console.log('📊 Found', withdrawals.length, 'withdrawals');
 
