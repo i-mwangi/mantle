@@ -50,12 +50,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
       const { db } = await import('../db/index.js');
       const { coffeeGroves } = await import('../db/schema/index.js');
+      const { eq } = await import('drizzle-orm');
       
-      const result = await db.select().from(coffeeGroves).limit(1);
+      const allGroves = await db.select().from(coffeeGroves).limit(5);
       diagnostics.tests.dbQuery = { 
         success: true, 
-        rowCount: result.length 
+        totalGroves: allGroves.length,
+        sampleGrove: allGroves[0] ? {
+          id: allGroves[0].id,
+          name: allGroves[0].groveName,
+          farmer: allGroves[0].farmerAddress
+        } : null
       };
+      
+      // Test specific farmer query
+      const farmerAddress = '0x81F0CC60cf0E0562B8545994a0a34E7Ed5Be45e9';
+      const farmerGroves = await db.query.coffeeGroves.findMany({
+        where: eq(coffeeGroves.farmerAddress, farmerAddress),
+      });
+      
+      diagnostics.tests.farmerQuery = {
+        success: true,
+        farmerAddress,
+        groveCount: farmerGroves.length
+      };
+      
     } catch (error: any) {
       diagnostics.tests.dbQuery = { 
         success: false, 
