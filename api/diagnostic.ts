@@ -11,7 +11,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     timestamp: new Date().toISOString(),
     env: {
       hasTursoUrl: !!process.env.TURSO_DATABASE_URL,
+      tursoUrlPrefix: process.env.TURSO_DATABASE_URL?.substring(0, 30) + '...',
       hasTursoToken: !!process.env.TURSO_AUTH_TOKEN,
+      tursoTokenPrefix: process.env.TURSO_AUTH_TOKEN?.substring(0, 20) + '...',
       nodeVersion: process.version,
     },
     tests: {}
@@ -50,40 +52,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
       const { db } = await import('../db/index.js');
       const { coffeeGroves } = await import('../db/schema/index.js');
-      const { eq, sql } = await import('drizzle-orm');
+      const { sql } = await import('drizzle-orm');
       
-      // Test raw SQL to see what tables exist
-      const tables = await db.execute(sql`SELECT name FROM sqlite_master WHERE type='table'`);
+      // First, check what tables exist in the database
+      const tablesQuery = await db.all(sql`SELECT name FROM sqlite_master WHERE type='table' ORDER BY name`);
+      diagnostics.tests.availableTables = {
+        success: true,
+        tables: tablesQuery
+      };
       
-      // Test raw SQL query on coffee_groves table
-      const rawGroves = await db.execute(sql`SELECT * FROM coffee_groves LIMIT 3`);
-      
+      // Try to query coffeeGroves
       const allGroves = await db.select().from(coffeeGroves).limit(5);
       diagnostics.tests.dbQuery = { 
         success: true, 
-        tables: tables.rows.map((t: any) => t.name),
-        rawQueryCount: rawGroves.rows.length,
-        rawSample: rawGroves.rows[0],
-        drizzleQueryCount: allGroves.length,
-        drizzleSample: allGroves[0]
+        groveCount: allGroves.length,
+        sample: allGroves[0] || null
       };
       
-      // Test specific farmer query - case sensitive
-      const farmerAddress = '0x81F0CC60cf0E0562B8545994a0a34E7Ed5Be45e9';
-      const farmerGrovesCaseSensitive = await db.query.coffeeGroves.findMany({
-        where: eq(coffeeGroves.farmerAddress, farmerAddress),
-      });
-      
-      // Test case-insensitive query using LOWER()
-      const farmerGrovesLower = await db.select()
-        .from(coffeeGroves)
-        .where(sql`LOWER(${coffeeGroves.farmerAddress}) = LOWER(${farmerAddress})`);
-      
-      diagnostics.tests.farmerQuery = {
+      // Try a raw SQL query to see if data exists
+      const rawQuery = await db.all(sql`SELECT COUNT(*) as count FROM coffee_groves`);
+      diagnostics.tests.rawQuery = {
         success: true,
-        farmerAddress,
-        caseSensitiveCount: farmerGrovesCaseSensitive.length,
-        caseInsensitiveCount: farmerGrovesLower.length
+        result: rawQuery
       };
       
     } catch (error: any) {
