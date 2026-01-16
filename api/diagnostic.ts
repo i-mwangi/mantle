@@ -52,15 +52,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { coffeeGroves } = await import('../db/schema/index.js');
       const { eq, sql } = await import('drizzle-orm');
       
+      // Test raw SQL to see what tables exist
+      const tables = await db.all(sql`SELECT name FROM sqlite_master WHERE type='table'`);
+      
+      // Test raw SQL query on coffee_groves table
+      const rawGroves = await db.all(sql`SELECT * FROM coffee_groves LIMIT 3`);
+      
       const allGroves = await db.select().from(coffeeGroves).limit(5);
       diagnostics.tests.dbQuery = { 
         success: true, 
-        totalGroves: allGroves.length,
-        sampleGrove: allGroves[0] ? {
-          id: allGroves[0].id,
-          name: allGroves[0].groveName,
-          farmer: allGroves[0].farmerAddress
-        } : null
+        tables: tables.map((t: any) => t.name),
+        rawQueryCount: rawGroves.length,
+        rawSample: rawGroves[0],
+        drizzleQueryCount: allGroves.length,
+        drizzleSample: allGroves[0]
       };
       
       // Test specific farmer query - case sensitive
@@ -78,8 +83,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         success: true,
         farmerAddress,
         caseSensitiveCount: farmerGrovesCaseSensitive.length,
-        caseInsensitiveCount: farmerGrovesLower.length,
-        sampleFarmerFromDb: allGroves[0]?.farmerAddress
+        caseInsensitiveCount: farmerGrovesLower.length
       };
       
     } catch (error: any) {
